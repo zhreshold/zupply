@@ -1,0 +1,1792 @@
+/* Doxygen main page */
+/*!	 \mainpage libZpp Main Page
+#	 libZpp - Portable light-weight multi-functional easy to use library for C++
+
+*   Author: Joshua Zhang
+*   Date since: June-2015
+*
+*   Copyright (c) <2015> <JOSHUA Z. ZHANG>
+*
+*	 Open source according to MIT License.
+*
+*   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+*   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+*   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+*   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+*   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+*   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+*   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+***************************************************************************/
+
+
+
+
+#ifndef _LIBZPP_LIBZPP_HPP_
+#define _LIBZPP_LIBZPP_HPP_
+
+///////////////////////////////////////////////////////////////
+// Require C++ 11 features
+///////////////////////////////////////////////////////////////
+#if ((defined(_MSC_VER) && _MSC_VER >= 1800) || __cplusplus >= 201103L)
+// VC++ defined an older version of __cplusplus, but it should work later than vc12
+#else
+#error C++11 required, add -std=c++11 to CFLAG.
+#endif
+
+#ifdef _MSC_VER
+
+// Disable silly security warnings
+//#ifndef _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_WARNINGS
+//#endif
+
+// Define __func__ macro
+#ifndef __func__
+#define __func__ __FUNCTION__
+#endif 
+
+// Define NDEBUG in Release Mode, ensure assert() disabled.
+#if (!defined(_DEBUG) && !defined(NDEBUG))
+#define NDEBUG
+#endif
+
+#define ZL_NOEXCEPT throw()
+
+#else // NON MSVC
+#define ZL_NOEXCEPT noexcept
+
+#endif
+
+#ifdef ZL_HEADER_ONLY
+#define ZL_EXPORT inline
+#else
+#define ZL_EXPORT
+#endif
+
+#include <string>
+#include <exception>
+#include <fstream>
+#include <utility>
+#include <iostream>
+#include <vector>
+#include <locale>
+#include <codecvt>
+#include <ctime>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <unordered_map>
+#include <memory>
+#include <type_traits>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+
+namespace zz
+{
+	/*!
+	* \namespace	params
+	*
+	* \brief	namespace for parameters.
+	*/
+	namespace consts
+	{
+		static const char* kExceptionPrefixGeneral = "[libZpp Exception] ";
+		static const char* kExceptionPrefixLogic = "[libZpp Exception->Logic] ";
+		static const char* kExceptionPrefixArgument = "[libZpp Exception->Logic->Argument] ";
+		static const char* kExceptionPrefixRuntime = "[libZpp Exception->Runtime] ";
+		static const char* kExceptionPrefixIO = "[libZpp Exception->Runtime->IO] ";
+		static const char* kExceptionPrefixMemory = "[libZpp Exception->Runtime->Memory] ";
+		static const char* kExceptionPrefixStrictWarn = "[libZpp Exception->StrictWarn] ";
+	}
+
+	/*!
+	* \class	UnCopyable
+	*
+	* \brief	A not copyable base class, should be inheritated privately.
+	*/
+	class UnCopyable
+	{
+	public:
+		UnCopyable() {};
+		// no copy constructor
+		UnCopyable(const UnCopyable&) = delete;
+		// no copy operator
+		UnCopyable& operator=(const UnCopyable&) = delete;
+	};
+
+	/*!
+	* \class	UnMovable
+	*
+	* \brief	A not movable/copyable base class, should be inheritated privately.
+	*/
+	class UnMovable
+	{
+	public:
+		UnMovable() {};
+		// no copy constructor
+		UnMovable(const UnMovable&) = delete;
+		// no copy operator
+		UnMovable& operator=(const UnMovable&) = delete;
+		// no move constructor
+		UnMovable(UnMovable&&) = delete;
+		// no move operator
+		UnMovable& operator=(UnMovable&&) = delete;
+	};
+
+	/*!
+	* \class	Exception
+	*
+	* \brief	An exception with customized prefix information.
+	*/
+	class Exception : public std::exception
+	{
+	public:
+		explicit Exception(const char* message, const char* prefix = consts::kExceptionPrefixGeneral)
+		{
+			message_ = std::string(prefix) + message;
+		};
+		explicit Exception(const std::string message, const char* prefix = consts::kExceptionPrefixGeneral)
+		{
+			message_ = std::string(prefix) + message;
+		};
+		virtual ~Exception() ZL_NOEXCEPT{};
+
+		const char* what() const ZL_NOEXCEPT{ return message_.c_str(); };
+	private:
+		std::string message_;
+	};
+
+	/*!
+	* \class	LogicException
+	*
+	* \brief	Exception for signalling logic errors.
+	*/
+	class LogicException : public Exception
+	{
+	public:
+		explicit LogicException(const char *message) : Exception(message, consts::kExceptionPrefixLogic){};
+		explicit LogicException(const std::string &message) : Exception(message, consts::kExceptionPrefixLogic){};
+	};
+
+	/*!
+	* \class	ArgException
+	*
+	* \brief	Exception for signalling argument errors.
+	*/
+	class ArgException : public Exception
+	{
+	public:
+		explicit ArgException(const char *message) : Exception(message, consts::kExceptionPrefixArgument){};
+		explicit ArgException(const std::string &message) : Exception(message, consts::kExceptionPrefixArgument){};
+	};
+
+	/*!
+	* \class	RuntimeException
+	*
+	* \brief	Exception for signalling unexpected runtime errors.
+	*/
+	class RuntimeException : public Exception
+	{
+	public:
+		explicit RuntimeException(const char *message) : Exception(message, consts::kExceptionPrefixRuntime){};
+		explicit RuntimeException(const std::string &message) : Exception(message, consts::kExceptionPrefixRuntime){};
+	};
+
+	class IOException : public Exception
+	{
+	public:
+		explicit IOException(const char *message) : Exception(message, consts::kExceptionPrefixIO){};
+		explicit IOException(const std::string &message) : Exception(message, consts::kExceptionPrefixIO){};
+	};
+
+	/*!
+	* \class	MemException
+	*
+	* \brief	Exception for signalling memory errors.
+	*/
+	class MemException : public Exception
+	{
+	public:
+		explicit MemException(const char *message) : Exception(message, consts::kExceptionPrefixMemory){};
+		explicit MemException(const std::string &message) : Exception(message, consts::kExceptionPrefixMemory){};
+	};
+
+	/*!
+	* \class	WarnException
+	*
+	* \brief	Exception for signalling warning errors when strict warning is enabled.
+	*/
+	class WarnException : public Exception
+	{
+	public:
+		explicit WarnException(const char *message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
+		explicit WarnException(const std::string &message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
+	};
+
+	namespace math
+	{
+		using std::min;
+		using std::max;
+		using std::abs;
+
+		template<class T> inline const T clip(const T& value, const T& low, const T& high)
+		{
+			// fool proof max/min values
+			T h = (std::max)(low, high);
+			T l = (std::min)(low, high);
+			return (std::max)((std::min)(value, h), l);
+		}
+
+		template <unsigned long B, unsigned long E>
+		struct Pow
+		{
+			static const unsigned long result = B * Pow<B, E - 1>::result;
+		};
+
+		template <unsigned long B>
+		struct Pow<B, 0>
+		{
+			static const unsigned long result = 1;
+		};
+
+
+		inline int round(double value)
+		{
+#if ((defined _MSC_VER && defined _M_X64) || (defined __GNUC__ && defined __x86_64__ && defined __SSE2__ && !defined __APPLE__)) && !defined(__CUDACC__) && 0
+			__m128d t = _mm_set_sd(value);
+			return _mm_cvtsd_si32(t);
+#elif defined _MSC_VER && defined _M_IX86
+			int t;
+			__asm
+			{
+				fld value;
+				fistp t;
+			}
+			return t;
+#elif defined _MSC_VER && defined _M_ARM && defined HAVE_TEGRA_OPTIMIZATION
+			TEGRA_ROUND(value);
+#elif defined CV_ICC || defined __GNUC__
+#  ifdef HAVE_TEGRA_OPTIMIZATION
+			TEGRA_ROUND(value);
+#  else
+			return (int)lrint(value);
+#  endif
+#else
+			double intpart, fractpart;
+			fractpart = modf(value, &intpart);
+			if ((fabs(fractpart) != 0.5) || ((((int)intpart) % 2) != 0))
+				return (int)(value + (value >= 0 ? 0.5 : -0.5));
+			else
+				return (int)intpart;
+#endif
+		}
+
+	} // namespace math
+
+	namespace misc
+	{
+		template<typename T>
+		inline void unused(const T&) {}
+	} // namespace misc
+
+	namespace cds
+	{
+		/*!
+		* \struct	NullMutex
+		*
+		* \brief	A null mutex, no cost.
+		*/
+		class NullMutex
+		{
+		public:
+			void lock() {}
+			void unlock() {}
+			bool try_lock()
+			{
+				return true;
+			}
+		};
+
+
+		template <typename Key, typename Value> class AtomicUnorderedMap
+		{
+			using MapType = std::unordered_map<Key, Value>;
+			using MapPtr = std::shared_ptr<MapType>;
+		public:
+			AtomicUnorderedMap()
+			{
+				mapPtr_ = std::make_shared<MapType>();
+			}
+
+			MapPtr get()
+			{
+				return std::atomic_load(&mapPtr_);
+			}
+
+			bool insert(const Key& key, const Value& value)
+			{
+				MapPtr p = std::atomic_load(&mapPtr_);
+				MapPtr copy;
+				do
+				{
+					if ((*p).count(key)> 0) return false;
+					copy = std::make_shared<MapType>(*p);
+					(*copy).insert({ key, value });
+				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+				return true;
+			}
+
+			bool erase(const Key& key)
+			{
+				MapPtr p = std::atomic_load(&mapPtr_);
+				MapPtr copy;
+				do
+				{
+					if ((*p).count(key) <= 0) return false;
+					copy = std::make_shared<MapType>(*p);
+					(*copy).erase(key);
+				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+				return true;
+			}
+
+			void clear()
+			{
+				MapPtr p = atomic_load(&mapPtr_);
+				auto copy = std::make_shared<MapType>();
+				do
+				{
+					;	// do clear when possible does not require old status
+				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+			}
+
+		private:
+			std::shared_ptr<MapType>	mapPtr_;
+		};
+
+		template <typename T> class AtomicNonTrivial
+		{
+		public:
+			AtomicNonTrivial()
+			{
+				ptr_ = std::make_shared<T>();
+			}
+
+			std::shared_ptr<T> get()
+			{
+				return std::atomic_load(&ptr_);
+			}
+
+			void set(const T& val)
+			{
+				std::shared_ptr<T> copy = std::make_shared<T>(val);
+				std::atomic_store(&ptr_, copy);
+			}
+
+		private:
+			std::shared_ptr<T>	ptr_;
+		};
+
+	} // namespace cds
+
+
+
+	namespace os
+	{
+		int system(const char *const command, const char *const module_name = 0);
+		std::size_t thread_id();
+		std::tm localtime(std::time_t t);
+		std::tm gmtime(std::time_t t);
+
+		/*!
+		* \fn	std::wstring utf8_to_wstring(std::string &u8str);
+		*
+		* \brief	UTF 8 to wstring.
+		*
+		* \note	This is actually only useful in windows.
+		*
+		* \param [in,out]	u8str	The 8str.
+		*
+		* \return	A std::wstring.
+		*/
+		std::wstring utf8_to_wstring(std::string &u8str);
+
+		std::string wstring_to_utf8(std::wstring &wstr);
+
+		bool path_exists(std::string &path, bool considerFile = false);
+
+
+		void fstream_open(std::fstream &stream, std::string &filename, std::ios::openmode openmode);
+		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode);
+
+		bool rename(std::string oldName, std::string newName);
+
+		/*!
+		* \fn	std::string endl();
+		*
+		* \brief	Gets the OS dependent line end characters.
+		*
+		* \return	A std::string.
+		*/
+		std::string endl();
+
+		std::string get_current_working_directory();
+
+		std::string get_absolute_path(std::string reletivePath);
+
+		std::vector<std::string> path_split(std::string path);
+
+		std::string path_join(std::vector<std::string> elems);
+
+		std::string path_split_filename(std::string path);
+
+		std::string path_split_directory(std::string path);
+
+		std::string path_split_basename(std::string path);
+
+		std::string path_split_extension(std::string path);
+
+		std::string path_append_basename(std::string origPath, std::string whatToAppend);
+
+		bool create_directory(std::string path);
+
+		bool create_directory_recursive(std::string path);
+
+	} // namespace os
+
+	namespace time
+	{
+		/*!
+		* \class	Date
+		*
+		* \brief	A date class.
+		*/
+		class Date
+		{
+		public:
+			Date();
+			virtual ~Date() = default;
+
+			void to_local_time();
+
+			void to_utc_time();
+
+			std::string to_string(const char *format = "%y-%m-%d %H:%M:%S.%frac");
+
+			static Date local_time();
+
+			static Date utc_time();
+
+		private:
+			std::time_t		timeStamp_;
+			int				fraction_;
+			std::string		fractionStr_;
+			struct std::tm	calendar_;
+
+		};
+
+		/*!
+		* \class	Timer
+		*
+		* \brief	A timer class.
+		*/
+		class Timer
+		{
+		public:
+			Timer();
+
+			void reset();
+
+			std::size_t	elapsed_ns();
+
+			std::string elapsed_ns_str();
+
+			std::size_t elapsed_us();
+
+			std::string elapsed_us_str();
+
+			std::size_t elapsed_ms();
+
+			std::string elapsed_ms_str();
+
+			std::size_t elapsed_sec();
+
+			std::string elapsed_sec_str();
+
+			double elapsed_sec_double();
+
+			std::string to_string(const char *format = "[%ms ms]");
+
+		private:
+			std::chrono::steady_clock::time_point timeStamp_;
+		};
+
+		/*!
+		* \fn	void sleep(int milliseconds);
+		*
+		* \brief	Sleep for specified milliseconds
+		*
+		* \param	milliseconds	The milliseconds.
+		*/
+		inline void sleep(int milliseconds)
+		{
+			if (milliseconds > 0)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+			}
+		}
+
+	} // namespace time
+
+	namespace fs
+	{
+		namespace consts
+		{
+			static const int kDefaultFileOpenRetryTimes = 5;
+			static const int kDefaultFileOpenRetryInterval = 10;
+		}
+
+		class FileEditor : private UnCopyable
+		{
+		public:
+			FileEditor() = default;
+			FileEditor(std::string filename, bool truncateOrNot = false,
+				int retryTimes = consts::kDefaultFileOpenRetryTimes,
+				int retryInterval = consts::kDefaultFileOpenRetryInterval)
+			{
+				// use absolute path
+				filename_ = os::get_absolute_path(filename);
+				// try open
+				this->try_open(retryTimes, retryInterval, truncateOrNot);
+			};
+
+			/*!
+			* \fn	File::File(File&& from)
+			*
+			* \brief	Move constructor.
+			*
+			* \param [in,out]	other	Source for the instance.
+			*/
+			FileEditor(FileEditor&& other) : filename_(std::move(other.filename_)),
+				stream_(std::move(other.stream_)),
+				readPos_(std::move(other.readPos_)),
+				writePos_(std::move(other.writePos_))
+			{
+				other.filename_ = std::string();
+			};
+
+			virtual ~FileEditor() { this->close(); }
+
+			// No move operator
+			FileEditor& operator=(FileEditor&&) = delete;
+
+			// overload << operator
+			template <typename T>
+			FileEditor& operator<<(T what) { stream_ << what; return *this; }
+
+			std::string filename() const { return filename_; }
+
+			bool open(bool truncateOrNot = false);
+			bool open(std::string filename, bool truncateOrNot = false,
+				int retryTimes = consts::kDefaultFileOpenRetryTimes,
+				int retryInterval = consts::kDefaultFileOpenRetryInterval);
+
+			bool try_open(int retryTime, int retryInterval, bool truncateOrNot = false);
+			bool reopen(bool truncateOrNot = true);
+			void close();
+			bool is_valid() const { return !filename_.empty(); }
+			bool is_open() const { return stream_.is_open(); }
+			void flush() { stream_.flush(); }
+		private:
+
+			void check_valid() { if (!this->is_valid()) throw RuntimeException("Invalid File Editor!"); }
+
+			std::string		filename_;
+			std::fstream	stream_;
+			std::streampos	readPos_;
+			std::streampos	writePos_;
+		};
+
+		class FileReader : private UnCopyable
+		{
+		public:
+			FileReader() = delete;
+			FileReader(std::string filename, int retryTimes = consts::kDefaultFileOpenRetryTimes,
+				int retryInterval = consts::kDefaultFileOpenRetryInterval)
+			{
+				// use absolute path
+				filename_ = os::get_absolute_path(filename);
+				// try open
+				this->try_open(retryTimes, retryInterval);
+			}
+
+			FileReader(FileReader&& other) : filename_(std::move(other.filename_)), istream_(std::move(other.istream_))
+			{
+				other.filename_ = std::string();
+			};
+
+			std::string filename() const { return filename_; }
+
+			bool is_open() const { return istream_.is_open(); }
+			bool is_valid() const { return !filename_.empty(); }
+			bool open();
+			bool try_open(int retryTime, int retryInterval);
+			void close() { istream_.close(); };
+			std::size_t	file_size();
+
+		private:
+
+			void check_valid(){ if (!this->is_valid()) throw RuntimeException("Invalid File Reader!"); }
+			std::string		filename_;
+			std::ifstream	istream_;
+		};
+
+		std::size_t get_file_size(std::string filename);
+
+	} //namespace fs
+
+
+	namespace fmt
+	{
+		namespace consts
+		{
+			static const std::string kFormatSpecifierPlaceHolder = std::string("{}");
+		}
+
+		namespace detail
+		{
+			template<class Facet>
+			struct DeletableFacet : Facet
+			{
+				template<class ...Args>
+				DeletableFacet(Args&& ...args) : Facet(std::forward<Args>(args)...) {}
+				~DeletableFacet() {}
+			};
+		} // namespace detail
+
+		inline std::string int_to_zero_pad_str(int num, int length)
+		{
+			std::ostringstream ss;
+			ss << std::setw(length) << std::setfill('0') << num;
+			return ss.str();
+		}
+
+		bool ends_with(const std::string& str, const std::string& end);
+
+		bool str_equals(const char* s1, const char* s2);
+
+		std::string& ltrim(std::string& str);
+
+		std::string& rtrim(std::string& str);
+
+		std::string& trim(std::string& str);
+
+		std::string& lstrip(std::string& str, std::string what);
+
+		std::string& rstrip(std::string& str, std::string what);
+
+		std::vector<std::string> split(const std::string s, char delim = ' ');
+
+		std::vector<std::string> split(const std::string s, std::string delim);
+
+		std::string join(std::vector<std::string> elems, char delim);
+
+		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
+
+		void replace_first_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
+
+		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
+
+		inline std::u16string utf8_to_utf16(std::string &u8str)
+		{
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
+			return cvt.from_bytes(u8str);
+		}
+
+		inline std::string utf16_to_utf8(std::u16string &u16str)
+		{
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
+			return cvt.to_bytes(u16str);
+		}
+
+		inline std::u32string utf8_to_utf32(std::string &u8str)
+		{
+			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
+			return cvt.from_bytes(u8str);
+		}
+
+		inline std::string utf32_to_utf8(std::u32string &u32str)
+		{
+			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
+			return cvt.to_bytes(u32str);
+		}
+
+		template<typename Arg>
+		inline void format_string(std::string &fmt, const Arg &last)
+		{
+			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(last));
+		}
+
+		template<typename Arg, typename... Args>
+		inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
+		{
+			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(current));
+			format_string(fmt, more...);
+		}
+
+	} // namespace fmt
+
+	namespace log
+	{
+		typedef enum LogLevelEnum
+		{
+			trace = 0,
+			debug = 1,
+			info = 2,
+			warn = 3,
+			error = 4,
+			fatal = 5,
+			off = 6,
+			sentinel = 63
+		}LogLevels;
+
+		namespace consts
+		{
+			static const char	*kLevelNames[] { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"};
+			static const char	*kShortLevelNames[] { "T", "D", "I", "W", "E", "F", "O"};
+			static const int	kAsyncQueueSize = 4096;	//!< asynchrous queue size, must be power of 2
+
+			static const char	*kSinkDatetimeSpecifier = "%datetime";
+			static const char	*kSinkLoggerNameSpecifier = "%logger";
+			static const char	*kSinkThreadSpecifier = "%thread";
+			static const char	*kSinkLevelSpecifier = "%level";
+			static const char	*kSinkLevelShortSpecifier = "%lvl";
+			static const char	*kSinkMessageSpecifier = "%msg";
+			static const char	*kStdoutSinkName = "stdout";
+			static const char	*kStderrSinkName = "stderr";
+		}
+
+		// forward declaration
+		namespace detail
+		{
+			struct LogMessage;
+			class LineLogger;
+			class SinkInterface;
+		} // namespace detail
+		typedef std::shared_ptr<detail::SinkInterface> SinkPtr;
+
+		inline bool level_should_log(int levelMask, LogLevels lvl)
+		{
+			return (LogLevels::sentinel & levelMask & (1 << lvl)) > 0;
+		}
+
+		inline std::string level_mask_to_string(int levelMask)
+		{
+			std::string str("<|");
+			for (int i = 0; i < LogLevels::off; ++i)
+			{
+				if (level_should_log(levelMask, static_cast<LogLevels>(i)))
+				{
+					str += consts::kLevelNames[i];
+					str += "|";
+				}
+			}
+			return str + ">";
+		}
+
+		class LogConfig
+		{
+		public:
+			static LogConfig& instance()
+			{
+				static LogConfig instance_;
+				return instance_;
+			}
+
+			std::vector<std::string> sink_list()
+			{
+				return *sinkList_.get();
+			}
+
+			void set_sink_list(std::vector<std::string> &list)
+			{
+				sinkList_.set(list);
+			}
+
+			int log_level_mask()
+			{
+				return logLevelMask_;
+			}
+
+			void set_log_level_mask(int newMask)
+			{
+				logLevelMask_ = newMask;
+			}
+
+			std::string format()
+			{
+				return *format_.get();
+			}
+
+			void set_format(std::string newFormat)
+			{
+				format_.set(newFormat);
+			}
+
+			std::string datetime_format()
+			{
+				return *datetimeFormat_.get();
+			}
+
+			void set_datetime_format(std::string newDatetimeFormat)
+			{
+				datetimeFormat_.set(newDatetimeFormat);
+			}
+
+		private:
+			LogConfig()
+			{
+				// Default configurations
+				sinkList_.set({ std::string(consts::kStdoutSinkName), std::string(consts::kStderrSinkName) });	//!< attach console by default
+#ifdef NDEBUG
+				logLevelMask_ = 0x3C;	//!< 0x3C->b111100: no debug, no trace
+#else
+				logLevelMask_ = 0x3E;	//!< 0x3E->b111110: debug, no trace
+				format_.set(std::string("[%datetime][T%thread][%logger][%level] %msg"));
+				datetimeFormat_.set(std::string("%y-%m-%d %H:%M:%S.%frac"));
+#endif
+			}
+
+			cds::AtomicNonTrivial<std::vector<std::string>> sinkList_;
+			std::atomic_int logLevelMask_;
+			cds::AtomicNonTrivial<std::string> format_;
+			cds::AtomicNonTrivial<std::string> datetimeFormat_;
+		};
+
+		class Logger : UnMovable
+		{
+		public:
+			Logger(std::string name) : name_(name)
+			{
+				levelMask_ = LogConfig::instance().log_level_mask();
+			}
+
+			Logger(std::string name, int levelMask) : name_(name)
+			{
+				levelMask_ = levelMask;
+			}
+
+			// logger.info(format string, arg1, arg2, arg3, ...) call style
+			template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args);
+			template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args);
+			template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args);
+			template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args);
+			template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args);
+			template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args);
+
+
+			// logger.info(msg) << ".." call style
+			template <typename T> detail::LineLogger trace(const T& msg);
+			template <typename T> detail::LineLogger debug(const T& msg);
+			template <typename T> detail::LineLogger info(const T& msg);
+			template <typename T> detail::LineLogger warn(const T& msg);
+			template <typename T> detail::LineLogger error(const T& msg);
+			template <typename T> detail::LineLogger fatal(const T& msg);
+
+
+			// logger.info() << ".." call  style
+			detail::LineLogger trace();
+			detail::LineLogger debug();
+			detail::LineLogger info();
+			detail::LineLogger warn();
+			detail::LineLogger error();
+			detail::LineLogger fatal();
+
+			//const LogLevels level() const
+			//{
+			//	return static_cast<LogLevels>(level_.load(std::memory_order_relaxed));
+			//}
+
+			void set_level_mask(int levelMask)
+			{
+				levelMask_ = levelMask & LogLevels::sentinel;
+			}
+
+			bool should_log(LogLevels msgLevel) const
+			{
+				return level_should_log(levelMask_, msgLevel);
+			}
+
+			std::string name() const { return name_; };
+
+			std::string to_string();
+
+			SinkPtr get_sink(std::string name);
+
+			void attach_sink(SinkPtr sink);
+
+			void detach_sink(SinkPtr sink);
+
+			void attach_console();
+
+			void detach_console();
+
+		private:
+
+			friend detail::LineLogger;
+
+			detail::LineLogger log_if_enabled(LogLevels lvl);
+
+			template <typename... Args>
+			detail::LineLogger log_if_enabled(LogLevels lvl, const char* fmt, const Args&... args);
+
+			template<typename T>
+			detail::LineLogger log_if_enabled(LogLevels lvl, const T& msg);
+
+			void log_msg(detail::LogMessage msg);
+
+			std::string				name_;
+			std::atomic_int			levelMask_;
+			cds::AtomicUnorderedMap<std::string, SinkPtr> sinks_;
+		};
+		typedef std::shared_ptr<Logger> LoggerPtr;
+
+		namespace detail
+		{
+			template<typename T>
+			class mpmc_bounded_queue
+			{
+			public:
+
+				using item_type = T;
+				mpmc_bounded_queue(size_t buffer_size)
+					: buffer_(new cell_t[buffer_size]),
+					buffer_mask_(buffer_size - 1)
+				{
+					//queue size must be power of two
+					if (!((buffer_size >= 2) && ((buffer_size & (buffer_size - 1)) == 0)))
+						throw ArgException("async logger queue size must be power of two");
+
+					for (size_t i = 0; i != buffer_size; i += 1)
+						buffer_[i].sequence_.store(i, std::memory_order_relaxed);
+					enqueue_pos_.store(0, std::memory_order_relaxed);
+					dequeue_pos_.store(0, std::memory_order_relaxed);
+				}
+
+				~mpmc_bounded_queue()
+				{
+					delete[] buffer_;
+				}
+
+
+				bool enqueue(T&& data)
+				{
+					cell_t* cell;
+					size_t pos = enqueue_pos_.load(std::memory_order_relaxed);
+					for (;;)
+					{
+						cell = &buffer_[pos & buffer_mask_];
+						size_t seq = cell->sequence_.load(std::memory_order_acquire);
+						intptr_t dif = (intptr_t)seq - (intptr_t)pos;
+						if (dif == 0)
+						{
+							if (enqueue_pos_.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed))
+								break;
+						}
+						else if (dif < 0)
+						{
+							return false;
+						}
+						else
+						{
+							pos = enqueue_pos_.load(std::memory_order_relaxed);
+						}
+					}
+					cell->data_ = std::move(data);
+					cell->sequence_.store(pos + 1, std::memory_order_release);
+					return true;
+				}
+
+				bool dequeue(T& data)
+				{
+					cell_t* cell;
+					size_t pos = dequeue_pos_.load(std::memory_order_relaxed);
+					for (;;)
+					{
+						cell = &buffer_[pos & buffer_mask_];
+						size_t seq =
+							cell->sequence_.load(std::memory_order_acquire);
+						intptr_t dif = (intptr_t)seq - (intptr_t)(pos + 1);
+						if (dif == 0)
+						{
+							if (dequeue_pos_.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed))
+								break;
+						}
+						else if (dif < 0)
+							return false;
+						else
+							pos = dequeue_pos_.load(std::memory_order_relaxed);
+					}
+					data = std::move(cell->data_);
+					cell->sequence_.store(pos + buffer_mask_ + 1, std::memory_order_release);
+					return true;
+				}
+
+			private:
+				struct cell_t
+				{
+					std::atomic<size_t>   sequence_;
+					T                     data_;
+				};
+
+				static size_t const     cacheline_size = 64;
+				typedef char            cacheline_pad_t[cacheline_size];
+
+				cacheline_pad_t         pad0_;
+				cell_t* const           buffer_;
+				size_t const            buffer_mask_;
+				cacheline_pad_t         pad1_;
+				std::atomic<size_t>     enqueue_pos_;
+				cacheline_pad_t         pad2_;
+				std::atomic<size_t>     dequeue_pos_;
+				cacheline_pad_t         pad3_;
+
+				mpmc_bounded_queue(mpmc_bounded_queue const&);
+				void operator = (mpmc_bounded_queue const&);
+			};
+
+			struct LogMessage
+			{
+				std::string			loggerName_;
+				LogLevels			level_;
+				time::Date			dateTime_;
+				size_t				threadId_;
+				std::string			buffer_;
+			};
+
+			class LineLogger : private UnCopyable
+			{
+			public:
+				LineLogger(Logger* callbacker, LogLevels lvl, bool enable) :callbackLogger_(callbacker), enabled_(enable)
+				{
+					msg_.level_ = lvl;
+				}
+
+				LineLogger(LineLogger&& other) :
+					callbackLogger_(other.callbackLogger_),
+					msg_(std::move(other.msg_)),
+					enabled_(other.enabled_)
+				{
+					other.disable();
+				}
+
+				~LineLogger()
+				{
+					if (enabled_)
+					{
+						msg_.loggerName_ = callbackLogger_->name();
+						msg_.dateTime_ = time::Date::local_time();
+						msg_.threadId_ = os::thread_id();
+						callbackLogger_->log_msg(msg_);
+					}
+				}
+
+				LineLogger& operator=(LineLogger&&) = delete;
+
+				void write(const char* what)
+				{
+					if (enabled_)
+						msg_.buffer_ += what;
+				}
+
+				template <typename... Args>
+				void write(const char* fmt, const Args&... args)
+				{
+					if (!enabled_)
+						return;
+					std::string buf(fmt);
+					fmt::format_string(buf, args...);
+					msg_.buffer_ += buf;
+				}
+
+
+				LineLogger& operator<<(const char* what)
+				{
+					if (enabled_) msg_.buffer_ += what;
+					return *this;
+				}
+
+				LineLogger& operator<<(const std::string& what)
+				{
+					if (enabled_) msg_.buffer_ += what;
+					return *this;
+				}
+
+				template<typename T>
+				LineLogger& operator<<(const T& what)
+				{
+					if (enabled_)
+					{
+						msg_.buffer_ += dynamic_cast<std::ostringstream &>(std::ostringstream() << std::dec << what).str();
+					}
+					return *this;
+				}
+
+				void disable()
+				{
+					enabled_ = false;
+				}
+
+				bool is_enabled() const
+				{
+					return enabled_;
+				}
+			private:
+				Logger			*callbackLogger_;
+				LogMessage		msg_;
+				bool			enabled_;
+			};
+
+			class SinkInterface
+			{
+			public:
+				virtual ~SinkInterface() {};
+				virtual void log(const LogMessage& msg) = 0;
+				virtual void flush() = 0;
+				virtual std::string name() const = 0;
+				virtual std::string to_string() const = 0;
+			};
+
+			// Due to a bug in VC12, thread join in static object dtor
+			// will cause deadlock. TODO: implement async sink when
+			// VS2015 ready.
+			class AsyncSink : public SinkInterface, private UnCopyable
+			{
+
+			};
+
+			class Sink : public SinkInterface, private UnCopyable
+			{
+			public:
+				Sink()
+				{
+					levelMask_ = 0x3F & LogConfig::instance().log_level_mask();
+					set_format(LogConfig::instance().format());
+				};
+
+				virtual ~Sink()  {};
+
+				void log(const LogMessage& msg) override
+				{
+					if (!level_should_log(levelMask_, msg.level_))
+					{
+						return;
+					}
+
+					std::string finalMessage = format_message(msg);
+					sink_it(finalMessage);
+				}
+
+				void set_level_mask(int levelMask)
+				{
+					levelMask_ = levelMask & LogLevels::sentinel;
+				}
+
+				int level_mask() const
+				{
+					return levelMask_;
+				}
+
+				void set_format(const std::string &format)
+				{
+					format_.set(format);
+				}
+
+				virtual void sink_it(const std::string &finalMsg) = 0;
+
+			private:
+				std::string format_message(const LogMessage &msg)
+				{
+					std::string ret(*(format_.get()));
+					auto dt = msg.dateTime_;
+					fmt::replace_all_with_escape(ret, consts::kSinkDatetimeSpecifier, dt.to_string(LogConfig::instance().datetime_format().c_str()));
+					fmt::replace_all_with_escape(ret, consts::kSinkLoggerNameSpecifier, msg.loggerName_);
+					fmt::replace_all_with_escape(ret, consts::kSinkThreadSpecifier, std::to_string(msg.threadId_));
+					fmt::replace_all_with_escape(ret, consts::kSinkLevelSpecifier, consts::kLevelNames[msg.level_]);
+					fmt::replace_all_with_escape(ret, consts::kSinkLevelShortSpecifier, consts::kShortLevelNames[msg.level_]);
+					fmt::replace_all_with_escape(ret, consts::kSinkMessageSpecifier, msg.buffer_);
+					// make sure new line
+					if (!fmt::ends_with(ret, os::endl()))
+					{
+						ret += os::endl();
+					}
+					return ret;
+				}
+
+				std::atomic_int								levelMask_;
+				cds::AtomicNonTrivial<std::string>		format_;
+			};
+
+			class SimpleFileSink : public Sink
+			{
+			public:
+				SimpleFileSink(const std::string filename, bool truncate) :fileEditor_(filename, truncate)
+				{
+				}
+
+				void flush() override
+				{
+					fileEditor_.flush();
+				}
+
+				void sink_it(const std::string &finalMsg) override
+				{
+					fileEditor_ << finalMsg;
+				}
+
+				std::string name() const override
+				{
+					return fileEditor_.filename();
+				}
+
+				std::string to_string() const override
+				{
+					return "SimpleFileSink->" + name() + " " + level_mask_to_string(level_mask());
+				}
+
+			private:
+				fs::FileEditor fileEditor_;
+			};
+
+			class RotateFileSink : public Sink
+			{
+			public:
+				RotateFileSink(const std::string filename, std::size_t maxSizeInByte, bool backup)
+					:maxSizeInByte_(maxSizeInByte), backup_(backup)
+				{
+					if (backup_)
+					{
+						back_up(filename);
+					}
+					fileEditor_.open(filename, true);
+					currentSize_ = 0;
+				}
+
+				void flush() override
+				{
+					fileEditor_.flush();
+				}
+
+				void sink_it(const std::string &finalMsg) override
+				{
+					currentSize_ += finalMsg.length();
+					if (currentSize_ > maxSizeInByte_)
+					{
+						rotate();
+					}
+					fileEditor_ << finalMsg;
+				}
+
+				std::string name() const override
+				{
+					return fileEditor_.filename();
+				}
+
+				std::string to_string() const override
+				{
+					return "RotateFileSink->" + name() + " " + level_mask_to_string(level_mask());
+				}
+
+			private:
+				void back_up(std::string oldFile)
+				{
+					std::string backupName = os::path_append_basename(oldFile,
+						time::Date::local_time().to_string("_%y-%m-%d_%H-%M-%S-%frac"));
+					os::rename(oldFile, backupName);
+				}
+
+				void rotate()
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					// check again in case other thread 
+					// just waited for this operation
+					if (currentSize_ > maxSizeInByte_)
+					{
+						if (backup_)
+						{
+							fileEditor_.close();
+							back_up(fileEditor_.filename());
+							fileEditor_.open(true);
+						}
+						else
+						{
+							fileEditor_.reopen(true);
+						}
+						currentSize_ = 0;
+					}
+				}
+
+				fs::FileEditor				fileEditor_;
+				std::mutex					mutex_;
+				std::size_t					maxSizeInByte_;
+				std::atomic<std::size_t>	currentSize_;
+				bool						backup_;
+			};
+
+			class OStreamSink : public Sink
+			{
+			public:
+				explicit OStreamSink(std::ostream& os, const char *name, bool forceFlush = false)
+					:ostream_(os), name_(name), forceFlush_(forceFlush)
+				{
+				}
+
+				std::string name() const override
+				{
+					return name_;
+				}
+
+				std::string to_string() const override
+				{
+					return "OStreamSink->" + name() + " " + level_mask_to_string(level_mask());
+				}
+
+			private:
+				void sink_it(const std::string &finalMsg) override
+				{
+					ostream_ << finalMsg;
+					if (forceFlush_) ostream_.flush();
+				}
+
+				void flush() override
+				{
+					ostream_.flush();
+				}
+
+				std::ostream&	ostream_;
+				std::string		name_;
+				bool			forceFlush_;
+			};
+
+			class StdoutSink : public OStreamSink
+			{
+			public:
+				StdoutSink() : OStreamSink(std::cout, consts::kStdoutSinkName, true)
+				{
+					// stdout by design should not receive warning and error message
+					// so add cout and cerr together and filter by level is a better idea
+					set_level_mask(0x07 & LogConfig::instance().log_level_mask());
+				}
+				static std::shared_ptr<StdoutSink> instance()
+				{
+					static std::shared_ptr<StdoutSink> instance = std::make_shared<StdoutSink>();
+					return instance;
+				}
+
+				std::string to_string() const override
+				{
+					return "StdoutSink->" + name() + " " + level_mask_to_string(level_mask());
+				}
+			};
+
+			class StderrSink : public OStreamSink
+			{
+			public:
+				StderrSink() : OStreamSink(std::cerr, consts::kStderrSinkName, true)
+				{
+					// stderr by design should only log error/warning msg
+					set_level_mask(0x38 & LogConfig::instance().log_level_mask());
+				}
+				static std::shared_ptr<StderrSink> instance()
+				{
+					static std::shared_ptr<StderrSink> instance = std::make_shared<StderrSink>();
+					return instance;
+				}
+
+				std::string to_string() const override
+				{
+					return "StderrSink->" + name() + " " + level_mask_to_string(level_mask());
+				}
+			};
+
+			class LoggerRegistry : UnMovable
+			{
+			public:
+				static LoggerRegistry& instance()
+				{
+					static LoggerRegistry sInstance;
+					return sInstance;
+				}
+
+				LoggerPtr create(const std::string &name)
+				{
+					auto ptr = new_registry(name);
+					if (!ptr)
+					{
+						throw RuntimeException("Logger with name: " + name + " already existed.");
+					}
+					return ptr;
+				}
+
+				LoggerPtr ensure_get(std::string &name)
+				{
+					auto map = loggers_.get();
+					LoggerPtr	ptr;
+					while (map->find(name) == map->end())
+					{
+						ptr = new_registry(name);
+						map = loggers_.get();
+					}
+					return map->find(name)->second;
+				}
+
+				LoggerPtr get(std::string &name)
+				{
+					auto ptr = loggers_.get();
+					auto pos = ptr->find(name);
+					if (pos != ptr->end())
+					{
+						return pos->second;
+					}
+					return nullptr;
+				}
+
+				std::vector<LoggerPtr> get_all()
+				{
+					std::vector<LoggerPtr> list;
+					auto loggers = loggers_.get();
+					for (auto logger : *loggers)
+					{
+						list.push_back(logger.second);
+					}
+					return list;
+				}
+
+				void drop(const std::string &name)
+				{
+					loggers_.erase(name);
+				}
+
+				void drop_all()
+				{
+					loggers_.clear();
+				}
+
+				void lock()
+				{
+					lock_ = true;
+				}
+
+				void unlock()
+				{
+					lock_ = false;
+				}
+
+				bool is_locked() const
+				{
+					return lock_;
+				}
+
+			private:
+				LoggerRegistry(){ lock_ = false; }
+
+				LoggerPtr new_registry(const std::string &name);
+
+				cds::AtomicUnorderedMap<std::string, LoggerPtr> loggers_;
+				std::atomic_bool	lock_;
+			};
+
+		} // namespace detail
+
+		inline detail::LineLogger Logger::log_if_enabled(LogLevels lvl)
+		{
+			detail::LineLogger l(this, lvl, should_log(lvl));
+			return l;
+		}
+
+		template <typename... Args>
+		inline detail::LineLogger Logger::log_if_enabled(LogLevels lvl, const char* fmt, const Args&... args)
+		{
+			detail::LineLogger l(this, lvl, should_log(lvl));
+			l.write(fmt, args...);
+			return l;
+		}
+
+		template<typename T>
+		inline detail::LineLogger Logger::log_if_enabled(LogLevels lvl, const T& msg)
+		{
+			detail::LineLogger l(this, lvl, should_log(lvl));
+			l.write(msg);
+			return l;
+		}
+
+		// logger.info(format string, arg1, arg2, arg3, ...) call style
+		template <typename... Args>
+		inline detail::LineLogger Logger::trace(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::trace, fmt, args...);
+		}
+		template <typename... Args>
+		inline detail::LineLogger Logger::debug(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::debug, fmt, args...);
+		}
+		template <typename... Args>
+		inline detail::LineLogger Logger::info(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::info, fmt, args...);
+		}
+		template <typename... Args>
+		inline detail::LineLogger Logger::warn(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::warn, fmt, args...);
+		}
+		template <typename... Args>
+		inline detail::LineLogger Logger::error(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::error, fmt, args...);
+		}
+		template <typename... Args>
+		inline detail::LineLogger Logger::fatal(const char* fmt, const Args&... args)
+		{
+			return log_if_enabled(LogLevels::fatal, fmt, args...);
+		}
+
+
+		// logger.info(msg) << ".." call style
+		template <typename T>
+		inline detail::LineLogger Logger::trace(const T& msg)
+		{
+			return log_if_enabled(LogLevels::trace, msg);
+		}
+		template <typename T>
+		inline detail::LineLogger Logger::debug(const T& msg)
+		{
+			return log_if_enabled(LogLevels::debug, msg);
+		}
+		template <typename T>
+		inline detail::LineLogger Logger::info(const T& msg)
+		{
+			return log_if_enabled(LogLevels::info, msg);
+		}
+		template <typename T>
+		inline detail::LineLogger Logger::warn(const T& msg)
+		{
+			return log_if_enabled(LogLevels::warn, msg);
+		}
+		template <typename T>
+		inline detail::LineLogger Logger::error(const T& msg)
+		{
+			return log_if_enabled(LogLevels::error, msg);
+		}
+		template <typename T>
+		inline detail::LineLogger Logger::fatal(const T& msg)
+		{
+			return log_if_enabled(LogLevels::fatal, msg);
+		}
+
+
+		// logger.info() << ".." call  style
+		inline detail::LineLogger Logger::trace()
+		{
+			return log_if_enabled(LogLevels::trace);
+		}
+		inline detail::LineLogger Logger::debug()
+		{
+			return log_if_enabled(LogLevels::debug);
+		}
+		inline detail::LineLogger Logger::info()
+		{
+			return log_if_enabled(LogLevels::info);
+		}
+		inline detail::LineLogger Logger::warn()
+		{
+			return log_if_enabled(LogLevels::warn);
+		}
+		inline detail::LineLogger Logger::error()
+		{
+			return log_if_enabled(LogLevels::error);
+		}
+		inline detail::LineLogger Logger::fatal()
+		{
+			return log_if_enabled(LogLevels::fatal);
+		}
+
+		inline SinkPtr Logger::get_sink(std::string name)
+		{
+			auto sinkmap = sinks_.get();
+			auto f = sinkmap->find(name);
+			return (f == sinkmap->end() ? nullptr : f->second);
+		}
+
+		inline void Logger::attach_sink(SinkPtr sink)
+		{
+			if (!sinks_.insert(sink->name(), sink))
+			{
+				throw RuntimeException("Sink with name: " + sink->name() + " already attached to logger: " + name_);
+			}
+		}
+
+		inline void Logger::detach_sink(SinkPtr sink)
+		{
+			sinks_.erase(sink->name());
+		}
+
+		inline void Logger::log_msg(detail::LogMessage msg)
+		{
+			auto sinkmap = sinks_.get();
+			for (auto sink : *sinkmap)
+			{
+				sink.second->log(msg);
+			}
+		}
+
+		inline std::string Logger::to_string()
+		{
+			std::string str(name() + ": " + level_mask_to_string(levelMask_));
+			str += "\n{\n";
+			auto sinkmap = sinks_.get();
+			for (auto sink : *sinkmap)
+			{
+				str += sink.second->to_string() + "\n";
+			}
+			str += "}";
+			return str;
+		}
+
+		inline LoggerPtr get_logger(std::string name, bool createIfNotExists = true)
+		{
+			if (createIfNotExists)
+			{
+				return detail::LoggerRegistry::instance().ensure_get(name);
+			}
+			else
+			{
+				return detail::LoggerRegistry::instance().get(name);
+			}
+		}
+
+		inline SinkPtr new_stdout_sink()
+		{
+			return detail::StdoutSink::instance();
+		}
+
+		inline SinkPtr new_stderr_sink()
+		{
+			return detail::StderrSink::instance();
+		}
+
+		inline void Logger::attach_console()
+		{
+			sinks_.insert(std::string(consts::kStdoutSinkName), new_stdout_sink());
+			sinks_.insert(std::string(consts::kStderrSinkName), new_stderr_sink());
+		}
+
+		inline void Logger::detach_console()
+		{
+			sinks_.erase(std::string(consts::kStdoutSinkName));
+			sinks_.erase(std::string(consts::kStderrSinkName));
+		}
+
+		inline SinkPtr get_sink(std::string name)
+		{
+			SinkPtr psink = nullptr;
+			auto loggers = detail::LoggerRegistry::instance().get_all();
+			for (auto logger : loggers)
+			{
+				psink = logger->get_sink(name);
+				if (psink)
+				{
+					return psink;
+				}
+			}
+			return nullptr;
+		}
+
+		inline void dump_loggers()
+		{
+			auto loggers = detail::LoggerRegistry::instance().get_all();
+			std::cout << "{\n";
+			for (auto logger : loggers)
+			{
+				std::cout << logger->to_string() << "\n";
+			}
+			std::cout << "}" << std::endl;
+		}
+
+		inline SinkPtr new_simple_file_sink(std::string filename, bool truncate = false)
+		{
+			return std::make_shared<detail::SimpleFileSink>(filename, truncate);
+		}
+
+		inline SinkPtr new_rotate_file_sink(std::string filename, int maxSizeInByte = 4194304, bool backupOld = false)
+		{
+			return std::make_shared<detail::RotateFileSink>(filename, maxSizeInByte, backupOld);
+		}
+
+		inline void lock_loggers()
+		{
+			detail::LoggerRegistry::instance().lock();
+		}
+
+		inline void unlock_loggers()
+		{
+			detail::LoggerRegistry::instance().unlock();
+		}
+
+		inline void drop_logger(std::string name)
+		{
+			detail::LoggerRegistry::instance().drop(name);
+		}
+
+		inline void drop_all_loggers()
+		{
+			detail::LoggerRegistry::instance().drop_all();
+		}
+
+		inline void drop_sink(std::string name)
+		{
+			SinkPtr psink = get_sink(name);
+			if (nullptr == psink) return;
+			auto loggers = detail::LoggerRegistry::instance().get_all();
+			for (auto logger : loggers)
+			{
+				logger->detach_sink(psink);
+			}
+		}
+
+		inline LoggerPtr detail::LoggerRegistry::new_registry(const std::string &name)
+		{
+			LoggerPtr newLogger = std::make_shared<Logger>(name);
+			auto defaultSinkList = LogConfig::instance().sink_list();
+			for (auto sinkname : defaultSinkList)
+			{
+				SinkPtr psink = nullptr;
+				if (sinkname == consts::kStdoutSinkName)
+				{
+					psink = new_stdout_sink();
+				}
+				else if (sinkname == consts::kStderrSinkName)
+				{
+					psink = new_stderr_sink();
+				}
+				else
+				{
+					psink = get_sink(sinkname);
+				}
+				if (psink) newLogger->attach_sink(psink);
+			}
+			if (loggers_.insert(name, newLogger))
+			{
+				return newLogger;
+			}
+			return nullptr;
+		}
+	} // namespace log
+} // namespace zz
+
+#endif //END _LIBZPP_LIBZPP_HPP_
+
+

@@ -84,11 +84,11 @@ namespace test_os
 {
 	void test_directory()
 	{
-		cout << os::get_current_working_directory() << endl;
-		cout << os::get_absolute_path("") << endl;
+		cout << os::current_working_directory() << endl;
+		cout << os::absolute_path("") << endl;
 		FileEditor fh("temp.txt", std::ios::out);
-		fh << os::get_current_working_directory() << os::endl();
-		fh << os::get_absolute_path("") << os::endl();
+		fh << os::current_working_directory() << os::endl();
+		fh << os::absolute_path("") << os::endl();
 
 		auto ret = os::create_directory_recursive("d:\\openzl\\test\\a\\b\\c\\d\\e\\f");
 		cout << ret << endl;
@@ -181,6 +181,47 @@ namespace test_math
 	}
 }
 
+namespace test_cfg
+{
+	void test_cfg_parser()
+	{
+		std::stringstream ss;
+		ss << "a=1\n"
+			"b=1\n\n"
+			"enabled = false \n"
+			"[e]\n"
+			"ea=1\n"
+			"eb=1\n\n"
+			"[c]\n"
+			"ca=2\n"
+			"cb=2\n\n"
+			"[a.d]\n"
+			"extra.da=3 # this is a comment \n"
+			"db=3\n\n"
+			"[A]\n"
+			"Aa=4\n"
+			"Ab=4\n";
+		cfg::CfgParser cfpg(ss);
+		cout << cfpg["a"].intValue() << endl;
+		cout << cfpg("a")("d")("extra")["da"].intValue() << endl;
+		cout << cfpg.root().to_string() << endl;
+		bool enabled = cfpg["enabled"].booleanValue();
+		cout << "enabled: " << enabled << endl;
+	}
+
+	void test_cfg_string()
+	{
+		cfg::CfgValue vstring("25");
+		int v = vstring.intValue();
+		cout << v << endl;
+		vstring = std::string("1.2321 9324.23 343.239423");
+		auto vv = vstring.doubleVector();
+		for (auto vvv : vv)
+		{
+			cout << vvv << endl;
+		}
+	}
+}
 
 
 
@@ -198,6 +239,8 @@ int main()
 	test_os::test_directory();
 	test_formatter::test_formatter();
 	test_math::test_math();
+	test_cfg::test_cfg_parser();
+	test_cfg::test_cfg_string();
 
 	system("pause");
 

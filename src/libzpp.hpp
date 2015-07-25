@@ -77,6 +77,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <map>
 #include <unordered_map>
 #include <memory>
 #include <type_traits>
@@ -432,9 +433,9 @@ namespace zz
 		*/
 		std::string endl();
 
-		std::string get_current_working_directory();
+		std::string current_working_directory();
 
-		std::string get_absolute_path(std::string reletivePath);
+		std::string absolute_path(std::string reletivePath);
 
 		std::vector<std::string> path_split(std::string path);
 
@@ -557,7 +558,7 @@ namespace zz
 				int retryInterval = consts::kDefaultFileOpenRetryInterval)
 			{
 				// use absolute path
-				filename_ = os::get_absolute_path(filename);
+				filename_ = os::absolute_path(filename);
 				// try open
 				this->try_open(retryTimes, retryInterval, truncateOrNot);
 			};
@@ -617,7 +618,7 @@ namespace zz
 				int retryInterval = consts::kDefaultFileOpenRetryInterval)
 			{
 				// use absolute path
-				filename_ = os::get_absolute_path(filename);
+				filename_ = os::absolute_path(filename);
 				// try open
 				this->try_open(retryTimes, retryInterval);
 			}
@@ -687,6 +688,8 @@ namespace zz
 
 		std::string& rstrip(std::string& str, std::string what);
 
+		std::string& rskip(std::string& str, std::string delim);
+
 		std::vector<std::string> split(const std::string s, char delim = ' ');
 
 		std::vector<std::string> split(const std::string s, std::string delim);
@@ -698,6 +701,8 @@ namespace zz
 		void replace_first_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
 		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
+
+		std::string to_lower_ascii(std::string mixed);
 
 		inline std::u16string utf8_to_utf16(std::string &u8str)
 		{
@@ -737,6 +742,82 @@ namespace zz
 		}
 
 	} // namespace fmt
+
+	namespace cfg
+	{
+		class CfgValue
+		{
+		public:
+			CfgValue() {}
+			CfgValue(std::string valueStr) : str_(valueStr) {}
+			std::string str() const { return str_; }
+			int	intValue() const { return std::stoi(str_); }
+			bool booleanValue() const;
+			long longIntValue() const { return std::stol(str_); }
+			double doubleValue() const { return std::stod(str_); }
+			std::vector<double> doubleVector() const;
+
+		private:
+			std::string str_;
+		};
+
+		struct CfgLevel
+		{
+			CfgLevel() : parent(nullptr), depth(0) {}
+			CfgLevel(CfgLevel* p, std::size_t d) : parent(p), depth(d) {}
+
+			using value_map_t = std::map<std::string, CfgValue>;
+			using section_map_t = std::map<std::string, CfgLevel>;
+			using value_t = std::vector<value_map_t::const_iterator>;
+			using section_t = std::vector<section_map_t::const_iterator>;
+
+			value_map_t values;
+			section_map_t sections;
+			std::string prefix;
+			CfgLevel* parent;
+			size_t depth;
+
+			const CfgValue& operator[](const std::string& name) { return values[name]; }
+			CfgLevel& operator()(const std::string& name) { return sections[name]; }
+			std::string to_string() 
+			{ 
+				std::string ret;
+				for (auto v : values)
+				{
+					ret += prefix + v.first + " = " + v.second.str() + "\n";
+				}
+				for (auto s : sections)
+				{
+					ret += s.second.to_string();
+				}
+				return ret;
+			}
+		};
+
+		class CfgParser
+		{
+		public:
+			CfgParser(std::string filename);
+			CfgParser(std::istream& s) : pstream_(&s), ln_(0) { parse(root_); }
+			CfgLevel& root() { return root_; }
+
+			const CfgValue& operator[](const std::string& name) { return root_.values[name]; }
+			CfgLevel& operator()(const std::string& name) { return root_.sections[name]; }
+
+		private:
+			void parse(CfgLevel& lvl);
+			CfgLevel* parse_section(std::string& sline, CfgLevel *lvl);
+			CfgLevel* parse_key_section(std::string& vline, CfgLevel *lvl);
+			std::string split_key_value(std::string& line);
+			void error_handler(std::string msg);
+
+			CfgLevel		root_;
+			std::ifstream	stream_;
+			std::istream	*pstream_;
+			std::string		line_;
+			std::size_t		ln_;
+		};
+	} // namespace cfg
 
 	namespace log
 	{
@@ -1705,24 +1786,34 @@ namespace zz
 			return nullptr;
 		}
 
-		inline void dump_loggers()
+		inline void dump_loggers(std::ostream &out=std::cout)
 		{
 			auto loggers = detail::LoggerRegistry::instance().get_all();
-			std::cout << "{\n";
+			out << "{\n";
 			for (auto logger : loggers)
 			{
-				std::cout << logger->to_string() << "\n";
+				out << logger->to_string() << "\n";
 			}
-			std::cout << "}" << std::endl;
+			out << "}" << std::endl;
 		}
 
 		inline SinkPtr new_simple_file_sink(std::string filename, bool truncate = false)
 		{
+			auto sinkptr = get_sink(os::absolute_path(filename));
+			if (sinkptr)
+			{
+				throw RuntimeException("File: " + filename + " already holded by another sink!\n" + sinkptr->to_string());
+			}
 			return std::make_shared<detail::SimpleFileSink>(filename, truncate);
 		}
 
-		inline SinkPtr new_rotate_file_sink(std::string filename, int maxSizeInByte = 4194304, bool backupOld = false)
+		inline SinkPtr new_rotate_file_sink(std::string filename, std::size_t maxSizeInByte = 4194304, bool backupOld = false)
 		{
+			auto sinkptr = get_sink(os::absolute_path(filename));
+			if (sinkptr)
+			{
+				throw RuntimeException("File: " + filename + " already holded by another sink!\n" + sinkptr->to_string());
+			}
 			return std::make_shared<detail::RotateFileSink>(filename, maxSizeInByte, backupOld);
 		}
 

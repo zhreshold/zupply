@@ -52,7 +52,7 @@
 #endif
 
 #if LIBZPP_OS_WINDOWS
-#include <Windows.h>
+#include <windows.h>
 #include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -157,6 +157,20 @@ namespace zz
 			if (str.length() - what.length() == pos)
 			{
 				str.erase(pos, what.length());
+			}
+			return str;
+		}
+
+		std::string& rskip(std::string& str, std::string delim)
+		{
+			auto pos = str.rfind(delim);
+			if (pos == 0)
+			{
+				str = std::string();
+			}
+			else if (std::string::npos != pos)
+			{
+				str = str.substr(0, pos - 1);
 			}
 			return str;
 		}
@@ -299,6 +313,12 @@ namespace zz
 			return str;
 		}
 
+		std::string to_lower_ascii(std::string mixed)
+		{
+			std::transform(mixed.begin(), mixed.end(), mixed.begin(), std::tolower);
+			return mixed;
+		}
+
 	} // namespace fmt
 
 	namespace fs
@@ -325,7 +345,7 @@ namespace zz
 		{
 			this->close();
 			// use absolute path
-			filename_ = os::get_absolute_path(filename);
+			filename_ = os::absolute_path(filename);
 			// try open
 			return this->try_open(retryTimes, retryInterval, truncateOrNot);
 		}
@@ -779,7 +799,7 @@ namespace zz
 #endif
 		}
 
-		std::string get_current_working_directory()
+		std::string current_working_directory()
 		{
 #if LIBZPP_OS_WINDOWS
 			wchar_t *buffer = nullptr;
@@ -841,7 +861,7 @@ namespace zz
 			return false;
 		}
 
-		std::string get_absolute_path(std::string reletivePath)
+		std::string absolute_path(std::string reletivePath)
 		{
 #if LIBZPP_OS_WINDOWS
 			wchar_t *buffer = nullptr;
@@ -896,13 +916,13 @@ namespace zz
 
 		bool create_directory_recursive(std::string path)
 		{
-			std::string tmp = get_absolute_path(path);
+			std::string tmp = absolute_path(path);
 			std::string target = tmp;
 
 			while (!path_exists(tmp))
 			{
 				if (tmp.empty()) return false;	// invalid path
-				tmp = get_absolute_path(tmp + "/../");
+				tmp = absolute_path(tmp + "/../");
 			}
 
 			// tmp is the root from where to build
@@ -916,5 +936,149 @@ namespace zz
 		}
 
 	}// namespace os
+
+	namespace cfg
+	{
+		bool CfgValue::booleanValue() const
+		{
+			std::string lowered = fmt::to_lower_ascii(str_);
+			if ("true" == lowered) return true;
+			if ("false" == lowered) return false;
+			try
+			{
+				int iv = intValue();
+				if (1 == iv) return true;
+				if (0 == iv) return false;
+			}
+			catch (...)
+			{
+			}
+			throw ArgException("Invalid boolean value: " + str_);
+		}
+
+		std::vector<double> CfgValue::doubleVector() const
+		{
+			std::vector<double> vec;
+			std::string::size_type sz;
+			std::string str(str_);
+			double val;
+			while (1)
+			{
+				try
+				{
+					val = std::stod(str, &sz);
+				}
+				catch (...)
+				{
+					return vec;
+				}
+				vec.push_back(val);
+				str = str.substr(sz);
+				if (str.empty()) return vec;
+			}
+		}
+
+		CfgParser::CfgParser(std::string filename) : ln_(0)
+		{
+			os::ifstream_open(stream_, filename, std::ios::in|std::ios::binary);
+			if (!stream_.is_open())
+			{
+				throw IOException("Failed to open config file: " + filename);
+			}
+			pstream_ = &stream_;
+			parse(root_);
+		}
+
+		void CfgParser::error_handler(std::string msg)
+		{
+			throw RuntimeException("Parser failed at line<" + std::to_string(ln_) + "> " + line_ + "\n" + msg);
+		}
+
+		CfgLevel* CfgParser::parse_section(std::string& sline, CfgLevel* lvl)
+		{
+			if (sline.empty()) return lvl;
+			if (sline.back() == '.') error_handler("section ends with .");
+			auto pos = sline.find('.');
+			std::string currentSection;
+			std::string nextSection;
+			if (std::string::npos == pos)
+			{
+				currentSection = sline;
+			}
+			else
+			{
+				currentSection = sline.substr(0, pos);
+				nextSection = sline.substr(pos + 1);
+			}
+			CfgLevel *l = &lvl->sections[currentSection];
+			l->depth = lvl->depth + 1;
+			l->parent = lvl;
+			l->prefix = lvl->prefix + currentSection + ".";
+			return parse_section(nextSection, l);
+		}
+
+		CfgLevel* CfgParser::parse_key_section(std::string& vline, CfgLevel *lvl)
+		{
+			if (vline.back() == '.') error_handler("key ends with .");
+			auto pos = vline.find('.');
+			if (std::string::npos == pos) return lvl;
+			std::string current = vline.substr(0, pos);
+			vline = vline.substr(pos + 1);
+			CfgLevel *l = &lvl->sections[current];
+			l->depth = lvl->depth + 1;
+			l->parent = lvl;
+			l->prefix = lvl->prefix + current + ".";
+			return parse_key_section(vline, l);
+		}
+
+		std::string CfgParser::split_key_value(std::string& line)
+		{
+			auto pos1 = line.find_first_of(':');
+			auto pos2 = line.find_first_of('=');
+			if (std::string::npos == pos1 && std::string::npos == pos2)
+			{
+				throw RuntimeException("':' or '=' expected in key-value pair, none found.");
+			}
+			auto pos = (std::min)(pos1, pos2);
+			std::string key = fmt::trim(line.substr(0, pos));
+			line = fmt::trim(line.substr(pos + 1));
+			return key;
+		}
+
+		void CfgParser::parse(CfgLevel& lvl)
+		{
+			CfgLevel *ls = &lvl;
+			while (std::getline(*pstream_, line_))
+			{
+				++ln_;
+				line_ = fmt::rskip(line_, "#");
+				line_ = fmt::rskip(line_, ";");
+				fmt::trim(line_);
+				if (line_.empty()) continue;
+				if (line_[0] == '[')
+				{
+					// start a section
+					if (line_.back() != ']')
+					{
+						error_handler("missing right ]");
+					}
+					ls = &lvl;
+					ls = parse_section(line_.substr(1, line_.length()-2), ls);
+				}
+				else
+				{
+					// parse section inline with key
+					std::string key = split_key_value(line_);
+					CfgLevel *lv = ls;
+					lv = parse_key_section(key, lv);
+					if (lv->values.find(key) != lv->values.end())
+					{
+						error_handler("duplicate key");
+					}
+					lv->values[key] = line_;
+				}
+			}
+		}
+	} // namespace cfg
 
 } // end namesapce zz

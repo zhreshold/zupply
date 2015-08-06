@@ -1,6 +1,6 @@
 /* Doxygen main page */
-/*!	 \mainpage libZpp Main Page
-#	 libZpp - Portable light-weight multi-functional easy to use library for C++
+/*!	 \mainpage zupply Main Page
+#	 zupply - Portable light-weight multi-functional easy to use library for C++
 
 *   Author: Joshua Zhang
 *   Date since: June-2015
@@ -51,10 +51,11 @@
 #define NDEBUG
 #endif
 
+#if _MSC_VER < 1900
 #define ZL_NOEXCEPT throw()
-
 #else // NON MSVC
 #define ZL_NOEXCEPT noexcept
+#endif
 
 #endif
 
@@ -225,6 +226,18 @@ namespace zz
 	public:
 		explicit WarnException(const char *message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
 		explicit WarnException(const std::string &message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
+	};
+
+	struct Size
+	{
+		int width;
+		int height;
+
+		Size(int x, int y) : width(x), height(y) {}
+		bool operator=(Size& other)
+		{
+			return (width == other.width) && (height == other.height);
+		}
 	};
 
 	namespace math
@@ -454,6 +467,8 @@ namespace zz
 		bool create_directory(std::string path);
 
 		bool create_directory_recursive(std::string path);
+
+		Size console_size();
 
 	} // namespace os
 
@@ -694,6 +709,10 @@ namespace zz
 
 		std::vector<std::string> split(const std::string s, std::string delim);
 
+		std::vector<std::string> split_multi_delims(const std::string s, std::string delims);
+
+		std::vector<std::string> split_whitespace(const std::string s);
+
 		std::string join(std::vector<std::string> elems, char delim);
 
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
@@ -703,6 +722,8 @@ namespace zz
 		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
 		std::string to_lower_ascii(std::string mixed);
+
+		std::string to_upper_ascii(std::string mixed);
 
 		inline std::u16string utf8_to_utf16(std::string &u8str)
 		{
@@ -750,12 +771,14 @@ namespace zz
 		public:
 			CfgValue() {}
 			CfgValue(std::string valueStr) : str_(valueStr) {}
+			CfgValue(const CfgValue& other) : str_(other.str_) {}
 			std::string str() const { return str_; }
 			int	intValue() const { return std::stoi(str_); }
 			bool booleanValue() const;
 			long longIntValue() const { return std::stol(str_); }
 			double doubleValue() const { return std::stod(str_); }
 			std::vector<double> doubleVector() const;
+			bool empty() { return str_.empty(); }
 
 		private:
 			std::string str_;
@@ -821,6 +844,39 @@ namespace zz
 
 	namespace log
 	{
+		void zupply_internal_warn(std::string msg);
+
+		namespace detail
+		{
+			class ScopedRedirect
+			{
+			public:
+				ScopedRedirect(std::ostream &orig) : backup_(orig)
+				{
+					old = orig.rdbuf(buffer_.rdbuf());
+				}
+
+				~ScopedRedirect()
+				{
+					backup_.rdbuf(old);
+					backup_ << buffer_.str();
+				}
+
+			private:
+				ScopedRedirect(const ScopedRedirect&);
+				ScopedRedirect& operator=(const ScopedRedirect&);
+
+				std::ostream &backup_;
+				std::streambuf *old;
+				std::ostringstream buffer_;
+			};
+		}
+
+		class ProgBar
+		{
+
+		};
+
 		typedef enum LogLevelEnum
 		{
 			trace = 0,
@@ -837,6 +893,7 @@ namespace zz
 		{
 			static const char	*kLevelNames[] { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"};
 			static const char	*kShortLevelNames[] { "T", "D", "I", "W", "E", "F", "O"};
+			static const char	*kZupplyInternalLoggerName = "zupply";
 			static const int	kAsyncQueueSize = 4096;	//!< asynchrous queue size, must be power of 2
 
 			static const char	*kSinkDatetimeSpecifier = "%datetime";
@@ -847,6 +904,24 @@ namespace zz
 			static const char	*kSinkMessageSpecifier = "%msg";
 			static const char	*kStdoutSinkName = "stdout";
 			static const char	*kStderrSinkName = "stderr";
+			static const char	*kSimplefileSinkType = "simplefile";
+			static const char	*kRotatefileSinkType = "rotatefile";
+			static const char	*kOstreamSinkType = "ostream";
+			static const char	*kDefaultLoggerFormat = "[%datetime][T%thread][%logger][%level] %msg";
+			static const char	*kDefaultLoggerDatetimeFormat = "%y-%m-%d %H:%M:%S.%frac";
+
+			
+
+			// config file formats
+			static const char	*KConfigGlobalSectionSpecifier = "global";
+			static const char	*KConfigLoggerSectionSpecifier = "loggers";
+			static const char	*KConfigSinkSectionSpecifier = "sinks";
+			static const char	*kConfigFormatSpecifier = "format";
+			static const char	*kConfigLevelsSpecifier = "levels";
+			static const char	*kConfigDateTimeFormatSpecifier = "datetime_format";
+			static const char	*kConfigSinkListSpecifier = "sink_list";
+			static const char	*kConfigSinkTypeSpecifier = "type";
+			static const char	*kConfigSinkFilenameSpecifier = "filename";
 		}
 
 		// forward declaration
@@ -875,6 +950,31 @@ namespace zz
 				}
 			}
 			return str + ">";
+		}
+
+		inline LogLevels level_from_str(std::string level)
+		{
+			std::string upperLevel = fmt::to_upper_ascii(level);
+			for (int i = 0; i < LogLevels::off; ++i)
+			{
+				if (upperLevel == consts::kLevelNames[i])
+				{
+					return static_cast<LogLevels>(i);
+				}
+			}
+			return LogLevels::off;
+		}
+
+		inline int level_mask_from_string(std::string levels)
+		{
+			int mask = 0;
+			auto levelList = fmt::split_whitespace(levels);
+			for (auto lvl : levelList)
+			{
+				auto l = level_from_str(lvl);
+				mask |= 1 << static_cast<int>(l);
+			}
+			return mask & LogLevels::sentinel;
 		}
 
 		class LogConfig
@@ -935,8 +1035,8 @@ namespace zz
 				logLevelMask_ = 0x3C;	//!< 0x3C->b111100: no debug, no trace
 #else
 				logLevelMask_ = 0x3E;	//!< 0x3E->b111110: debug, no trace
-				format_.set(std::string("[%datetime][T%thread][%logger][%level] %msg"));
-				datetimeFormat_.set(std::string("%y-%m-%d %H:%M:%S.%frac"));
+				format_.set(std::string(consts::kDefaultLoggerFormat));
+				datetimeFormat_.set(std::string(consts::kDefaultLoggerDatetimeFormat));
 #endif
 			}
 
@@ -1010,9 +1110,13 @@ namespace zz
 
 			void detach_sink(SinkPtr sink);
 
+			void attach_sink_list(std::vector<std::string> &sinkList);
+
 			void attach_console();
 
 			void detach_console();
+
+			
 
 		private:
 
@@ -1238,6 +1342,8 @@ namespace zz
 				virtual void flush() = 0;
 				virtual std::string name() const = 0;
 				virtual std::string to_string() const = 0;
+				virtual void set_level_mask(int levelMask) = 0;
+				virtual void set_format(const std::string &fmt) = 0;
 			};
 
 			// Due to a bug in VC12, thread join in static object dtor
@@ -1280,7 +1386,7 @@ namespace zz
 					return levelMask_;
 				}
 
-				void set_format(const std::string &format)
+				void set_format(const std::string &format) override
 				{
 					format_.set(format);
 				}
@@ -1306,7 +1412,7 @@ namespace zz
 					return ret;
 				}
 
-				std::atomic_int								levelMask_;
+				std::atomic_int							levelMask_;
 				cds::AtomicNonTrivial<std::string>		format_;
 			};
 
@@ -1579,6 +1685,7 @@ namespace zz
 				std::atomic_bool	lock_;
 			};
 
+
 		} // namespace detail
 
 		inline detail::LineLogger Logger::log_if_enabled(LogLevels lvl)
@@ -1797,6 +1904,16 @@ namespace zz
 			out << "}" << std::endl;
 		}
 
+		inline SinkPtr new_ostream_sink(std::ostream &stream, std::string name, bool forceFlush = false)
+		{
+			auto sinkptr = get_sink(name);
+			if (sinkptr)
+			{
+				throw RuntimeException(name + " already holded by another sink\n" + sinkptr->to_string());
+			}
+			return std::make_shared<detail::OStreamSink>(stream, name.c_str(), forceFlush);
+		}
+
 		inline SinkPtr new_simple_file_sink(std::string filename, bool truncate = false)
 		{
 			auto sinkptr = get_sink(os::absolute_path(filename));
@@ -1815,6 +1932,27 @@ namespace zz
 				throw RuntimeException("File: " + filename + " already holded by another sink!\n" + sinkptr->to_string());
 			}
 			return std::make_shared<detail::RotateFileSink>(filename, maxSizeInByte, backupOld);
+		}
+
+		inline void Logger::attach_sink_list(std::vector<std::string> &sinkList)
+		{
+			for (auto sinkname : sinkList)
+			{
+				SinkPtr psink = nullptr;
+				if (sinkname == consts::kStdoutSinkName)
+				{
+					psink = new_stdout_sink();
+				}
+				else if (sinkname == consts::kStderrSinkName)
+				{
+					psink = new_stderr_sink();
+				}
+				else
+				{
+					psink = get_sink(sinkname);
+				}
+				if (psink && (!this->get_sink(psink->name()))) attach_sink(psink);
+			}
 		}
 
 		inline void lock_loggers()
@@ -1874,6 +2012,204 @@ namespace zz
 				return newLogger;
 			}
 			return nullptr;
+		}
+
+		inline void set_default_format(std::string format)
+		{
+			LogConfig::instance().set_format(format);
+		}
+
+		inline void set_default_datetime_format(std::string dateFormat)
+		{
+			LogConfig::instance().set_datetime_format(dateFormat);
+		}
+
+		inline void set_default_sink_list(std::vector<std::string> list)
+		{
+			LogConfig::instance().set_sink_list(list);
+		}
+
+		inline void set_default_level_mask(int levelMask)
+		{
+			LogConfig::instance().set_log_level_mask(levelMask);
+		}
+
+		inline void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map)
+		{
+			for (auto m : map)
+			{
+				for (auto l = list.begin(); l != list.end(); ++l)
+				{
+					if (m.first == *l)
+					{
+						l = list.erase(l);
+						l = list.insert(l, m.second);
+					}
+				}
+			}
+		}
+
+		inline void config_loggers_from_section(cfg::CfgLevel::section_map_t &section, std::map<std::string, std::string> &map)
+		{
+			for (auto loggerSec : section)
+			{
+				for (auto value : loggerSec.second.values)
+				{
+					LoggerPtr logger = nullptr;
+					if (consts::kConfigLevelsSpecifier == value.first)
+					{
+						int mask = level_mask_from_string(value.second.str());
+						if (!logger) logger = get_logger(loggerSec.first, true);
+						logger->set_level_mask(mask);
+					}
+					else if (consts::kConfigSinkListSpecifier == value.first)
+					{
+						auto list = fmt::split_whitespace(value.second.str());
+						if (list.empty()) continue;
+						sink_list_revise(list, map);
+						if (!logger) logger = get_logger(loggerSec.first, true);
+						logger->attach_sink_list(list);
+					}
+					else
+					{
+						zupply_internal_warn("Unrecognized configuration key: " + value.first);
+					}
+				}
+			}
+		}
+
+		inline LoggerPtr get_hidden_logger()
+		{
+			auto hlogger = get_logger("hidden", false);
+			if (!hlogger)
+			{
+				hlogger = get_logger("hidden", true);
+				hlogger->set_level_mask(0);
+			}
+			return hlogger;
+		}
+
+		inline std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section)
+		{
+			std::map<std::string, std::string> sinkMap;
+			for (auto sinkSec : section)
+			{
+				std::string type;
+				std::string filename;
+				std::string fmt;
+				std::string levelStr;
+				SinkPtr sink = nullptr;
+
+				for (auto value : sinkSec.second.values)
+				{
+					// entries
+					if (consts::kConfigSinkTypeSpecifier == value.first)
+					{
+						type = value.second.str();
+					}
+					else if (consts::kConfigSinkFilenameSpecifier == value.first)
+					{
+						filename = value.second.str();
+					}
+					else if (consts::kConfigFormatSpecifier == value.first)
+					{
+						fmt = value.second.str();
+					}
+					else if (consts::kConfigLevelsSpecifier == value.first)
+					{
+						levelStr = value.second.str();
+					}
+					else
+					{
+						zupply_internal_warn("Unrecognized config key entry: " + value.first);
+					}
+				}
+
+				// sink
+				if (type.empty()) throw RuntimeException("No suitable type specified for sink: " + sinkSec.first);
+				if (type == consts::kStdoutSinkName)
+				{
+					sink = new_stdout_sink();
+				}
+				else if (type == consts::kStderrSinkName)
+				{
+					sink = new_stderr_sink();
+				}
+				else
+				{
+					if (filename.empty()) throw RuntimeException("No name specified for sink: " + sinkSec.first);
+					if (type == consts::kOstreamSinkType)
+					{
+						zupply_internal_warn("Currently do not support init ostream logger from config file.");
+					}
+					else if (type == consts::kSimplefileSinkType)
+					{
+						sink = new_simple_file_sink(filename);
+						get_hidden_logger()->attach_sink(sink);
+					}
+					else if (type == consts::kRotatefileSinkType)
+					{
+						sink = new_rotate_file_sink(filename);
+						get_hidden_logger()->attach_sink(sink);
+					}
+					else
+					{
+						zupply_internal_warn("Unrecognized sink type: " + type);
+					}
+				}
+				if (sink)
+				{
+					if (!fmt.empty()) sink->set_format(fmt);
+					if (!levelStr.empty())
+					{
+						int mask = level_mask_from_string(levelStr);
+						sink->set_level_mask(mask);
+					}
+					if (!get_hidden_logger()->get_sink(sink->name()))
+					{
+						get_hidden_logger()->attach_sink(sink);
+					}
+					sinkMap[sinkSec.first] = sink->name();
+				}
+			}
+			return sinkMap;
+		}
+
+		inline void config_from_file(std::string cfgFilename)
+		{
+			cfg::CfgParser parser(cfgFilename);
+
+			// config for specific sinks
+			auto sinkSection = parser(consts::KConfigSinkSectionSpecifier).sections;
+			auto sinkMap = config_sinks_from_section(sinkSection);
+
+			// global format
+			std::string format = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigFormatSpecifier].str();
+			if (!format.empty()) set_default_format(format);
+			// global datetime format
+			std::string datefmt = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigDateTimeFormatSpecifier].str();
+			if (!datefmt.empty()) set_default_datetime_format(datefmt);
+			// global log levels
+			auto v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigLevelsSpecifier];
+			if (!v.str().empty()) set_default_level_mask(level_mask_from_string(v.str()));
+			// global sink list
+			v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigSinkListSpecifier];
+			if (!v.str().empty())
+			{
+				auto list = fmt::split_whitespace(v.str());
+				sink_list_revise(list, sinkMap);
+				set_default_sink_list(list);
+			}
+
+			// config for specific loggers
+			auto loggerSection = parser(consts::KConfigLoggerSectionSpecifier).sections;
+			config_loggers_from_section(loggerSection, sinkMap);
+		}
+
+		inline void zupply_internal_warn(std::string msg)
+		{
+			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
+			zlog->warn() << msg;
 		}
 	} // namespace log
 } // namespace zz

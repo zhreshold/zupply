@@ -1,6 +1,6 @@
 /********************************************************************//*
  *
- *   Script File: libzpp.cpp
+ *   Script File: zupply.cpp
  *
  *   Description:
  *
@@ -25,11 +25,11 @@
  ***************************************************************************/
 
 // Unless you are very confident, don't set either OS flag
-#if defined(LIBZPP_OS_UNIX) && defined(LIBZPP_OS_WINDOWS)
+#if defined(ZUPPLY_OS_UNIX) && defined(ZUPPLY_OS_WINDOWS)
 #error Both Unix and Windows flags are set, which is not allowed!
-#elif defined(LIBZPP_OS_UNIX)
+#elif defined(ZUPPLY_OS_UNIX)
 #pragma message Using defined Unix flag
-#elif defined(LIBZPP_OS_WINDOWS)
+#elif defined(ZUPPLY_OS_WINDOWS)
 #pragma message Using defined Windows flag
 #else
 #if defined(unix)        || defined(__unix)      || defined(__unix__) \
@@ -40,23 +40,23 @@
 	|| defined(sgi) || defined(__sgi) \
 	|| (defined(__MACOSX__) || defined(__APPLE__)) \
 	|| defined(__CYGWIN__) || defined(__MINGW32__)
-#define LIBZPP_OS_UNIX	1	//!< Unix like OS
-#undef LIBZPP_OS_WINDOWS
+#define ZUPPLY_OS_UNIX	1	//!< Unix like OS
+#undef ZUPPLY_OS_WINDOWS
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
 	|| defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
-#define LIBZPP_OS_WINDOWS	1	//!< Microsoft Windows
-#undef LIBZPP_OS_UNIX
+#define ZUPPLY_OS_WINDOWS	1	//!< Microsoft Windows
+#undef ZUPPLY_OS_UNIX
 #else
 #error Unable to support this unknown OS.
 #endif
 #endif
 
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 #include <windows.h>
 #include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 #include <unistd.h>	/* POSIX flags */
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -65,9 +65,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <sys/ioctl.h>
 #endif
 
-#include "libzpp.hpp"
+#include "zupply.hpp"
 
 #include <chrono>
 #include <iomanip>
@@ -202,6 +203,33 @@ namespace zz
 			return elems;
 		}
 
+		std::vector<std::string> split_multi_delims(const std::string s, std::string delims)
+		{
+			std::vector<std::string> elems;
+			std::string ss(s);
+			std::string item;
+			size_t pos = 0;
+			while ((pos = ss.find_first_of(delims)) != std::string::npos) {
+				item = ss.substr(0, pos);
+				if (!item.empty()) elems.push_back(item);
+				ss.erase(0, pos + 1);
+			}
+			if (!ss.empty()) elems.push_back(ss);
+			return elems;
+		}
+
+		std::vector<std::string> split_whitespace(const std::string s)
+		{
+			auto list = split_multi_delims(s, " \t\n");
+			std::vector<std::string> ret;
+			for (auto elem : list)
+			{
+				auto rest = fmt::trim(elem);
+				if (!rest.empty()) ret.push_back(rest);
+			}
+			return ret;
+		}
+
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec)
 		{
 			for (auto it = vec.begin(); it != vec.end();)
@@ -316,6 +344,12 @@ namespace zz
 		std::string to_lower_ascii(std::string mixed)
 		{
 			std::transform(mixed.begin(), mixed.end(), mixed.begin(), std::tolower);
+			return mixed;
+		}
+
+		std::string to_upper_ascii(std::string mixed)
+		{
+			std::transform(mixed.begin(), mixed.end(), mixed.begin(), std::toupper);
 			return mixed;
 		}
 
@@ -555,7 +589,7 @@ namespace zz
 		int system(const char *const command, const char *const moduleName)
 		{
 			misc::unused(moduleName);
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			PROCESS_INFORMATION pi;
 			STARTUPINFO si;
 			std::memset(&pi, 0, sizeof(PROCESS_INFORMATION));
@@ -572,7 +606,7 @@ namespace zz
 				return 0;
 			}
 			else return std::system(command);
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			const unsigned int l = std::strlen(command);
 			if (l) {
 				char *const ncommand = new char[l + 16];
@@ -591,7 +625,7 @@ namespace zz
 
 		std::size_t thread_id()
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			// It exists because the std::this_thread::get_id() is much slower(espcially under VS 2013)
 			return  static_cast<size_t>(::GetCurrentThreadId());
 #elif __linux__
@@ -600,6 +634,23 @@ namespace zz
 			return static_cast<size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 #endif
 
+		}
+
+		Size console_size()
+		{
+			Size ret(-1, -1);
+#if ZUPPLY_OS_WINDOWS
+			CONSOLE_SCREEN_BUFFER_INFO csbi;
+			GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+			ret.width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+			ret.height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+#elif ZUPPLY_OS_UNIX
+			struct winsize w;
+			ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+			ret.width = w.ws_col;
+			ret.height = w.ws_row;
+#endif
+			return ret;
 		}
 
 		/**
@@ -614,10 +665,10 @@ namespace zz
 		std::tm localtime(std::time_t t)
 		{
 			std::tm temp;
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			localtime_s(&temp, &t);
 			return temp;
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			// POSIX SUSv2 thread safe localtime_r
 			return *localtime_r(&t, &temp);
 #else
@@ -637,10 +688,10 @@ namespace zz
 		std::tm gmtime(std::time_t t)
 		{
 			std::tm temp;
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			gmtime_s(&temp, &t);
 			return temp;
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			// POSIX SUSv2 thread safe gmtime_r
 			return *gmtime_r(&t, &temp);
 #else
@@ -650,7 +701,7 @@ namespace zz
 
 		std::wstring utf8_to_wstring(std::string &u8str)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			// windows use 16 bit wstring 
 			std::u16string u16str = fmt::utf8_to_utf16(u8str);
 			return std::wstring(u16str.begin(), u16str.end());
@@ -663,7 +714,7 @@ namespace zz
 
 		std::string wstring_to_utf8(std::wstring &wstr)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			// windows use 16 bit wstring 
 			std::u16string u16str(wstr.begin(), wstr.end());
 			return fmt::utf16_to_utf8(u16str);
@@ -676,7 +727,7 @@ namespace zz
 
 		std::vector<std::string> path_split(std::string path)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			std::replace(path.begin(), path.end(), '\\', '/');
 			return fmt::split(path, '/');
 #else
@@ -686,7 +737,7 @@ namespace zz
 
 		std::string path_join(std::vector<std::string> elems)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			return fmt::join(elems, '\\');
 #else
 			return fmt::join(elems, '/');
@@ -695,7 +746,7 @@ namespace zz
 
 		std::string path_split_filename(std::string path)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			std::string::size_type pos = fmt::trim(path).find_last_of("/\\");
 #else
 			std::string::size_type pos = fmt::trim(path).find_last_of("/");
@@ -710,7 +761,7 @@ namespace zz
 
 		std::string path_split_directory(std::string path)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			std::string::size_type pos = fmt::trim(path).find_last_of("/\\");
 #else
 			std::string::size_type pos = fmt::trim(path).find_last_of("/");
@@ -765,7 +816,7 @@ namespace zz
 		{
 			// make sure directory exists for the target file
 			create_directory_recursive(path_split_directory(filename));
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			stream.open(utf8_to_wstring(filename), openmode);
 #else
 			stream.open(filename, openmode);
@@ -774,7 +825,7 @@ namespace zz
 
 		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			stream.open(utf8_to_wstring(filename), openmode);
 #else
 			stream.open(filename, openmode);
@@ -783,7 +834,7 @@ namespace zz
 
 		bool rename(std::string oldName, std::string newName)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			return (!_wrename(utf8_to_wstring(oldName).c_str(), utf8_to_wstring(newName).c_str()));
 #else
 			return (!rename(oldName.c_str(), newName.c_str()));
@@ -792,7 +843,7 @@ namespace zz
 
 		std::string endl()
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			return consts::kEndLineCRLF;
 #else // *nix, OSX, and almost everything else(OS 9 or ealier use CR only, but they are antiques now)
 			return consts::kEndLineLF;
@@ -801,7 +852,7 @@ namespace zz
 
 		std::string current_working_directory()
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			wchar_t *buffer = nullptr;
 			if ((buffer = _wgetcwd(nullptr, 0)) == nullptr)
 			{
@@ -847,13 +898,13 @@ namespace zz
 
 		bool path_exists(std::string &path, bool considerFile)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			DWORD fileType = GetFileAttributesW(utf8_to_wstring(path).c_str());
 			if (fileType == INVALID_FILE_ATTRIBUTES) {
 				return false;
 			}
 			return considerFile ? true : ((fileType & FILE_ATTRIBUTE_DIRECTORY) == 0 ? false : true);
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			misc::unused(considerFile);
 			struct stat st;
 			return (stat(path.c_str(), &st) == 0);
@@ -863,7 +914,7 @@ namespace zz
 
 		std::string absolute_path(std::string reletivePath)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			wchar_t *buffer = nullptr;
 			std::wstring widePath = utf8_to_wstring(reletivePath);
 			buffer = _wfullpath(buffer, widePath.c_str(), _MAX_PATH);
@@ -878,7 +929,7 @@ namespace zz
 				free(buffer);
 				return wstring_to_utf8(ret);
 			}
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			char *buffer = realpath(reletivePath.c_str(), nullptr);
 			if (buffer == nullptr)
 			{
@@ -897,13 +948,13 @@ namespace zz
 
 		bool create_directory(std::string path)
 		{
-#if LIBZPP_OS_WINDOWS
+#if ZUPPLY_OS_WINDOWS
 			std::wstring widePath = utf8_to_wstring(path);
 			int ret = _wmkdir(widePath.c_str());
 			if (0 == ret) return true;	// success
 			if (EEXIST == ret) return true; // already exists
 			return false;
-#elif LIBZPP_OS_UNIX
+#elif ZUPPLY_OS_UNIX
 			// read/write/search permissions for owner and group
 			// and with read/search permissions for others
 			int status = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

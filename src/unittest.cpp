@@ -1,4 +1,4 @@
-#include "libzpp.hpp"
+#include "zupply.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -99,6 +99,13 @@ namespace test_os
 		cout << os::path_split_basename(path) << endl;
 		cout << os::path_split_extension(path) << endl;
 	}
+
+	void test_console_size()
+	{
+		Size sz = os::console_size();
+		cout << "console width: " << sz.width << endl;
+		cout << "console height: " << sz.height << endl;
+	}
 }
 
 
@@ -118,6 +125,13 @@ namespace test_formatter
 		cout << endl;
 
 		cout << fmt::join(list, '/') << endl;
+
+		list = fmt::split("sdljf      sdljfkd  \t  sldjfldjs     sljopopwej", ' ');
+		for (auto str : list)
+		{
+			cout << str << ", ";
+		}
+		cout << endl;
 	}
 }
 
@@ -167,6 +181,13 @@ namespace test_logger
 		//{
 		//	vt[i].join();
 		//}
+	}
+
+	void config_logger_from_file()
+	{
+		std::string cfgname = "logconfig.txt";
+		log::config_from_file(cfgname);
+		
 	}
 }
 
@@ -231,16 +252,17 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	
-	test_time::test_timer();
-	test_time::test_date();
+	test_logger::config_logger_from_file();
+	//test_time::test_timer();
+	//test_time::test_date();
 	test_logger::test_logger();
-	test_filesystem::test_filehandler();
-	test_os::test_directory();
-	test_formatter::test_formatter();
-	test_math::test_math();
-	test_cfg::test_cfg_parser();
-	test_cfg::test_cfg_string();
+	//test_filesystem::test_filehandler();
+	//test_os::test_directory();
+	//test_os::test_console_size();
+	//test_formatter::test_formatter();
+	//test_math::test_math();
+	//test_cfg::test_cfg_parser();
+	//test_cfg::test_cfg_string();
 
 	system("pause");
 

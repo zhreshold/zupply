@@ -187,7 +187,6 @@ namespace test_logger
 	{
 		std::string cfgname = "logconfig.txt";
 		log::config_from_file(cfgname);
-		
 	}
 }
 

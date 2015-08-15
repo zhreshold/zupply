@@ -22,8 +22,8 @@
 
 
 
-#ifndef _LIBZPP_LIBZPP_HPP_
-#define _LIBZPP_LIBZPP_HPP_
+#ifndef _ZUPPLY_ZUPPLY_HPP_
+#define _ZUPPLY_ZUPPLY_HPP_
 
 ///////////////////////////////////////////////////////////////
 // Require C++ 11 features
@@ -52,17 +52,17 @@
 #endif
 
 #if _MSC_VER < 1900
-#define ZL_NOEXCEPT throw()
+#define ZUPPLY_NOEXCEPT throw()
 #else // NON MSVC
-#define ZL_NOEXCEPT noexcept
+#define ZUPPLY_NOEXCEPT noexcept
 #endif
 
 #endif
 
-#ifdef ZL_HEADER_ONLY
-#define ZL_EXPORT inline
+#ifdef ZUPPLY_HEADER_ONLY
+#define ZUPPLY_EXPORT inline
 #else
-#define ZL_EXPORT
+#define ZUPPLY_EXPORT
 #endif
 
 #include <string>
@@ -95,13 +95,13 @@ namespace zz
 	*/
 	namespace consts
 	{
-		static const char* kExceptionPrefixGeneral = "[libZpp Exception] ";
-		static const char* kExceptionPrefixLogic = "[libZpp Exception->Logic] ";
-		static const char* kExceptionPrefixArgument = "[libZpp Exception->Logic->Argument] ";
-		static const char* kExceptionPrefixRuntime = "[libZpp Exception->Runtime] ";
-		static const char* kExceptionPrefixIO = "[libZpp Exception->Runtime->IO] ";
-		static const char* kExceptionPrefixMemory = "[libZpp Exception->Runtime->Memory] ";
-		static const char* kExceptionPrefixStrictWarn = "[libZpp Exception->StrictWarn] ";
+		static const char* kExceptionPrefixGeneral = "[Zupply Exception] ";
+		static const char* kExceptionPrefixLogic = "[Zupply Exception->Logic] ";
+		static const char* kExceptionPrefixArgument = "[Zupply Exception->Logic->Argument] ";
+		static const char* kExceptionPrefixRuntime = "[Zupply Exception->Runtime] ";
+		static const char* kExceptionPrefixIO = "[Zupply Exception->Runtime->IO] ";
+		static const char* kExceptionPrefixMemory = "[Zupply Exception->Runtime->Memory] ";
+		static const char* kExceptionPrefixStrictWarn = "[Zupply Exception->StrictWarn] ";
 	}
 
 	/*!
@@ -154,9 +154,9 @@ namespace zz
 		{
 			message_ = std::string(prefix) + message;
 		};
-		virtual ~Exception() ZL_NOEXCEPT{};
+		virtual ~Exception() ZUPPLY_NOEXCEPT{};
 
-		const char* what() const ZL_NOEXCEPT{ return message_.c_str(); };
+		const char* what() const ZUPPLY_NOEXCEPT{ return message_.c_str(); };
 	private:
 		std::string message_;
 	};
@@ -779,6 +779,7 @@ namespace zz
 			double doubleValue() const { return std::stod(str_); }
 			std::vector<double> doubleVector() const;
 			bool empty() { return str_.empty(); }
+			bool operator== (CfgValue& other) { return other.str() == str_; }
 
 		private:
 			std::string str_;
@@ -840,6 +841,35 @@ namespace zz
 			std::string		line_;
 			std::size_t		ln_;
 		};
+
+		class ArgParser
+		{
+		public:
+			ArgParser() : guard_("ArgParserGuard"), helper_({ "" }) {}
+			void add_argn(std::string name, char shortKey, std::string longKey,
+				std::string help = "", int numArg = 0);
+
+			void add_arg_lite(std::string name, char shortKey, std::string longKey,
+				std::string help = "")
+			{
+				add_argn(name, shortKey, longKey, help, 0);
+			}
+
+			void parse(int argc, char** argv)
+			{
+
+			}
+
+		private:
+			using Vecopt = std::vector<CfgValue>;
+			std::unordered_map<char, std::string> shortKeys_;
+			std::unordered_map<std::string, std::string> longKeys_;
+			std::unordered_map<std::string, Vecopt> opts_;
+			Vecopt rest_;
+			std::vector<std::string> helper_;
+			CfgValue guard_;
+		};
+
 	} // namespace cfg
 
 	namespace log
@@ -984,6 +1014,26 @@ namespace zz
 			{
 				static LogConfig instance_;
 				return instance_;
+			}
+
+			static void set_default_format(std::string format)
+			{
+				LogConfig::instance().set_format(format);
+			}
+
+			static void set_default_datetime_format(std::string dateFormat)
+			{
+				LogConfig::instance().set_datetime_format(dateFormat);
+			}
+
+			static void set_default_sink_list(std::vector<std::string> list)
+			{
+				LogConfig::instance().set_sink_list(list);
+			}
+
+			static void set_default_level_mask(int levelMask)
+			{
+				LogConfig::instance().set_log_level_mask(levelMask);
 			}
 
 			std::vector<std::string> sink_list()
@@ -2014,166 +2064,149 @@ namespace zz
 			return nullptr;
 		}
 
-		inline void set_default_format(std::string format)
+		namespace detail
 		{
-			LogConfig::instance().set_format(format);
-		}
-
-		inline void set_default_datetime_format(std::string dateFormat)
-		{
-			LogConfig::instance().set_datetime_format(dateFormat);
-		}
-
-		inline void set_default_sink_list(std::vector<std::string> list)
-		{
-			LogConfig::instance().set_sink_list(list);
-		}
-
-		inline void set_default_level_mask(int levelMask)
-		{
-			LogConfig::instance().set_log_level_mask(levelMask);
-		}
-
-		inline void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map)
-		{
-			for (auto m : map)
+			inline void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map)
 			{
-				for (auto l = list.begin(); l != list.end(); ++l)
+				for (auto m : map)
 				{
-					if (m.first == *l)
+					for (auto l = list.begin(); l != list.end(); ++l)
 					{
-						l = list.erase(l);
-						l = list.insert(l, m.second);
+						if (m.first == *l)
+						{
+							l = list.erase(l);
+							l = list.insert(l, m.second);
+						}
 					}
 				}
 			}
-		}
 
-		inline void config_loggers_from_section(cfg::CfgLevel::section_map_t &section, std::map<std::string, std::string> &map)
-		{
-			for (auto loggerSec : section)
+			inline void config_loggers_from_section(cfg::CfgLevel::section_map_t &section, std::map<std::string, std::string> &map)
 			{
-				for (auto value : loggerSec.second.values)
+				for (auto loggerSec : section)
 				{
-					LoggerPtr logger = nullptr;
-					if (consts::kConfigLevelsSpecifier == value.first)
+					for (auto value : loggerSec.second.values)
 					{
-						int mask = level_mask_from_string(value.second.str());
-						if (!logger) logger = get_logger(loggerSec.first, true);
-						logger->set_level_mask(mask);
+						LoggerPtr logger = nullptr;
+						if (consts::kConfigLevelsSpecifier == value.first)
+						{
+							int mask = level_mask_from_string(value.second.str());
+							if (!logger) logger = get_logger(loggerSec.first, true);
+							logger->set_level_mask(mask);
+						}
+						else if (consts::kConfigSinkListSpecifier == value.first)
+						{
+							auto list = fmt::split_whitespace(value.second.str());
+							if (list.empty()) continue;
+							sink_list_revise(list, map);
+							if (!logger) logger = get_logger(loggerSec.first, true);
+							logger->attach_sink_list(list);
+						}
+						else
+						{
+							zupply_internal_warn("Unrecognized configuration key: " + value.first);
+						}
 					}
-					else if (consts::kConfigSinkListSpecifier == value.first)
+				}
+			}
+
+			inline LoggerPtr get_hidden_logger()
+			{
+				auto hlogger = get_logger("hidden", false);
+				if (!hlogger)
+				{
+					hlogger = get_logger("hidden", true);
+					hlogger->set_level_mask(0);
+				}
+				return hlogger;
+			}
+
+			inline std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section)
+			{
+				std::map<std::string, std::string> sinkMap;
+				for (auto sinkSec : section)
+				{
+					std::string type;
+					std::string filename;
+					std::string fmt;
+					std::string levelStr;
+					SinkPtr sink = nullptr;
+
+					for (auto value : sinkSec.second.values)
 					{
-						auto list = fmt::split_whitespace(value.second.str());
-						if (list.empty()) continue;
-						sink_list_revise(list, map);
-						if (!logger) logger = get_logger(loggerSec.first, true);
-						logger->attach_sink_list(list);
+						// entries
+						if (consts::kConfigSinkTypeSpecifier == value.first)
+						{
+							type = value.second.str();
+						}
+						else if (consts::kConfigSinkFilenameSpecifier == value.first)
+						{
+							filename = value.second.str();
+						}
+						else if (consts::kConfigFormatSpecifier == value.first)
+						{
+							fmt = value.second.str();
+						}
+						else if (consts::kConfigLevelsSpecifier == value.first)
+						{
+							levelStr = value.second.str();
+						}
+						else
+						{
+							zupply_internal_warn("Unrecognized config key entry: " + value.first);
+						}
+					}
+
+					// sink
+					if (type.empty()) throw RuntimeException("No suitable type specified for sink: " + sinkSec.first);
+					if (type == consts::kStdoutSinkName)
+					{
+						sink = new_stdout_sink();
+					}
+					else if (type == consts::kStderrSinkName)
+					{
+						sink = new_stderr_sink();
 					}
 					else
 					{
-						zupply_internal_warn("Unrecognized configuration key: " + value.first);
+						if (filename.empty()) throw RuntimeException("No name specified for sink: " + sinkSec.first);
+						if (type == consts::kOstreamSinkType)
+						{
+							zupply_internal_warn("Currently do not support init ostream logger from config file.");
+						}
+						else if (type == consts::kSimplefileSinkType)
+						{
+							sink = new_simple_file_sink(filename);
+							get_hidden_logger()->attach_sink(sink);
+						}
+						else if (type == consts::kRotatefileSinkType)
+						{
+							sink = new_rotate_file_sink(filename);
+							get_hidden_logger()->attach_sink(sink);
+						}
+						else
+						{
+							zupply_internal_warn("Unrecognized sink type: " + type);
+						}
+					}
+					if (sink)
+					{
+						if (!fmt.empty()) sink->set_format(fmt);
+						if (!levelStr.empty())
+						{
+							int mask = level_mask_from_string(levelStr);
+							sink->set_level_mask(mask);
+						}
+						if (!get_hidden_logger()->get_sink(sink->name()))
+						{
+							get_hidden_logger()->attach_sink(sink);
+						}
+						sinkMap[sinkSec.first] = sink->name();
 					}
 				}
+				return sinkMap;
 			}
-		}
-
-		inline LoggerPtr get_hidden_logger()
-		{
-			auto hlogger = get_logger("hidden", false);
-			if (!hlogger)
-			{
-				hlogger = get_logger("hidden", true);
-				hlogger->set_level_mask(0);
-			}
-			return hlogger;
-		}
-
-		inline std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section)
-		{
-			std::map<std::string, std::string> sinkMap;
-			for (auto sinkSec : section)
-			{
-				std::string type;
-				std::string filename;
-				std::string fmt;
-				std::string levelStr;
-				SinkPtr sink = nullptr;
-
-				for (auto value : sinkSec.second.values)
-				{
-					// entries
-					if (consts::kConfigSinkTypeSpecifier == value.first)
-					{
-						type = value.second.str();
-					}
-					else if (consts::kConfigSinkFilenameSpecifier == value.first)
-					{
-						filename = value.second.str();
-					}
-					else if (consts::kConfigFormatSpecifier == value.first)
-					{
-						fmt = value.second.str();
-					}
-					else if (consts::kConfigLevelsSpecifier == value.first)
-					{
-						levelStr = value.second.str();
-					}
-					else
-					{
-						zupply_internal_warn("Unrecognized config key entry: " + value.first);
-					}
-				}
-
-				// sink
-				if (type.empty()) throw RuntimeException("No suitable type specified for sink: " + sinkSec.first);
-				if (type == consts::kStdoutSinkName)
-				{
-					sink = new_stdout_sink();
-				}
-				else if (type == consts::kStderrSinkName)
-				{
-					sink = new_stderr_sink();
-				}
-				else
-				{
-					if (filename.empty()) throw RuntimeException("No name specified for sink: " + sinkSec.first);
-					if (type == consts::kOstreamSinkType)
-					{
-						zupply_internal_warn("Currently do not support init ostream logger from config file.");
-					}
-					else if (type == consts::kSimplefileSinkType)
-					{
-						sink = new_simple_file_sink(filename);
-						get_hidden_logger()->attach_sink(sink);
-					}
-					else if (type == consts::kRotatefileSinkType)
-					{
-						sink = new_rotate_file_sink(filename);
-						get_hidden_logger()->attach_sink(sink);
-					}
-					else
-					{
-						zupply_internal_warn("Unrecognized sink type: " + type);
-					}
-				}
-				if (sink)
-				{
-					if (!fmt.empty()) sink->set_format(fmt);
-					if (!levelStr.empty())
-					{
-						int mask = level_mask_from_string(levelStr);
-						sink->set_level_mask(mask);
-					}
-					if (!get_hidden_logger()->get_sink(sink->name()))
-					{
-						get_hidden_logger()->attach_sink(sink);
-					}
-					sinkMap[sinkSec.first] = sink->name();
-				}
-			}
-			return sinkMap;
-		}
+		} // namespace detail
 
 		inline void config_from_file(std::string cfgFilename)
 		{
@@ -2181,29 +2214,29 @@ namespace zz
 
 			// config for specific sinks
 			auto sinkSection = parser(consts::KConfigSinkSectionSpecifier).sections;
-			auto sinkMap = config_sinks_from_section(sinkSection);
+			auto sinkMap = detail::config_sinks_from_section(sinkSection);
 
 			// global format
 			std::string format = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigFormatSpecifier].str();
-			if (!format.empty()) set_default_format(format);
+			if (!format.empty()) LogConfig::set_default_format(format);
 			// global datetime format
 			std::string datefmt = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigDateTimeFormatSpecifier].str();
-			if (!datefmt.empty()) set_default_datetime_format(datefmt);
+			if (!datefmt.empty()) LogConfig::set_default_datetime_format(datefmt);
 			// global log levels
 			auto v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigLevelsSpecifier];
-			if (!v.str().empty()) set_default_level_mask(level_mask_from_string(v.str()));
+			if (!v.str().empty()) LogConfig::set_default_level_mask(level_mask_from_string(v.str()));
 			// global sink list
 			v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigSinkListSpecifier];
 			if (!v.str().empty())
 			{
 				auto list = fmt::split_whitespace(v.str());
-				sink_list_revise(list, sinkMap);
-				set_default_sink_list(list);
+				detail::sink_list_revise(list, sinkMap);
+				LogConfig::set_default_sink_list(list);
 			}
 
 			// config for specific loggers
 			auto loggerSection = parser(consts::KConfigLoggerSectionSpecifier).sections;
-			config_loggers_from_section(loggerSection, sinkMap);
+			detail::config_loggers_from_section(loggerSection, sinkMap);
 		}
 
 		inline void zupply_internal_warn(std::string msg)
@@ -2214,6 +2247,6 @@ namespace zz
 	} // namespace log
 } // namespace zz
 
-#endif //END _LIBZPP_LIBZPP_HPP_
+#endif //END _ZUPPLY_ZUPPLY_HPP_
 
 

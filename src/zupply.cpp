@@ -1130,6 +1130,44 @@ namespace zz
 				}
 			}
 		}
+
+		void ArgParser::add_argn(std::string name, char shortKey, std::string longKey,
+			std::string help, int numArg)
+		{
+			// validation checks
+			if (opts_.find(name) != opts_.end())
+			{
+				throw RuntimeException("Duplicate argument: " + name);
+			}
+
+			if (shortKey == NULL && longKey.empty())
+			{
+				throw RuntimeException("At lease one of short/long key required for argument: " + name);
+			}
+
+			if (shortKeys_.count(shortKey) > 0)
+			{
+				throw RuntimeException("Short Key already occupied by argument: " + shortKeys_[shortKey]);
+			}
+
+			if (longKeys_.count(longKey) > 0)
+			{
+				throw RuntimeException("Long key already occupied by argument: " + longKeys_[longKey]);
+			}
+
+			if (shortKey != NULL) shortKeys_[shortKey] = name;
+			if (!longKey.empty()) longKeys_[longKey] = name;
+			Vecopt opt;
+			if (numArg > 0) opt.resize(numArg);
+			if (numArg >= 0) opt.push_back(guard_);
+			opts_[name] = std::move(opt);
+			// help information
+			std::string helpStr("-");
+			helpStr.push_back(shortKey);
+			helpStr += "| -" + longKey;
+			helpStr += "\t" + help;
+			helper_.push_back(helpStr);
+		}
 	} // namespace cfg
 
 } // end namesapce zz

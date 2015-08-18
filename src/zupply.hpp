@@ -713,6 +713,8 @@ namespace zz
 
 		std::vector<std::string> split_whitespace(const std::string s);
 
+		std::pair<std::string, std::string> split_first_occurance(const std::string s, char delim);
+
 		std::string join(std::vector<std::string> elems, char delim);
 
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
@@ -845,29 +847,97 @@ namespace zz
 		class ArgParser
 		{
 		public:
-			ArgParser() : guard_("ArgParserGuard"), helper_({ "" }) {}
-			void add_argn(std::string name, char shortKey, std::string longKey,
-				std::string help = "", int numArg = 0);
+			using opt_vec_t = std::vector<CfgValue>;
 
-			void add_arg_lite(std::string name, char shortKey, std::string longKey,
+			ArgParser() : helper_({ " " }) {}
+			void add_argn(char shortKey = 0, std::string longKey = "",
+				std::string help = "", int minCount = -1, int maxCount = -1);
+
+			void add_arg_lite(char shortKey = 0, std::string longKey = "",
 				std::string help = "")
 			{
-				add_argn(name, shortKey, longKey, help, 0);
+				add_argn(shortKey, longKey, help, 0, 0);
 			}
 
-			void parse(int argc, char** argv)
-			{
+			void parse(int argc, char** argv);
 
+			int count(std::string longKey)
+			{
+				if (longKeys_.count(longKey) > 0)
+				{
+					return opts_[longKeys_[longKey]].refCount;
+				}
+				return 0;
+			}
+
+			int count(char shortKey)
+			{
+				if (shortKeys_.count(shortKey))
+				{
+					return opts_[shortKeys_[shortKey]].refCount;
+				}
+				return 0;
+			}
+
+			const opt_vec_t unspecified()
+			{
+				return opts_[""].vec;
+			}
+
+			const opt_vec_t operator[](const std::string& longKey) 
+			{ 
+				if (longKeys_.count(longKey) > 0)
+				{
+					return opts_[longKeys_[longKey]].vec;
+				}
+				return opt_vec_t();
+			}
+
+			const opt_vec_t operator[](const char shortKey)
+			{
+				if (shortKeys_.count(shortKey) > 0)
+				{
+					return opts_[shortKeys_[shortKey]].vec;
+				}
+				return opt_vec_t();
+			}
+
+			void print_help()
+			{
+				for (auto h : helper_)
+				{
+					std::cout << h << std::endl;
+				}
 			}
 
 		private:
-			using Vecopt = std::vector<CfgValue>;
+			
+			using queue_t = std::vector<std::pair<std::string, int>>;
+			struct ArgOption
+			{
+				ArgOption() : minCount(-1), maxCount(-1), refCount(0) {}
+				ArgOption(int min, int max) :minCount(min), maxCount(max), refCount(0) {}
+				opt_vec_t	vec;
+				int			refCount;
+				int			minCount;
+				int			maxCount;
+			};
+			enum ArgOptType
+			{
+				InvalidOpt = -1,
+				ShortOpt = 1,
+				LongOpt = 2,
+				Argument = 3
+			};
+
+			queue_t generate_queue(int argc, char** argv);
+
+			int check_type(std::string& opt);
+
 			std::unordered_map<char, std::string> shortKeys_;
 			std::unordered_map<std::string, std::string> longKeys_;
-			std::unordered_map<std::string, Vecopt> opts_;
-			Vecopt rest_;
+			std::unordered_map<std::string, ArgOption> opts_;
 			std::vector<std::string> helper_;
-			CfgValue guard_;
 		};
 
 	} // namespace cfg
@@ -875,6 +945,7 @@ namespace zz
 	namespace log
 	{
 		void zupply_internal_warn(std::string msg);
+		void zupply_internal_error(std::string msg);
 
 		namespace detail
 		{
@@ -2243,6 +2314,12 @@ namespace zz
 		{
 			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
 			zlog->warn() << msg;
+		}
+
+		inline void zupply_internal_error(std::string msg)
+		{
+			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
+			zlog->error() << msg;
 		}
 	} // namespace log
 } // namespace zz

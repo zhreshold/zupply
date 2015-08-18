@@ -243,18 +243,33 @@ namespace test_cfg
 	}
 }
 
+void test_arg_parser(int argc, char** argv)
+{
+	cfg::ArgParser argparser;
+	argparser.add_arg_lite('q', "quiet", "enter quiet mode");
+	argparser.add_argn('i', "input", "input string");
+	argparser.parse(argc, argv);
+	argparser.print_help();
+	auto rest = argparser[""];
+	auto q = argparser['q'];
+	auto qq = argparser["quiet"];
+	auto i = argparser['i'];
+	cout << argparser.count("input") << endl;
+	cout << i[0].str() << "   " << i[1].str() << endl;
+	cout << argparser.count("quiet") << endl;
+}
 
-
-int main()
+int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	test_logger::config_logger_from_file();
+	test_arg_parser(argc, argv);
+	//test_logger::config_logger_from_file();
 	//test_time::test_timer();
 	//test_time::test_date();
-	test_logger::test_logger();
+	//test_logger::test_logger();
 	//test_filesystem::test_filehandler();
 	//test_os::test_directory();
 	//test_os::test_console_size();

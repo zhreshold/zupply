@@ -230,6 +230,14 @@ namespace zz
 			return ret;
 		}
 
+		std::pair<std::string, std::string> split_first_occurance(const std::string s, char delim)
+		{
+			auto pos = s.find_first_of(delim);
+			std::string first = s.substr(0, pos);
+			std::string second = pos != std::string::npos? s.substr(pos) : std::string();
+			return std::make_pair(first, second);
+		}
+
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec)
 		{
 			for (auto it = vec.begin(); it != vec.end();)
@@ -1131,42 +1139,160 @@ namespace zz
 			}
 		}
 
-		void ArgParser::add_argn(std::string name, char shortKey, std::string longKey,
-			std::string help, int numArg)
+		void ArgParser::add_argn(char shortKey, std::string longKey,
+			std::string help, int minCount, int maxCount)
 		{
 			// validation checks
-			if (opts_.find(name) != opts_.end())
-			{
-				throw RuntimeException("Duplicate argument: " + name);
-			}
-
 			if (shortKey == NULL && longKey.empty())
 			{
-				throw RuntimeException("At lease one of short/long key required for argument: " + name);
+				throw ArgException("At lease one of short/long key required for argument");
 			}
 
 			if (shortKeys_.count(shortKey) > 0)
 			{
-				throw RuntimeException("Short Key already occupied by argument: " + shortKeys_[shortKey]);
+				throw ArgException("Short Key already occupied by argument: " + shortKeys_[shortKey]);
 			}
 
 			if (longKeys_.count(longKey) > 0)
 			{
-				throw RuntimeException("Long key already occupied by argument: " + longKeys_[longKey]);
+				throw ArgException("Long key already occupied by argument: " + longKeys_[longKey]);
 			}
+
+			std::string name = "arg" + std::to_string(opts_.size()) + ": " + help;
 
 			if (shortKey != NULL) shortKeys_[shortKey] = name;
 			if (!longKey.empty()) longKeys_[longKey] = name;
-			Vecopt opt;
-			if (numArg > 0) opt.resize(numArg);
-			if (numArg >= 0) opt.push_back(guard_);
-			opts_[name] = std::move(opt);
+			ArgOption argopt(minCount, maxCount);
+			opts_[name] = std::move(argopt);
 			// help information
-			std::string helpStr("-");
+			std::string helpStr("\t-");
 			helpStr.push_back(shortKey);
-			helpStr += "| -" + longKey;
+			helpStr += ", --" + longKey;
 			helpStr += "\t" + help;
 			helper_.push_back(helpStr);
+		}
+
+		int ArgParser::check_type(std::string& opt)
+		{
+			if (opt.length() < 2) return InvalidOpt;
+			if (opt[0] == '-' && opt[1] == '-')
+			{
+				if (opt.length() < 3) return InvalidOpt;
+				return LongOpt;
+			}
+			else if (opt[0] == '-')
+			{
+				return ShortOpt;
+			}
+			else
+			{
+				return Argument;
+			}
+		}
+
+		ArgParser::queue_t ArgParser::generate_queue(int argc, char** argv)
+		{
+			queue_t queue;
+			for (int p = 1; p < argc; ++p)
+			{
+				std::string opt(argv[p]);
+				int type = check_type(opt);
+				if (ShortOpt == type)
+				{
+					// parse options like -abc=somevalue
+					auto lr = fmt::split_first_occurance(opt, '=');
+					auto first = lr.first; // -abc
+					for (std::size_t i = 1; i < first.length(); ++i)
+					{
+						// put a b c into queue
+						queue.push_back(std::make_pair(first.substr(i, 1), ShortOpt));
+					}
+					if (!lr.second.empty())
+					{
+						// put somevalue into queue
+						queue.push_back(std::make_pair(lr.second, Argument));
+					}
+				}
+				else if (LongOpt == type)
+				{
+					// parse long option like: --long=somevalue
+					auto lr = fmt::split_first_occurance(opt, '=');
+					queue.push_back(std::make_pair(lr.first.substr(2), LongOpt));
+					if (!lr.second.empty())
+					{
+						queue.push_back(std::make_pair(lr.second, Argument));
+					}
+				}
+				else if (Argument == type)
+				{
+					queue.push_back(std::make_pair(opt, Argument));
+				}
+				else
+				{
+					log::zupply_internal_warn("Unable to parse option: " + opt);
+				}
+			}
+			return queue;
+		}
+
+		void ArgParser::parse(int argc, char** argv)
+		{
+			if (argc < 1)
+			{
+				log::zupply_internal_error("Argc < 1!");
+				return;
+			}
+
+			// 0. prog name
+			helper_[0] = os::path_split_filename(std::string(argv[0]));
+			
+			// 1. parser queue
+			auto queue = generate_queue(argc, argv);
+
+			// 2. store key-value
+			ArgOption *pargopt = &opts_[""];
+			for (auto v : queue)
+			{
+				if (v.second == ShortOpt)
+				{
+					ArgOption *ptr = &opts_[shortKeys_[v.first[0]]];
+					++ptr->refCount;
+					if (ptr->maxCount < 0)
+					{
+						pargopt = ptr;
+					}
+					else if (ptr->vec.size() < static_cast<std::size_t>(ptr->maxCount))
+					{
+						pargopt = ptr;
+					}
+				}
+				else if (v.second == LongOpt)
+				{
+					ArgOption *ptr = &opts_[longKeys_[v.first]];
+					++ptr->refCount;
+					if (ptr->maxCount < 0)
+					{
+						pargopt = ptr;
+					}
+					else if (ptr->vec.size() < static_cast<std::size_t>(ptr->maxCount))
+					{
+						pargopt = ptr;
+					}
+				}
+				else
+				{
+					// Argument input value
+					pargopt->vec.push_back(CfgValue(v.first));
+					if (pargopt->maxCount > 0)
+					{
+						if (pargopt->vec.size() >= static_cast<std::size_t>(pargopt->maxCount))
+						{
+							// reach limit for this argument
+							pargopt = &opts_[""]; // redirect to rest buffer
+						}
+					}
+				}
+			}
 		}
 	} // namespace cfg
 

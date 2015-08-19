@@ -247,8 +247,15 @@ void test_arg_parser(int argc, char** argv)
 {
 	cfg::ArgParser argparser;
 	argparser.add_arg_lite('q', "quiet", "enter quiet mode");
+	argparser.add_arg_lite('v', "verbose", "enter verbose mode");
+	argparser.add_arg_lite('h', "helper", "print helper");
+	argparser.add_arg_lite('r', "recurse", "recursive mode");
+
 	argparser.add_argn('i', "input", "input string");
+	argparser.add_argn('n', "number", "input integer", "int", 1, 1);
+	argparser.add_argn('k', "something", "some input string", "string", 1, -1);
 	argparser.parse(argc, argv);
+	cout << "success? " << argparser.success() << endl;
 	argparser.print_help();
 	auto rest = argparser[""];
 	auto q = argparser['q'];

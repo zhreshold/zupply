@@ -849,14 +849,15 @@ namespace zz
 		public:
 			using opt_vec_t = std::vector<CfgValue>;
 
-			ArgParser() : helper_({ " " }) {}
+			ArgParser() : helper_({ "Usage: ", "" }), failbit_(false) {}
+
 			void add_argn(char shortKey = 0, std::string longKey = "",
-				std::string help = "", int minCount = -1, int maxCount = -1);
+				std::string help = "", std::string type = "unknown", int minCount = 0, int maxCount = -1);
 
 			void add_arg_lite(char shortKey = 0, std::string longKey = "",
-				std::string help = "")
+				std::string help = "", std::string type = "unknown")
 			{
-				add_argn(shortKey, longKey, help, 0, 0);
+				add_argn(shortKey, longKey, help, type, 0, 0);
 			}
 
 			void parse(int argc, char** argv);
@@ -904,18 +905,37 @@ namespace zz
 
 			void print_help()
 			{
+				// header
+				helper_[1].push_back(']');
 				for (auto h : helper_)
 				{
-					std::cout << h << std::endl;
+					std::cout << h << " ";
 				}
+				std::cout << std::endl;
+				std::cout << "\n  Required arguments:" << std::endl;
+				print_help_section(helperRequired_);
+				std::cout << "\n  Optional arguments:" << std::endl;
+				print_help_section(helperOptional_);
+			}
+
+			void help_exit()
+			{
+				print_help();
+				exit(0);
+			}
+
+			bool success() const
+			{
+				return !failbit_;
 			}
 
 		private:
 			
 			using queue_t = std::vector<std::pair<std::string, int>>;
+			using help_t = std::pair<std::string, std::string>;
 			struct ArgOption
 			{
-				ArgOption() : minCount(-1), maxCount(-1), refCount(0) {}
+				ArgOption() : minCount(0), maxCount(-1), refCount(0) {}
 				ArgOption(int min, int max) :minCount(min), maxCount(max), refCount(0) {}
 				opt_vec_t	vec;
 				int			refCount;
@@ -931,13 +951,17 @@ namespace zz
 			};
 
 			queue_t generate_queue(int argc, char** argv);
-
 			int check_type(std::string& opt);
+			help_t to_help_string(const char shortOpt, std::string& longOpt, std::string& help);
+			void print_help_section(std::vector<help_t>& helpers);
 
 			std::unordered_map<char, std::string> shortKeys_;
 			std::unordered_map<std::string, std::string> longKeys_;
 			std::unordered_map<std::string, ArgOption> opts_;
 			std::vector<std::string> helper_;
+			std::vector<help_t> helperRequired_;
+			std::vector<help_t> helperOptional_;
+			bool	failbit_;
 		};
 
 	} // namespace cfg

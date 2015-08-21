@@ -1037,6 +1037,17 @@ namespace zz
 			}
 		}
 
+		std::vector<int> CfgValue::intVector() const
+		{
+			auto dvec = doubleVector();
+			std::vector<int> ivec;
+			for (auto d : dvec)
+			{
+				ivec.push_back(math::round(d));
+			}
+			return ivec;
+		}
+
 		CfgParser::CfgParser(std::string filename) : ln_(0)
 		{
 			os::ifstream_open(stream_, filename, std::ios::in|std::ios::binary);
@@ -1139,9 +1150,9 @@ namespace zz
 			}
 		}
 
-		ArgParser::help_t ArgParser::to_help_string(const char shortOpt, std::string& longOpt, std::string& help)
+		ArgParser::help_t ArgParser::to_help_string(const char shortOpt, std::string& longOpt,
+			std::string& help, std::string& type)
 		{
-			// indent 4 spaces
 			std::string ret;
 			if (shortOpt != 0)
 			{
@@ -1152,6 +1163,11 @@ namespace zz
 			{
 				if (shortOpt != 0) ret += ", ";
 				ret += "--" + longOpt;
+			}
+			if (!type.empty())
+			{
+				ret.push_back('=');
+				ret += type;
 			}
 			return std::make_pair(ret, help);
 		}
@@ -1172,12 +1188,12 @@ namespace zz
 			}
 
 			std::string name = "arg" + std::to_string(opts_.size()) + ": " + help;
-			if (shortKey == NULL && longKey.empty())
+			if (shortKey == -1 && longKey.empty())
 			{
 				name = "";
 			}
 
-			if (shortKey != NULL) shortKeys_[shortKey] = name;
+			if (shortKey != -1) shortKeys_[shortKey] = name;
 			if (!longKey.empty()) longKeys_[longKey] = name;
 			ArgOption argopt(minCount, maxCount);
 			opts_[name] = std::move(argopt);
@@ -1185,7 +1201,7 @@ namespace zz
 			if (argopt.minCount == 0 && argopt.maxCount == 0)
 			{
 				// helper header 1 for lite options [-aBcdEfg]
-				if (shortKey != 0)
+				if (shortKey != -1)
 				{
 					if (helper_[1].empty()) helper_[1] += "[-";
 					helper_[1].push_back(shortKey);
@@ -1197,11 +1213,11 @@ namespace zz
 				}
 
 				// add detailed information "-a, --aaa   detailed description" to this option
-				helperOptional_.push_back(to_help_string(shortKey, longKey, help));
+				helperOptional_.push_back(to_help_string(shortKey, longKey, help, type));
 			}
 			else
 			{
-				auto tmp = to_help_string(shortKey, longKey, help);
+				auto tmp = to_help_string(shortKey, longKey, help, type);
 				std::string newEntry = tmp.first + " <" + type + ":" + std::to_string(minCount) + "~";
 				if (maxCount == -1)
 				{
@@ -1375,6 +1391,119 @@ namespace zz
 				}
 			}
 		}
+
+		ArgOption2::ArgOption2(char shortKey, std::string longKey) :
+			shortKey_(shortKey), longKey_(longKey),
+			type_(""), default_(""), required_(false),
+			min_(0), max_(-1), once_(false), count_(0),
+			val_("")
+		{}
+
+		ArgOption2::ArgOption2(char shortKey) : ArgOption2(shortKey, "")
+		{}
+
+		ArgOption2::ArgOption2(std::string longKey) : ArgOption2(-1, longKey)
+		{}
+
+		std::string ArgOption2::get_help()
+		{
+			// target: '-i, --input=FILE		this is example input (default: abc.txt)'
+			const std::size_t alignment = 26;
+			std::string ret;
+			if (shortKey_ != -1)
+			{
+				ret += "-";
+				ret.push_back(shortKey_);
+			}
+			if (!longKey_.empty())
+			{
+				if (!ret.empty()) ret += ", ";
+				ret += "--";
+				ret += longKey_;
+			}
+			if (!type_.empty())
+			{
+				ret.push_back('=');
+				ret += type_;
+			}
+			if (ret.size() < alignment)
+			{
+				ret.resize(alignment);
+			}
+			else
+			{
+				// super long option, then create a new line
+				ret.push_back('\n');
+				std::string tmp;
+				tmp.resize(alignment);
+				ret += tmp;
+			}
+			ret += help_;
+			if (!default_.empty())
+			{
+				ret += " (default: ";
+				ret += default_;
+				ret += ")";
+			}
+			return ret;
+		}
+
+		ArgOption2& ArgParser2::add_opt(char shortKey, std::string longKey)
+		{
+			if (shortKey == -1 && longKey.empty())
+			{
+				throw ArgException("At least one valid key required!");
+			}
+
+			if (shortKey != -1)
+			{
+				if (shortKey < 32 || shortKey > 126)
+				{
+					// unsupported ASCII characters
+					throw ArgException("Unsupported ASCII character: " + shortKey);
+				}
+				auto opt = shortKeys_.find(shortKey);
+				if (opt != shortKeys_.end())
+				{
+					std::string tmp("Short key: ");
+					tmp.push_back(shortKey);
+					throw ArgException(tmp + " already occupied -> " + opt->second->get_help());
+				}
+			}
+
+			if (!longKey.empty())
+			{
+				auto opt = longKeys_.find(longKey);
+				if (opt != longKeys_.end())
+				{
+					throw ArgException("Long key: " + longKey + " already occupied -> " + opt->second->get_help());
+				}
+			}
+			
+			options_.push_back(ArgOption2(shortKey, longKey));
+			if (shortKey != -1)
+			{
+				// register short key
+				shortKeys_[shortKey] = options_.end() - 1;
+			}
+			if (!longKey.empty())
+			{
+				// register long key
+				longKeys_[longKey] = options_.end() - 1;
+			}
+			return options_.back();
+		}
+
+		ArgOption2& ArgParser2::add_opt(char shortKey)
+		{
+			return add_opt(shortKey, "");
+		}
+
+		ArgOption2& ArgParser2::add_opt(std::string longKey)
+		{
+			return add_opt(-1, longKey);
+		}
+
 	} // namespace cfg
 
 } // end namesapce zz

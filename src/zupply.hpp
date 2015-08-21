@@ -100,6 +100,7 @@ namespace zz
 		static const char* kExceptionPrefixArgument = "[Zupply Exception->Logic->Argument] ";
 		static const char* kExceptionPrefixRuntime = "[Zupply Exception->Runtime] ";
 		static const char* kExceptionPrefixIO = "[Zupply Exception->Runtime->IO] ";
+		static const char* kExceptionPrefixCast = "[Zupply Exception->Runtime->Cast] ";
 		static const char* kExceptionPrefixMemory = "[Zupply Exception->Runtime->Memory] ";
 		static const char* kExceptionPrefixStrictWarn = "[Zupply Exception->StrictWarn] ";
 	}
@@ -197,6 +198,23 @@ namespace zz
 		explicit RuntimeException(const std::string &message) : Exception(message, consts::kExceptionPrefixRuntime){};
 	};
 
+	/*!
+	* \class	CastException
+	*
+	* \brief	Exception for signalling unsuccessful cast operations.
+	*/
+	class CastException : public Exception
+	{
+	public:
+		explicit CastException(const char *message) : Exception(message, consts::kExceptionPrefixCast){};
+		explicit CastException(const std::string &message) : Exception(message, consts::kExceptionPrefixCast){};
+	};
+
+	/*!
+	* \class	IOException
+	*
+	* \brief	Exception for signalling unexpected IO errors.
+	*/
 	class IOException : public Exception
 	{
 	public:
@@ -304,6 +322,28 @@ namespace zz
 	{
 		template<typename T>
 		inline void unused(const T&) {}
+
+		namespace detail
+		{
+			// To allow ADL with custom begin/end
+			using std::begin;
+			using std::end;
+
+			template <typename T>
+			auto is_iterable_impl(int)
+				-> decltype (
+				begin(std::declval<T&>()) != end(std::declval<T&>()), // begin/end and operator !=
+				++std::declval<decltype(begin(std::declval<T&>()))&>(), // operator ++
+				*begin(std::declval<T&>()), // operator*
+				std::true_type{});
+
+			template <typename T>
+			std::false_type is_iterable_impl(...);
+
+		}
+
+		template <typename T>
+		using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 	} // namespace misc
 
 	namespace cds
@@ -346,7 +386,7 @@ namespace zz
 				MapPtr copy;
 				do
 				{
-					if ((*p).count(key)> 0) return false;
+					if ((*p).count(key) > 0) return false;
 					copy = std::make_shared<MapType>(*p);
 					(*copy).insert({ key, value });
 				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
@@ -780,6 +820,7 @@ namespace zz
 			long longIntValue() const { return std::stol(str_); }
 			double doubleValue() const { return std::stod(str_); }
 			std::vector<double> doubleVector() const;
+			std::vector<int> intVector() const;
 			bool empty() { return str_.empty(); }
 			bool operator== (CfgValue& other) { return other.str() == str_; }
 
@@ -805,8 +846,8 @@ namespace zz
 
 			const CfgValue& operator[](const std::string& name) { return values[name]; }
 			CfgLevel& operator()(const std::string& name) { return sections[name]; }
-			std::string to_string() 
-			{ 
+			std::string to_string()
+			{
 				std::string ret;
 				for (auto v : values)
 				{
@@ -851,11 +892,11 @@ namespace zz
 
 			ArgParser() : helper_({ "Usage: ", "" }), failbit_(false) {}
 
-			void add_argn(char shortKey = 0, std::string longKey = "",
-				std::string help = "", std::string type = "unknown", int minCount = 0, int maxCount = -1);
+			void add_argn(char shortKey = -1, std::string longKey = "",
+				std::string help = "", std::string type = "", int minCount = 0, int maxCount = -1);
 
-			void add_arg_lite(char shortKey = 0, std::string longKey = "",
-				std::string help = "", std::string type = "unknown")
+			void add_arg_lite(char shortKey = -1, std::string longKey = "",
+				std::string help = "", std::string type = "")
 			{
 				add_argn(shortKey, longKey, help, type, 0, 0);
 			}
@@ -885,8 +926,8 @@ namespace zz
 				return opts_[""].vec;
 			}
 
-			const opt_vec_t operator[](const std::string& longKey) 
-			{ 
+			const opt_vec_t operator[](const std::string& longKey)
+			{
 				if (longKeys_.count(longKey) > 0)
 				{
 					return opts_[longKeys_[longKey]].vec;
@@ -930,7 +971,7 @@ namespace zz
 			}
 
 		private:
-			
+
 			using queue_t = std::vector<std::pair<std::string, int>>;
 			using help_t = std::pair<std::string, std::string>;
 			struct ArgOption
@@ -952,7 +993,7 @@ namespace zz
 
 			queue_t generate_queue(int argc, char** argv);
 			int check_type(std::string& opt);
-			help_t to_help_string(const char shortOpt, std::string& longOpt, std::string& help);
+			help_t to_help_string(const char shortOpt, std::string& longOpt, std::string& help, std::string& type);
 			void print_help_section(std::vector<help_t>& helpers);
 
 			std::unordered_map<char, std::string> shortKeys_;
@@ -962,6 +1003,79 @@ namespace zz
 			std::vector<help_t> helperRequired_;
 			std::vector<help_t> helperOptional_;
 			bool	failbit_;
+		};
+
+		class ArgOption2
+		{
+			friend class ArgParser2;
+		public:
+			ArgOption2::ArgOption2(char shortKey, std::string longKey);
+			ArgOption2::ArgOption2(char shortKey);
+			ArgOption2::ArgOption2(std::string longKey);
+
+			template <typename T> ArgOption2& store(T& dst, T defaultValue)
+			{
+				dst = defaultValue;
+				std::ostringstream oss;
+				try
+				{
+					oss << defaultValue;
+				}
+				catch (...)
+				{
+					throw ArgException("Unable to convert default value(s) to string.");
+				}
+				if (oss.good() && !oss.str().empty()) default_ = oss.str();
+				return *this;
+			}
+			
+			template<typename T> ArgOption2& store(std::vector<T>& dst, std::vector<T> defaultValue)
+			{
+				dst = defaultValue;
+				std::ostringstream oss;
+				try
+				{
+					for (auto i : defaultValue)
+					oss << i << " ";
+				}
+				catch (...)
+				{
+					throw ArgException("Unable to convert default value(s) to string.");
+				}
+				if (oss.good() && !oss.str().empty()) default_ = oss.str();
+				return *this;
+			}
+
+		private:
+			std::string get_help();		//!< get help string
+
+			char			shortKey_;	//!< short key eg. -h
+			std::string		longKey_;	//!< long key eg. --help
+			std::string		type_;		//!< INT, DOUBLE, STRING, FILE, whatever
+			std::string		help_;		//!< detailed help info
+			std::string		default_;	//!< default value
+			bool			required_;	//!< not optional
+			int				min_;		//!< min arguments for this option
+			int				max_;		//!< max arguments for this option
+			bool			once_;		//!< should not access multiply times
+			int				count_;		//!< reference count
+			CfgValue		val_;		//!< stored value
+		};
+
+		class ArgParser2
+		{
+		public:
+			ArgParser2() {}
+			ArgOption2& add_opt(char shortKey);
+			ArgOption2& add_opt(std::string longKey);
+			ArgOption2& add_opt(char shortKey, std::string longKey);
+
+		private:
+			using ArgOptIter = std::vector<ArgOption2>::iterator;
+
+			std::vector<ArgOption2> options_;
+			std::unordered_map<char, ArgOptIter> shortKeys_;
+			std::unordered_map<std::string, ArgOptIter> longKeys_;
 		};
 
 	} // namespace cfg
@@ -1035,7 +1149,7 @@ namespace zz
 			static const char	*kDefaultLoggerFormat = "[%datetime][T%thread][%logger][%level] %msg";
 			static const char	*kDefaultLoggerDatetimeFormat = "%y-%m-%d %H:%M:%S.%frac";
 
-			
+
 
 			// config file formats
 			static const char	*KConfigGlobalSectionSpecifier = "global";
@@ -1261,7 +1375,7 @@ namespace zz
 
 			void detach_console();
 
-			
+
 
 		private:
 
@@ -2038,7 +2152,7 @@ namespace zz
 			return nullptr;
 		}
 
-		inline void dump_loggers(std::ostream &out=std::cout)
+		inline void dump_loggers(std::ostream &out = std::cout)
 		{
 			auto loggers = detail::LoggerRegistry::instance().get_all();
 			out << "{\n";

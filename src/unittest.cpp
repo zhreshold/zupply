@@ -252,8 +252,8 @@ void test_arg_parser(int argc, char** argv)
 	argparser.add_arg_lite('r', "recurse", "recursive mode");
 
 	argparser.add_argn('i', "input", "input string");
-	argparser.add_argn('n', "number", "input integer", "int", 1, 1);
-	argparser.add_argn('k', "something", "some input string", "string", 1, -1);
+	argparser.add_argn('n', "number", "input integer", "INT", 1, 1);
+	argparser.add_argn('k', "something", "some input string", "STRING", 1, -1);
 	argparser.parse(argc, argv);
 	cout << "success? " << argparser.success() << endl;
 	argparser.print_help();
@@ -264,6 +264,12 @@ void test_arg_parser(int argc, char** argv)
 	cout << argparser.count("input") << endl;
 	cout << i[0].str() << "   " << i[1].str() << endl;
 	cout << argparser.count("quiet") << endl;
+
+	cfg::ArgOption2 opt('h', "help");
+	std::vector<int> integer;
+	std::vector<int> def({ 10, 20 });
+	opt.store(integer, def);
+	cout << "ok" << endl;
 }
 
 int main(int argc, char** argv)

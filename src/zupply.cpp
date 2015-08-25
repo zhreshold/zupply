@@ -998,7 +998,7 @@ namespace zz
 
 	namespace cfg
 	{
-		bool CfgValue::booleanValue() const
+		bool Value::booleanValue() const
 		{
 			std::string lowered = fmt::to_lower_ascii(str_);
 			if ("true" == lowered) return true;
@@ -1015,7 +1015,7 @@ namespace zz
 			throw ArgException("Invalid boolean value: " + str_);
 		}
 
-		std::vector<double> CfgValue::doubleVector() const
+		std::vector<double> Value::doubleVector() const
 		{
 			std::vector<double> vec;
 			std::string::size_type sz;
@@ -1037,7 +1037,7 @@ namespace zz
 			}
 		}
 
-		std::vector<int> CfgValue::intVector() const
+		std::vector<int> Value::intVector() const
 		{
 			auto dvec = doubleVector();
 			std::vector<int> ivec;
@@ -1370,7 +1370,7 @@ namespace zz
 				else
 				{
 					// Argument input value
-					pargopt->vec.push_back(CfgValue(v.first));
+					pargopt->vec.push_back(Value(v.first));
 					if (pargopt->maxCount > 0)
 					{
 						if (pargopt->vec.size() >= static_cast<std::size_t>(pargopt->maxCount))
@@ -1396,7 +1396,7 @@ namespace zz
 			shortKey_(shortKey), longKey_(longKey),
 			type_(""), default_(""), required_(false),
 			min_(0), max_(-1), once_(false), count_(0),
-			val_("")
+			val_(""), size_(0)
 		{}
 
 		ArgOption2::ArgOption2(char shortKey) : ArgOption2(shortKey, "")
@@ -1448,6 +1448,11 @@ namespace zz
 			return ret;
 		}
 
+		ArgParser2::ArgParser2() : info_({ "program" })
+		{
+
+		}
+
 		ArgOption2& ArgParser2::add_opt(char shortKey, std::string longKey)
 		{
 			if (shortKey == -1 && longKey.empty())
@@ -1467,7 +1472,7 @@ namespace zz
 				{
 					std::string tmp("Short key: ");
 					tmp.push_back(shortKey);
-					throw ArgException(tmp + " already occupied -> " + opt->second->get_help());
+					throw ArgException(tmp + " already occupied -> " + options_[opt->second].get_help());
 				}
 			}
 
@@ -1476,7 +1481,7 @@ namespace zz
 				auto opt = longKeys_.find(longKey);
 				if (opt != longKeys_.end())
 				{
-					throw ArgException("Long key: " + longKey + " already occupied -> " + opt->second->get_help());
+					throw ArgException("Long key: " + longKey + " already occupied -> " + options_[opt->second].get_help());
 				}
 			}
 			
@@ -1484,12 +1489,12 @@ namespace zz
 			if (shortKey != -1)
 			{
 				// register short key
-				shortKeys_[shortKey] = options_.end() - 1;
+				shortKeys_[shortKey] = options_.size() - 1;
 			}
 			if (!longKey.empty())
 			{
 				// register long key
-				longKeys_[longKey] = options_.end() - 1;
+				longKeys_[longKey] = options_.size() - 1;
 			}
 			return options_.back();
 		}
@@ -1502,6 +1507,184 @@ namespace zz
 		ArgOption2& ArgParser2::add_opt(std::string longKey)
 		{
 			return add_opt(-1, longKey);
+		}
+
+		ArgParser2::Type ArgParser2::check_type(std::string opt)
+		{
+			if (opt.length() < 2) return Type::INVALID;
+			if (opt[0] == '-' && opt[1] == '-')
+			{
+				if (opt.length() < 3) return Type::INVALID;
+				return Type::LONG_KEY;
+			}
+			else if (opt[0] == '-')
+			{
+				return Type::SHORT_KEY;
+			}
+			else
+			{
+				return Type::ARGUMENT;
+			}
+		}
+
+		ArgParser2::ArgQueue ArgParser2::pretty_arguments(int argc, char** argv)
+		{
+			ArgQueue queue;
+			for (int p = 1; p < argc; ++p)
+			{
+				std::string opt(argv[p]);
+				Type type = check_type(opt);
+				if (Type::SHORT_KEY == type)
+				{
+					// parse options like -abc=somevalue
+					auto lr = fmt::split_first_occurance(opt, '=');
+					auto first = lr.first; // -abc
+					for (std::size_t i = 1; i < first.length(); ++i)
+					{
+						// put a b c into queue
+						queue.push_back(std::make_pair("-" + first.substr(i, 1), Type::SHORT_KEY));
+					}
+					if (!lr.second.empty())
+					{
+						// put somevalue into queue
+						queue.push_back(std::make_pair(lr.second, Type::ARGUMENT));
+					}
+				}
+				else if (Type::LONG_KEY == type)
+				{
+					// parse long option like: --long=somevalue
+					auto lr = fmt::split_first_occurance(opt, '=');
+					queue.push_back(std::make_pair(lr.first, Type::LONG_KEY));
+					if (!lr.second.empty())
+					{
+						queue.push_back(std::make_pair(lr.second, Type::ARGUMENT));
+					}
+				}
+				else if (Type::ARGUMENT == type)
+				{
+					queue.push_back(std::make_pair(opt, Type::ARGUMENT));
+				}
+				else
+				{
+					queue.push_back(std::make_pair(opt, Type::INVALID));
+				}
+			}
+			return queue;
+		}
+
+		void ArgParser2::error_option(std::string opt, std::string msg)
+		{
+			errors_.push_back("Error parsing option: " + opt + " " + msg);
+		}
+
+		void ArgParser2::parse_option(ArgOption2* ptr)
+		{
+			++ptr->count_;
+			if (ptr->count_ == 1 && ptr->callback_)
+			{
+				ptr->callback_();	// callback function
+			}
+		}
+
+		void ArgParser2::parse_value(ArgOption2* ptr, const std::string& value)
+		{
+			if (ptr == nullptr) args_.push_back(value);
+			else
+			{
+				if (ptr->max_ < 0 || ptr->size_ < ptr->max_)
+				{
+					// boundless or not yet reached maximum
+					ptr->val_ = ptr->val_.str() + value + " ";
+					++ptr->size_;
+				}
+				else
+				{
+					args_.push_back(value);
+					ptr = nullptr;
+				}
+			}
+		}
+
+		void ArgParser2::parse(int argc, char** argv, bool ignoreUnknown)
+		{
+			if (argc < 1)
+			{
+				errors_.push_back("Argc < 1");
+				return;
+			}
+
+			// 0. prog name
+			info_[0] = os::path_split_filename(std::string(argv[0]));
+
+			// 1. make prettier argument queue
+			auto queue = pretty_arguments(argc, argv);
+
+			// 2. parse one by one
+			ArgOption2 *opt = nullptr;
+			for (auto q : queue)
+			{
+				if (Type::SHORT_KEY == q.second)
+				{
+					auto iter = shortKeys_.find(q.first[1]);
+					if (iter == shortKeys_.end())
+					{
+						if (!ignoreUnknown) error_option(q.first, "unknown option.");
+						continue;
+					}
+					opt = &options_[iter->second];
+					parse_option(opt);
+				}
+				else if (Type::LONG_KEY == q.second)
+				{
+					auto iter = longKeys_.find(q.first.substr(2));
+					if (iter == longKeys_.end())
+					{
+						if (!ignoreUnknown) error_option(q.first, "unknown option.");
+						continue;
+					}
+					opt = &options_[iter->second];
+					parse_option(opt);
+				}
+				else if (Type::ARGUMENT == q.second)
+				{
+					parse_value(opt, q.first);
+				}
+				else
+				{
+					error_option(q.first, "invalid option.");
+				}
+			}
+
+			// 3. check errors
+			for (auto o : options_)
+			{
+				if (o.required_ && (o.count_ < 1))
+				{
+					errors_.push_back(o.get_help() + " required.");
+				}
+				if (o.min_ > o.size_)
+				{
+					errors_.push_back(o.get_help() + " need at least " + std::to_string(o.min_) + " arguments.");
+				}
+				if (o.count_ > 1 && o.once_)
+				{
+					errors_.push_back(o.get_help() + " limited to be called only once.");
+				}
+			}
+		}
+
+		std::string ArgParser2::get_help()
+		{
+			std::string ret("Usage: ");
+			for (auto info : info_)
+			{
+				ret += info + "\n";
+			}
+			for (auto opt : options_)
+			{
+				ret += "  " + opt.get_help() + "\n";
+			}
+			return ret;
 		}
 
 	} // namespace cfg

@@ -231,7 +231,7 @@ namespace test_cfg
 
 	void test_cfg_string()
 	{
-		cfg::CfgValue vstring("25");
+		cfg::Value vstring("25");
 		int v = vstring.intValue();
 		cout << v << endl;
 		vstring = std::string("1.2321 9324.23 343.239423");
@@ -272,13 +272,29 @@ void test_arg_parser(int argc, char** argv)
 	cout << "ok" << endl;
 }
 
+void test_arg_parser2(int argc, char** argv)
+{
+	cfg::ArgParser2 p;
+	p.add_opt('v', "version").call([]{cout << "show version plz" << endl; }).help("version info");
+	int input;
+	p.add_opt("input").store(input, -1).require().help("input number").type("INT");
+	p.parse(argc, argv);
+
+	if (p.count_error())
+	{
+		cout << p.get_help() << endl;
+	}
+	cout << input << endl;
+}
+
 int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	test_arg_parser(argc, argv);
+	test_arg_parser2(argc, argv);
+	//test_arg_parser(argc, argv);
 	//test_logger::config_logger_from_file();
 	//test_time::test_timer();
 	//test_time::test_date();
@@ -290,6 +306,10 @@ int main(int argc, char** argv)
 	//test_math::test_math();
 	//test_cfg::test_cfg_parser();
 	//test_cfg::test_cfg_string();
+	
+	//int i = 0;
+	//misc::Callback([&]{cout << "test callback!" << i << endl; i = 1; });
+	//cout << i << endl;
 
 	system("pause");
 

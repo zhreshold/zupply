@@ -85,6 +85,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <functional>
 
 namespace zz
 {
@@ -344,6 +345,14 @@ namespace zz
 
 		template <typename T>
 		using is_iterable = decltype(detail::is_iterable_impl<T>(0));
+
+		class Callback
+		{
+		public:
+			Callback(std::function<void()> f) : f_(f) { f_(); }
+		private:
+			std::function<void()> f_;
+		};
 	} // namespace misc
 
 	namespace cds
@@ -808,12 +817,12 @@ namespace zz
 
 	namespace cfg
 	{
-		class CfgValue
+		class Value
 		{
 		public:
-			CfgValue() {}
-			CfgValue(std::string valueStr) : str_(valueStr) {}
-			CfgValue(const CfgValue& other) : str_(other.str_) {}
+			Value() {}
+			Value(std::string valueStr) : str_(valueStr) {}
+			Value(const Value& other) : str_(other.str_) {}
 			std::string str() const { return str_; }
 			int	intValue() const { return std::stoi(str_); }
 			bool booleanValue() const;
@@ -822,7 +831,7 @@ namespace zz
 			std::vector<double> doubleVector() const;
 			std::vector<int> intVector() const;
 			bool empty() { return str_.empty(); }
-			bool operator== (CfgValue& other) { return other.str() == str_; }
+			bool operator== (Value& other) { return other.str() == str_; }
 
 		private:
 			std::string str_;
@@ -833,7 +842,7 @@ namespace zz
 			CfgLevel() : parent(nullptr), depth(0) {}
 			CfgLevel(CfgLevel* p, std::size_t d) : parent(p), depth(d) {}
 
-			using value_map_t = std::map<std::string, CfgValue>;
+			using value_map_t = std::map<std::string, Value>;
 			using section_map_t = std::map<std::string, CfgLevel>;
 			using value_t = std::vector<value_map_t::const_iterator>;
 			using section_t = std::vector<section_map_t::const_iterator>;
@@ -844,7 +853,7 @@ namespace zz
 			CfgLevel* parent;
 			size_t depth;
 
-			const CfgValue& operator[](const std::string& name) { return values[name]; }
+			const Value& operator[](const std::string& name) { return values[name]; }
 			CfgLevel& operator()(const std::string& name) { return sections[name]; }
 			std::string to_string()
 			{
@@ -868,7 +877,7 @@ namespace zz
 			CfgParser(std::istream& s) : pstream_(&s), ln_(0) { parse(root_); }
 			CfgLevel& root() { return root_; }
 
-			const CfgValue& operator[](const std::string& name) { return root_.values[name]; }
+			const Value& operator[](const std::string& name) { return root_.values[name]; }
 			CfgLevel& operator()(const std::string& name) { return root_.sections[name]; }
 
 		private:
@@ -888,7 +897,7 @@ namespace zz
 		class ArgParser
 		{
 		public:
-			using opt_vec_t = std::vector<CfgValue>;
+			using opt_vec_t = std::vector<Value>;
 
 			ArgParser() : helper_({ "Usage: ", "" }), failbit_(false) {}
 
@@ -1007,7 +1016,7 @@ namespace zz
 
 		class ArgOption2
 		{
-			friend class ArgParser2;
+			friend class ArgParser2;	// let ArgParser access private members
 		public:
 			ArgOption2::ArgOption2(char shortKey, std::string longKey);
 			ArgOption2::ArgOption2(char shortKey);
@@ -1023,7 +1032,7 @@ namespace zz
 				}
 				catch (...)
 				{
-					throw ArgException("Unable to convert default value(s) to string.");
+					throw ArgException("Unable to convert default value to string.");
 				}
 				if (oss.good() && !oss.str().empty()) default_ = oss.str();
 				return *this;
@@ -1046,6 +1055,43 @@ namespace zz
 				return *this;
 			}
 
+			ArgOption2& call(std::function<void()> todo)
+			{
+				callback_ = todo;
+				return *this;
+			}
+
+			ArgOption2& call(std::function<void()> todo, std::function<void()> otherwise)
+			{
+				callback_ = todo;
+				otherwise();
+				return *this;
+			}
+
+			ArgOption2& help(std::string helpInfo)
+			{
+				help_ = helpInfo;
+				return *this;
+			}
+
+			ArgOption2& require(bool require = true)
+			{
+				required_ = require;
+				return *this;
+			}
+
+			ArgOption2& once(bool onlyOnce = true)
+			{
+				once_ = onlyOnce;
+				return *this;
+			}
+
+			ArgOption2& type(std::string type)
+			{
+				type_ = type;
+				return *this;
+			}
+
 		private:
 			std::string get_help();		//!< get help string
 
@@ -1057,25 +1103,42 @@ namespace zz
 			bool			required_;	//!< not optional
 			int				min_;		//!< min arguments for this option
 			int				max_;		//!< max arguments for this option
+			int				size_;		//!< stored argument size
 			bool			once_;		//!< should not access multiply times
 			int				count_;		//!< reference count
-			CfgValue		val_;		//!< stored value
+			Value			val_;		//!< stored values
+			std::function<void()> callback_;	//!< call this when option found
 		};
 
 		class ArgParser2
 		{
 		public:
-			ArgParser2() {}
+			ArgParser2();
 			ArgOption2& add_opt(char shortKey);
 			ArgOption2& add_opt(std::string longKey);
 			ArgOption2& add_opt(char shortKey, std::string longKey);
+			void parse(int argc, char** argv, bool ignoreUnknown = false);
+
+			std::size_t count_error() { return errors_.size(); }
+			std::string get_help();
 
 		private:
 			using ArgOptIter = std::vector<ArgOption2>::iterator;
+			enum class Type {SHORT_KEY, LONG_KEY, ARGUMENT, INVALID};
+			using ArgQueue = std::vector<std::pair<std::string, Type>>;
 
-			std::vector<ArgOption2> options_;
-			std::unordered_map<char, ArgOptIter> shortKeys_;
-			std::unordered_map<std::string, ArgOptIter> longKeys_;
+			Type check_type(std::string str);
+			ArgQueue pretty_arguments(int argc, char** argv);
+			void error_option(std::string opt, std::string msg = "");
+			void parse_option(ArgOption2* ptr);
+			void parse_value(ArgOption2* ptr, const std::string& value);
+
+			std::vector<ArgOption2> options_;	//!< hooked options
+			std::unordered_map<char, std::size_t> shortKeys_;		//!< short keys -a -b 
+			std::unordered_map<std::string, std::size_t> longKeys_;	//!< long keys --long --version
+			std::vector<Value>	args_;	//!< anything not belong to option will be stored here
+			std::vector<std::string> errors_;	//!< store parsing errors
+			std::vector<std::string> info_;	//!< program name from argv[0], other infos from user
 		};
 
 	} // namespace cfg

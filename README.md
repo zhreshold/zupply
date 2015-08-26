@@ -53,12 +53,12 @@ int main(int argc, char** argv)
 ## Wiki
 ###### So much to write, try hard :P
 #### Contents
-1. [Date](#Date) and [Timer](#Timer)
-2. [Logger](#Logger)
-3. [Directory](#Directory) and [File](#File)
-4. [Formatter](#Formatter)
-5. [Argument Parser](#Argument-Parser)
-6. [INI or CFG Parser](#Configure-Parser)
+1. [Date](#date) and [Timer](#timer)
+2. [Logger](#logger)
+3. [Directory](#directory) and [File](#file)
+4. [Formatter](#formatter)
+5. [Argument Parser](#argument-Parser)
+6. [INI or CFG Parser](#configure-Parser)
 
 #### Date
 ```

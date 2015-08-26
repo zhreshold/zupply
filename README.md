@@ -57,30 +57,32 @@ int main(int argc, char** argv)
 2. [Logger](#logger)
 3. [Directory](#directory) and [File](#file)
 4. [Formatter](#formatter)
-5. [Argument Parser](#argument-Parser)
-6. [INI or CFG Parser](#configure-Parser)
+5. [Argument Parser](#argument-parser)
+6. [INI or CFG Parser](#configure-parser)
 
 #### Date
 ```
 // show current date in local time zone
 auto date = zz::time::Date();
 std::cout << "Local time(Pacific) " << date.to_string() << std::endl;
-// or UTC time
+// convert to UTC time
 date.to_utc_time();
 std::cout << "UTC time " << date.to_string() << std::endl;
 // customize to_string format
 auto str = date.to_string("%m/%d %a %H:%M:%S.%frac");
 std::cout << "With format [%m / %d %a %H:%M : %S.%frac] : " << str << std::endl;
+str = date.to_string("%c");
+std::cout << "With format %c(standard, local specific): " << str << std::endl;
 // another way is using static function
 std::cout << "Call UTC directly " << zz::time::Date::utc_time().to_string() << std::endl;
 ```
 #####Output:
 ```
-Local time(Pacific) 15-08-26 16:38:44.089
-UTC time 15-08-26 23:38:44.089
-With format [%m / %d %a %H:%M : %S.%frac] : 08/26 Wed 23:38:44.089
-Call UTC directly 15-08-26 23:38:44.091
-
+Local time(Pacific) 15-08-26 16:48:03.520
+UTC time 15-08-26 23:48:03.520
+With format [%m / %d %a %H:%M : %S.%frac] : 08/26 Wed 23:48:03.520
+With format %c(standard, local specific): 08/26/15 23:48:03
+Call UTC directly 15-08-26 23:48:03.521
 ```
 ##### Supported format specifier 
 |Specifier|       Description      |

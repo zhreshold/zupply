@@ -817,56 +817,6 @@ namespace zz
 
 	namespace cfg
 	{
-		//class Value
-		//{
-		//public:
-		//	Value() {}
-		//	Value(std::string valueStr) : str_(valueStr) {}
-		//	Value(const Value& other) : str_(other.str_) {}
-		//	std::string str() const { return str_; }
-		//	int	intValue() const { return std::stoi(str_); }
-		//	bool booleanValue() const;
-		//	long longIntValue() const { return std::stol(str_); }
-		//	double doubleValue() const { return std::stod(str_); }
-		//	std::vector<double> doubleVector() const;
-		//	std::vector<int> intVector() const;
-		//	bool empty() { return str_.empty(); }
-		//	bool operator== (Value& other) { return other.str() == str_; }
-		//	
-		//	template <typename T> Value& operator<< (T t)
-		//	{
-		//		std::ostringstream oss;
-		//		oss << t;
-		//		if (!str_.empty())
-		//		{
-		//			if (str_.back() !=)
-		//		}
-		//		return *this;
-		//	}
-
-		//private:
-		//	std::string str_;
-		//};
-
-		//class Value
-		//{
-		//public:
-		//	Value(){}
-		//	Value(std::string str) { ss_.str(str); }
-		//	Value(const Value& other) { ss_ << other.ss_.rdbuf(); }
-		//	std::string str() const { return ss_.str(); }
-		//	bool empty() { return ss_.rdbuf()->in_avail() == 0; }
-		//	bool operator== (Value& other) { return ss_.str() == other.str(); }
-		//	void operator= (std::string str) { ss_.clear(); ss_.str(str); }
-		//	void operator= (const Value& other) { ss_.clear(); ss_ << other.ss_.rdbuf(); }
-		//	template <typename T> Value& operator<< (T t) { ss_.clear(); ss_ << t << " "; return *this; }
-		//	template <typename T> Value& operator>> (T& t) { ss_.clear(); ss_ >> t; return *this; }
-		//	template <typename T> T value() { T ret; *this >> ret; return ret; }
-		//	template <typename T> T value(T& t) { *this >> t; return t; }
-
-		//private:
-		//	std::stringstream ss_;
-		//};
 
 		class Value
 		{
@@ -940,8 +890,6 @@ namespace zz
 
 			using value_map_t = std::map<std::string, Value>;
 			using section_map_t = std::map<std::string, CfgLevel>;
-			//using value_t = std::vector<value_map_t::const_iterator>;
-			//using section_t = std::vector<section_map_t::const_iterator>;
 
 			value_map_t values;
 			section_map_t sections;
@@ -990,203 +938,21 @@ namespace zz
 			std::size_t		ln_;
 		};
 
-		class ArgParser
+		class ArgOption
 		{
+			friend class ArgParser;
 		public:
-			using opt_vec_t = std::vector<Value>;
-
-			ArgParser() : helper_({ "Usage: ", "" }), failbit_(false) {}
-
-			void add_argn(char shortKey = -1, std::string longKey = "",
-				std::string help = "", std::string type = "", int minCount = 0, int maxCount = -1);
-
-			void add_arg_lite(char shortKey = -1, std::string longKey = "",
-				std::string help = "", std::string type = "")
-			{
-				add_argn(shortKey, longKey, help, type, 0, 0);
-			}
-
-			void parse(int argc, char** argv);
-
-			int count(std::string longKey)
-			{
-				if (longKeys_.count(longKey) > 0)
-				{
-					return opts_[longKeys_[longKey]].refCount;
-				}
-				return 0;
-			}
-
-			int count(char shortKey)
-			{
-				if (shortKeys_.count(shortKey))
-				{
-					return opts_[shortKeys_[shortKey]].refCount;
-				}
-				return 0;
-			}
-
-			const opt_vec_t unspecified()
-			{
-				return opts_[""].vec;
-			}
-
-			const opt_vec_t operator[](const std::string& longKey)
-			{
-				if (longKeys_.count(longKey) > 0)
-				{
-					return opts_[longKeys_[longKey]].vec;
-				}
-				return opt_vec_t();
-			}
-
-			const opt_vec_t operator[](const char shortKey)
-			{
-				if (shortKeys_.count(shortKey) > 0)
-				{
-					return opts_[shortKeys_[shortKey]].vec;
-				}
-				return opt_vec_t();
-			}
-
-			void print_help()
-			{
-				// header
-				helper_[1].push_back(']');
-				for (auto h : helper_)
-				{
-					std::cout << h << " ";
-				}
-				std::cout << std::endl;
-				std::cout << "\n  Required arguments:" << std::endl;
-				print_help_section(helperRequired_);
-				std::cout << "\n  Optional arguments:" << std::endl;
-				print_help_section(helperOptional_);
-			}
-
-			void help_exit()
-			{
-				print_help();
-				exit(0);
-			}
-
-			bool success() const
-			{
-				return !failbit_;
-			}
-
-		private:
-
-			using queue_t = std::vector<std::pair<std::string, int>>;
-			using help_t = std::pair<std::string, std::string>;
-			struct ArgOption
-			{
-				ArgOption() : minCount(0), maxCount(-1), refCount(0) {}
-				ArgOption(int min, int max) :minCount(min), maxCount(max), refCount(0) {}
-				opt_vec_t	vec;
-				int			refCount;
-				int			minCount;
-				int			maxCount;
-			};
-			enum ArgOptType
-			{
-				InvalidOpt = -1,
-				ShortOpt = 1,
-				LongOpt = 2,
-				Argument = 3
-			};
-
-			queue_t generate_queue(int argc, char** argv);
-			int check_type(std::string& opt);
-			help_t to_help_string(const char shortOpt, std::string& longOpt, std::string& help, std::string& type);
-			void print_help_section(std::vector<help_t>& helpers);
-
-			std::unordered_map<char, std::string> shortKeys_;
-			std::unordered_map<std::string, std::string> longKeys_;
-			std::unordered_map<std::string, ArgOption> opts_;
-			std::vector<std::string> helper_;
-			std::vector<help_t> helperRequired_;
-			std::vector<help_t> helperOptional_;
-			bool	failbit_;
-		};
-
-		class ArgOption2
-		{
-			friend class ArgParser2;	// let ArgParser access private members
-		public:
-			ArgOption2::ArgOption2(char shortKey, std::string longKey);
-			ArgOption2::ArgOption2(char shortKey);
-			ArgOption2::ArgOption2(std::string longKey);
-
-			template <typename T> ArgOption2& store(T& dst, T defaultValue)
-			{
-				dst = defaultValue;
-				std::ostringstream oss;
-				try
-				{
-					oss << defaultValue;
-				}
-				catch (...)
-				{
-					throw ArgException("Unable to convert default value to string.");
-				}
-				if (oss.good() && !oss.str().empty()) default_ = oss.str();
-				return *this;
-			}
-			
-			template<typename T> ArgOption2& store(std::vector<T>& dst, std::vector<T> defaultValue)
-			{
-				dst = defaultValue;
-				std::ostringstream oss;
-				try
-				{
-					for (auto i : defaultValue)
-					oss << i << " ";
-				}
-				catch (...)
-				{
-					throw ArgException("Unable to convert default value(s) to string.");
-				}
-				if (oss.good() && !oss.str().empty()) default_ = oss.str();
-				return *this;
-			}
-
-			ArgOption2& call(std::function<void()> todo)
-			{
-				callback_ = todo;
-				return *this;
-			}
-
-			ArgOption2& call(std::function<void()> todo, std::function<void()> otherwise)
-			{
-				callback_ = todo;
-				otherwise();
-				return *this;
-			}
-
-			ArgOption2& help(std::string helpInfo)
-			{
-				help_ = helpInfo;
-				return *this;
-			}
-
-			ArgOption2& require(bool require = true)
-			{
-				required_ = require;
-				return *this;
-			}
-
-			ArgOption2& once(bool onlyOnce = true)
-			{
-				once_ = onlyOnce;
-				return *this;
-			}
-
-			ArgOption2& type(std::string type)
-			{
-				type_ = type;
-				return *this;
-			}
+			ArgOption::ArgOption(char shortKey, std::string longKey);
+			ArgOption::ArgOption(char shortKey);
+			ArgOption::ArgOption(std::string longKey);
+			ArgOption& call(std::function<void()> todo);
+			ArgOption& call(std::function<void()> todo, std::function<void()> otherwise);
+			ArgOption& set_help(std::string helpInfo);
+			ArgOption& require(bool require = true);
+			ArgOption& set_once(bool onlyOnce = true);
+			ArgOption& set_type(std::string type);
+			ArgOption& set_min(int minCount);
+			ArgOption& set_max(int maxCount);
 
 		private:
 			std::string get_help();		//!< get help string
@@ -1203,60 +969,80 @@ namespace zz
 			bool			once_;		//!< should not access multiply times
 			int				count_;		//!< reference count
 			Value			val_;		//!< stored values
-			std::function<void()> callback_;	//!< call this when option found
+			std::vector<std::function<void()>> callback_;	//!< call these when option found
+			std::vector<std::function<void()>> othercall_;	//!< call these when option not found	
 		};
 
-		class ArgParser2
+		class ArgParser
 		{
 		public:
-			ArgParser2();
-			ArgOption2& add_opt(char shortKey);
-			ArgOption2& add_opt(std::string longKey);
-			ArgOption2& add_opt(char shortKey, std::string longKey);
-			template <typename T> ArgOption2& add_opt_value(char shortKey, std::string longKey, T& dst, T defaultValue, std::string help="", std::string type="")
-			{
-				dst = defaultValue;
-				Value dfltValue;
-				dfltValue.store(defaultValue);
-				auto& opt = add_opt(shortKey, longKey).call([shortKey, &dst, this] {(*this)[shortKey].load(dst); });
-				opt.default_ = dfltValue.str();
-				return opt;
-			}
-			template <typename T> ArgOption2& add_opt_value(char shortKey, T& dst, T defaultValue, std::string help = "", std::string type = "")
-			{
-				return add_opt_value(shortKey, "");
-			}
+			ArgParser();
+			ArgOption& add_opt(char shortKey);
+			ArgOption& add_opt(std::string longKey);
+			ArgOption& add_opt(char shortKey, std::string longKey);
+			template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
+				T& dst, T defaultValue, std::string help = "", std::string type = "");
+			template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
+				T defaultValue, std::string help = "", std::string type = "");
 
-			template <typename T> ArgOption2& add_opt_value(std::string longKey, T& dst, T defaultValue, std::string help = "", std::string type = "")
-			{
-				return add_opt_value(-1, longKey);
-			}
+			ArgOption& add_opt_flag(char shortKey, std::string longKey, std::string help = "", bool* dst = nullptr);
+			ArgOption& add_opt_flag(std::string longKey, std::string help = "", bool* dst = nullptr);
+
+			void add_opt_help(char shortKey, std::string longKey, std::string help = "print this help and exit");
+			void add_opt_help(std::string longKey, std::string = "print this help and exit");
+
+			void add_opt_version(char shortKey, std::string longKey, std::string version, std::string help = "print version and exit");
+			void add_opt_version(std::string longKey, std::string version, std::string help = "print version and exit");
+
+			std::string version() const { return info_[1]; }
 
 			void parse(int argc, char** argv, bool ignoreUnknown = false);
 
 			std::size_t count_error() { return errors_.size(); }
+			int	count(char shortKey);
+			int count(std::string longKey);
+			std::string get_error();
 			std::string get_help();
 			Value operator[](const std::string& longKey);
 			Value operator[](const char shortKey);
 
 		private:
-			//using ArgOptIter = std::vector<ArgOption2>::iterator;
+			//using ArgOptIter = std::vector<ArgOption>::iterator;
 			enum class Type {SHORT_KEY, LONG_KEY, ARGUMENT, INVALID};
 			using ArgQueue = std::vector<std::pair<std::string, Type>>;
 
+			ArgOption& add_opt_internal(char shortKey, std::string longKey, bool active = true);
+			void register_keys(char shortKey, std::string longKey, std::size_t pos);
 			Type check_type(std::string str);
 			ArgQueue pretty_arguments(int argc, char** argv);
 			void error_option(std::string opt, std::string msg = "");
-			void parse_option(ArgOption2* ptr);
-			void parse_value(ArgOption2* ptr, const std::string& value);
+			void parse_option(ArgOption* ptr);
+			void parse_value(ArgOption* ptr, const std::string& value);
 
-			std::vector<ArgOption2> options_;	//!< hooked options
+			std::vector<ArgOption> options_;	//!< hooked options
 			std::unordered_map<char, std::size_t> shortKeys_;		//!< short keys -a -b 
 			std::unordered_map<std::string, std::size_t> longKeys_;	//!< long keys --long --version
 			std::vector<Value>	args_;	//!< anything not belong to option will be stored here
 			std::vector<std::string> errors_;	//!< store parsing errors
 			std::vector<std::string> info_;	//!< program name[0] from argv[0], other infos from user
 		};
+		// implementation for ArgParser
+		template <typename T> inline ArgOption& ArgParser::add_opt_value(char shortKey, std::string longKey,
+			T& dst, T defaultValue, std::string help, std::string type)
+		{
+			dst = defaultValue;
+			Value dfltValue;
+			dfltValue.store(defaultValue);
+			auto& opt = add_opt(shortKey, longKey).call([shortKey, &dst, this] {(*this)[shortKey].load(dst); });
+			opt.default_ = dfltValue.str();
+			return opt.set_help(help).set_type(type);
+		}
+
+		template <typename T> inline ArgOption& ArgParser::add_opt_value(std::string longKey, T& dst,
+			T defaultValue, std::string help, std::string type)
+		{
+			return add_opt_value(-1, longKey, defaultValue, help, type);
+		}
 
 	} // namespace cfg
 

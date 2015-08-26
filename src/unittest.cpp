@@ -248,50 +248,25 @@ namespace test_cfg
 	}
 }
 
-void test_arg_parser(int argc, char** argv)
-{
-	cfg::ArgParser argparser;
-	argparser.add_arg_lite('q', "quiet", "enter quiet mode");
-	argparser.add_arg_lite('v', "verbose", "enter verbose mode");
-	argparser.add_arg_lite('h', "helper", "print helper");
-	argparser.add_arg_lite('r', "recurse", "recursive mode");
-
-	argparser.add_argn('i', "input", "input string");
-	argparser.add_argn('n', "number", "input integer", "INT", 1, 1);
-	argparser.add_argn('k', "something", "some input string", "STRING", 1, -1);
-	argparser.parse(argc, argv);
-	cout << "success? " << argparser.success() << endl;
-	argparser.print_help();
-	auto rest = argparser[""];
-	auto q = argparser['q'];
-	auto qq = argparser["quiet"];
-	auto i = argparser['i'];
-	cout << argparser.count("input") << endl;
-	cout << i[0].str() << "   " << i[1].str() << endl;
-	cout << argparser.count("quiet") << endl;
-
-	cfg::ArgOption2 opt('h', "help");
-	std::vector<int> integer;
-	std::vector<int> def({ 10, 20 });
-	opt.store(integer, def);
-	cout << "ok" << endl;
-}
-
 void test_arg_parser2(int argc, char** argv)
 {
-	cfg::ArgParser2 p;
-	p.add_opt('v', "version").call([]{cout << "show version plz" << endl; }).help("version info");
+	cfg::ArgParser p;
+	//p.add_opt('v', "version").call([]{cout << "show version plz" << endl; }).set_help("version info");
 	int input;
 	//p.add_opt("input").store(input, -1).require().help("input number").type("INT");
 	p.add_opt_value('i', "input", input, -1, "input name", "INT");
+	bool bbb;
+	p.add_opt_flag('b', "brief", "brief intro", &bbb);
+	p.add_opt_help('h', "help");
+	p.add_opt_version("version", "0.0.1");
 	p.parse(argc, argv);
-
 	if (p.count_error())
 	{
+		cout << p.get_error() << endl;
 		cout << p.get_help() << endl;
 	}
 	cout << input << endl;
-	cout << p.get_help() << endl;
+	//cout << p.get_help() << endl;
 }
 
 int main(int argc, char** argv)

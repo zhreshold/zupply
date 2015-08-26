@@ -1,11 +1,10 @@
-# zupply
-Light-weight portable C++ 11 library for researches and demos
+# Zupply - A light-weight portable C++ 11 library for researches and demos
 
 ## Introduction
 **Zupply** is a light-weight, cross-platform, easy to use C++11 library packed with fundamental functions/classes 
 for reaserches/small projects/demos.
 
-#### Why zupply
+#### Why Zupply
 - Tired of repetitive coding on reading/writing files? Logging messages? Loading configurations?
 - Feel desperate transfering code to another platform because you hard-coded in platform specific ways?
 - Currently using Boost which is good, but want a small and portable one after all.
@@ -13,7 +12,7 @@ for reaserches/small projects/demos.
 
 ##### If you agree at least two of them, zupply will be the right tool.
 
-#### What's included in zupply
+#### What's included in Zupply
 - Command line argument parser
 - INI/CFG configuration file parser
 - Easy to use Timer/Date class to measure time and date
@@ -56,11 +55,10 @@ int main(int argc, char** argv)
 #### Contents
 1. [Date](#Date) and [Timer](#Timer)
 2. [Logger](#Logger)
-3. [Directory](#Directory)
-4. [File](#File)
-5. [Formatter](#Formatter)
-6. [Argument Parser](#Argument-Parser)
-7. [INI or CFG Parser](#Configure-Parser)
+3. [Directory](#Directory) and [File](#File)
+4. [Formatter](#Formatter)
+5. [Argument Parser](#Argument-Parser)
+6. [INI or CFG Parser](#Configure-Parser)
 
 #### Date
 

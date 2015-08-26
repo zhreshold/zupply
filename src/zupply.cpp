@@ -234,7 +234,7 @@ namespace zz
 		{
 			auto pos = s.find_first_of(delim);
 			std::string first = s.substr(0, pos);
-			std::string second = pos != std::string::npos? s.substr(pos) : std::string();
+			std::string second = (pos != std::string::npos? s.substr(pos+1) : std::string());
 			return std::make_pair(first, second);
 		}
 
@@ -998,55 +998,55 @@ namespace zz
 
 	namespace cfg
 	{
-		bool Value::booleanValue() const
-		{
-			std::string lowered = fmt::to_lower_ascii(str_);
-			if ("true" == lowered) return true;
-			if ("false" == lowered) return false;
-			try
-			{
-				int iv = intValue();
-				if (1 == iv) return true;
-				if (0 == iv) return false;
-			}
-			catch (...)
-			{
-			}
-			throw ArgException("Invalid boolean value: " + str_);
-		}
+		//bool Value::booleanValue() const
+		//{
+		//	std::string lowered = fmt::to_lower_ascii(str_);
+		//	if ("true" == lowered) return true;
+		//	if ("false" == lowered) return false;
+		//	try
+		//	{
+		//		int iv = intValue();
+		//		if (1 == iv) return true;
+		//		if (0 == iv) return false;
+		//	}
+		//	catch (...)
+		//	{
+		//	}
+		//	throw ArgException("Invalid boolean value: " + str_);
+		//}
 
-		std::vector<double> Value::doubleVector() const
-		{
-			std::vector<double> vec;
-			std::string::size_type sz;
-			std::string str(str_);
-			double val;
-			while (1)
-			{
-				try
-				{
-					val = std::stod(str, &sz);
-				}
-				catch (...)
-				{
-					return vec;
-				}
-				vec.push_back(val);
-				str = str.substr(sz);
-				if (str.empty()) return vec;
-			}
-		}
+		//std::vector<double> Value::doubleVector() const
+		//{
+		//	std::vector<double> vec;
+		//	std::string::size_type sz;
+		//	std::string str(str_);
+		//	double val;
+		//	while (1)
+		//	{
+		//		try
+		//		{
+		//			val = std::stod(str, &sz);
+		//		}
+		//		catch (...)
+		//		{
+		//			return vec;
+		//		}
+		//		vec.push_back(val);
+		//		str = str.substr(sz);
+		//		if (str.empty()) return vec;
+		//	}
+		//}
 
-		std::vector<int> Value::intVector() const
-		{
-			auto dvec = doubleVector();
-			std::vector<int> ivec;
-			for (auto d : dvec)
-			{
-				ivec.push_back(math::round(d));
-			}
-			return ivec;
-		}
+		//std::vector<int> Value::intVector() const
+		//{
+		//	auto dvec = doubleVector();
+		//	std::vector<int> ivec;
+		//	for (auto d : dvec)
+		//	{
+		//		ivec.push_back(math::round(d));
+		//	}
+		//	return ivec;
+		//}
 
 		CfgParser::CfgParser(std::string filename) : ln_(0)
 		{
@@ -1580,10 +1580,6 @@ namespace zz
 		void ArgParser2::parse_option(ArgOption2* ptr)
 		{
 			++ptr->count_;
-			if (ptr->count_ == 1 && ptr->callback_)
-			{
-				ptr->callback_();	// callback function
-			}
 		}
 
 		void ArgParser2::parse_value(ArgOption2* ptr, const std::string& value)
@@ -1655,7 +1651,17 @@ namespace zz
 				}
 			}
 
-			// 3. check errors
+			// 3. callbacks
+			for (auto o : options_)
+			{
+				if (o.count_ > 0 && o.callback_)
+				{
+					o.callback_();	// callback function
+				}
+			}
+			
+
+			// 4. check errors
 			for (auto o : options_)
 			{
 				if (o.required_ && (o.count_ < 1))
@@ -1685,6 +1691,32 @@ namespace zz
 				ret += "  " + opt.get_help() + "\n";
 			}
 			return ret;
+		}
+
+		Value ArgParser2::operator[](const std::string& longKey)
+		{
+			auto iter = longKeys_.find(longKey);
+			if (iter == longKeys_.end())
+			{
+				return Value();
+			}
+			else
+			{
+				return options_[iter->second].val_;
+			}
+		}
+
+		Value ArgParser2::operator[](const char shortKey)
+		{
+			auto iter = shortKeys_.find(shortKey);
+			if (iter == shortKeys_.end())
+			{
+				return Value();
+			}
+			else
+			{
+				return options_[iter->second].val_;
+			}
 		}
 
 	} // namespace cfg

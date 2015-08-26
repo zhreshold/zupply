@@ -817,25 +817,121 @@ namespace zz
 
 	namespace cfg
 	{
+		//class Value
+		//{
+		//public:
+		//	Value() {}
+		//	Value(std::string valueStr) : str_(valueStr) {}
+		//	Value(const Value& other) : str_(other.str_) {}
+		//	std::string str() const { return str_; }
+		//	int	intValue() const { return std::stoi(str_); }
+		//	bool booleanValue() const;
+		//	long longIntValue() const { return std::stol(str_); }
+		//	double doubleValue() const { return std::stod(str_); }
+		//	std::vector<double> doubleVector() const;
+		//	std::vector<int> intVector() const;
+		//	bool empty() { return str_.empty(); }
+		//	bool operator== (Value& other) { return other.str() == str_; }
+		//	
+		//	template <typename T> Value& operator<< (T t)
+		//	{
+		//		std::ostringstream oss;
+		//		oss << t;
+		//		if (!str_.empty())
+		//		{
+		//			if (str_.back() !=)
+		//		}
+		//		return *this;
+		//	}
+
+		//private:
+		//	std::string str_;
+		//};
+
+		//class Value
+		//{
+		//public:
+		//	Value(){}
+		//	Value(std::string str) { ss_.str(str); }
+		//	Value(const Value& other) { ss_ << other.ss_.rdbuf(); }
+		//	std::string str() const { return ss_.str(); }
+		//	bool empty() { return ss_.rdbuf()->in_avail() == 0; }
+		//	bool operator== (Value& other) { return ss_.str() == other.str(); }
+		//	void operator= (std::string str) { ss_.clear(); ss_.str(str); }
+		//	void operator= (const Value& other) { ss_.clear(); ss_ << other.ss_.rdbuf(); }
+		//	template <typename T> Value& operator<< (T t) { ss_.clear(); ss_ << t << " "; return *this; }
+		//	template <typename T> Value& operator>> (T& t) { ss_.clear(); ss_ >> t; return *this; }
+		//	template <typename T> T value() { T ret; *this >> ret; return ret; }
+		//	template <typename T> T value(T& t) { *this >> t; return t; }
+
+		//private:
+		//	std::stringstream ss_;
+		//};
+
 		class Value
 		{
 		public:
-			Value() {}
-			Value(std::string valueStr) : str_(valueStr) {}
+			Value(){}
+			Value(const char* cstr) : str_(cstr) {}
+			Value(std::string str) : str_(str) {}
 			Value(const Value& other) : str_(other.str_) {}
 			std::string str() const { return str_; }
-			int	intValue() const { return std::stoi(str_); }
-			bool booleanValue() const;
-			long longIntValue() const { return std::stol(str_); }
-			double doubleValue() const { return std::stod(str_); }
-			std::vector<double> doubleVector() const;
-			std::vector<int> intVector() const;
-			bool empty() { return str_.empty(); }
-			bool operator== (Value& other) { return other.str() == str_; }
-
+			bool empty() const { return str_.empty(); }
+			void clear() { str_.clear(); }
+			bool operator== (const Value& other) { return str_ == other.str_; }
+			Value& operator= (const Value& other) { str_ = other.str_; return *this; }
+			template <typename T> std::string store(T t);
+			template <typename T> T load(T& t);
+			template <typename T> std::vector<T> load(std::vector<T>& t);
+			template <> bool load(bool& b);
+			template <typename T> T load() { T t; return load(t); }
+			
 		private:
 			std::string str_;
 		};
+
+		template <typename T> inline std::string Value::store(T t)
+		{
+			std::ostringstream oss;
+			oss << t;
+			str_ = oss.str();
+			return str_;
+		}
+
+		template <typename T> inline T Value::load(T& t)
+		{
+			std::istringstream iss(str_);
+			iss >> t;
+			return t;
+		}
+
+		template <> inline bool Value::load(bool& b)
+		{
+			b = false;
+			std::string lowered = fmt::to_lower_ascii(str_);
+			std::istringstream iss(lowered);
+			iss >> std::boolalpha >> b;
+			return b;
+		}
+
+		template <typename T> inline std::vector<T> Value::load(std::vector<T>& t)
+		{
+			std::istringstream iss(str_);
+			t.clear();
+			T val;
+			std::string dummy;
+			while (iss >> val || !iss.eof())
+			{
+				if (iss.fail())
+				{
+					iss.clear();
+					iss >> dummy;
+					continue;
+				}
+				t.push_back(val);
+			}
+			return t;
+		}
 
 		struct CfgLevel
 		{
@@ -844,8 +940,8 @@ namespace zz
 
 			using value_map_t = std::map<std::string, Value>;
 			using section_map_t = std::map<std::string, CfgLevel>;
-			using value_t = std::vector<value_map_t::const_iterator>;
-			using section_t = std::vector<section_map_t::const_iterator>;
+			//using value_t = std::vector<value_map_t::const_iterator>;
+			//using section_t = std::vector<section_map_t::const_iterator>;
 
 			value_map_t values;
 			section_map_t sections;
@@ -853,7 +949,7 @@ namespace zz
 			CfgLevel* parent;
 			size_t depth;
 
-			const Value& operator[](const std::string& name) { return values[name]; }
+			Value operator[](const std::string& name) { return values[name]; }
 			CfgLevel& operator()(const std::string& name) { return sections[name]; }
 			std::string to_string()
 			{
@@ -877,7 +973,7 @@ namespace zz
 			CfgParser(std::istream& s) : pstream_(&s), ln_(0) { parse(root_); }
 			CfgLevel& root() { return root_; }
 
-			const Value& operator[](const std::string& name) { return root_.values[name]; }
+			Value operator[](const std::string& name) { return root_.values[name]; }
 			CfgLevel& operator()(const std::string& name) { return root_.sections[name]; }
 
 		private:
@@ -1117,13 +1213,34 @@ namespace zz
 			ArgOption2& add_opt(char shortKey);
 			ArgOption2& add_opt(std::string longKey);
 			ArgOption2& add_opt(char shortKey, std::string longKey);
+			template <typename T> ArgOption2& add_opt_value(char shortKey, std::string longKey, T& dst, T defaultValue, std::string help="", std::string type="")
+			{
+				dst = defaultValue;
+				Value dfltValue;
+				dfltValue.store(defaultValue);
+				auto& opt = add_opt(shortKey, longKey).call([shortKey, &dst, this] {(*this)[shortKey].load(dst); });
+				opt.default_ = dfltValue.str();
+				return opt;
+			}
+			template <typename T> ArgOption2& add_opt_value(char shortKey, T& dst, T defaultValue, std::string help = "", std::string type = "")
+			{
+				return add_opt_value(shortKey, "");
+			}
+
+			template <typename T> ArgOption2& add_opt_value(std::string longKey, T& dst, T defaultValue, std::string help = "", std::string type = "")
+			{
+				return add_opt_value(-1, longKey);
+			}
+
 			void parse(int argc, char** argv, bool ignoreUnknown = false);
 
 			std::size_t count_error() { return errors_.size(); }
 			std::string get_help();
+			Value operator[](const std::string& longKey);
+			Value operator[](const char shortKey);
 
 		private:
-			using ArgOptIter = std::vector<ArgOption2>::iterator;
+			//using ArgOptIter = std::vector<ArgOption2>::iterator;
 			enum class Type {SHORT_KEY, LONG_KEY, ARGUMENT, INVALID};
 			using ArgQueue = std::vector<std::pair<std::string, Type>>;
 
@@ -1138,7 +1255,7 @@ namespace zz
 			std::unordered_map<std::string, std::size_t> longKeys_;	//!< long keys --long --version
 			std::vector<Value>	args_;	//!< anything not belong to option will be stored here
 			std::vector<std::string> errors_;	//!< store parsing errors
-			std::vector<std::string> info_;	//!< program name from argv[0], other infos from user
+			std::vector<std::string> info_;	//!< program name[0] from argv[0], other infos from user
 		};
 
 	} // namespace cfg

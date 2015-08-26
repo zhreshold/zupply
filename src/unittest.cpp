@@ -208,7 +208,7 @@ namespace test_cfg
 		std::stringstream ss;
 		ss << "a=1\n"
 			"b=1\n\n"
-			"enabled = false \n"
+			"enabled = TruE \n"
 			"[e]\n"
 			"ea=1\n"
 			"eb=1\n\n"
@@ -222,24 +222,29 @@ namespace test_cfg
 			"Aa=4\n"
 			"Ab=4\n";
 		cfg::CfgParser cfpg(ss);
-		cout << cfpg["a"].intValue() << endl;
-		cout << cfpg("a")("d")("extra")["da"].intValue() << endl;
+		cout << cfpg["a"].load<int>() << endl;
+		cout << cfpg("a")("d")("extra")["da"].load<int>() << endl;
 		cout << cfpg.root().to_string() << endl;
-		bool enabled = cfpg["enabled"].booleanValue();
+		bool enabled = cfpg["enabled"].load<bool>();
 		cout << "enabled: " << enabled << endl;
 	}
 
-	void test_cfg_string()
+
+	void test_value()
 	{
-		cfg::Value vstring("25");
-		int v = vstring.intValue();
-		cout << v << endl;
-		vstring = std::string("1.2321 9324.23 343.239423");
-		auto vv = vstring.doubleVector();
-		for (auto vvv : vv)
-		{
-			cout << vvv << endl;
-		}
+		cfg::Value v("25");
+		auto vint = v.load<int>();
+		cout << "v int " << vint << endl;
+		v = "1.2321d 9324.23 sdf, bad, sldf;  343.239423, haha, 2309.23f";
+		cout << v.str() << endl;
+		//double d1, d2, d3;
+		//v >> d1 >> d2 >> d3;
+		//cout << v.value<double>() << "  " << v.value<double>() << "    " << v.value<double>() << endl;
+		auto vvec = v.load<vector<int>>();
+		auto vvec2 = v.load<vector<double>>();
+		cout << v.load<vector<int>>()[0] << endl;
+		cout << v.load<vector<double>>()[1] << endl;
+		cout << v.load<vector<double>>()[2] << endl;
 	}
 }
 
@@ -277,7 +282,8 @@ void test_arg_parser2(int argc, char** argv)
 	cfg::ArgParser2 p;
 	p.add_opt('v', "version").call([]{cout << "show version plz" << endl; }).help("version info");
 	int input;
-	p.add_opt("input").store(input, -1).require().help("input number").type("INT");
+	//p.add_opt("input").store(input, -1).require().help("input number").type("INT");
+	p.add_opt_value('i', "input", input, -1, "input name", "INT");
 	p.parse(argc, argv);
 
 	if (p.count_error())
@@ -285,6 +291,7 @@ void test_arg_parser2(int argc, char** argv)
 		cout << p.get_help() << endl;
 	}
 	cout << input << endl;
+	cout << p.get_help() << endl;
 }
 
 int main(int argc, char** argv)
@@ -305,7 +312,7 @@ int main(int argc, char** argv)
 	//test_formatter::test_formatter();
 	//test_math::test_math();
 	//test_cfg::test_cfg_parser();
-	//test_cfg::test_cfg_string();
+	//test_cfg::test_value();
 	
 	//int i = 0;
 	//misc::Callback([&]{cout << "test callback!" << i << endl; i = 1; });

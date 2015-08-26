@@ -259,13 +259,15 @@ void test_arg_parser2(int argc, char** argv)
 	p.add_opt_flag('b', "brief", "brief intro", &bbb);
 	p.add_opt_help('h', "help");
 	p.add_opt_version("version", "0.0.1");
+	std::vector<int> v({ 1, 2, 3, 4 });
+	p.add_opt_value('a', "values", v, v, "vector of int to do", "INT").require().set_min(4);
 	p.parse(argc, argv);
 	if (p.count_error())
 	{
 		cout << p.get_error() << endl;
 		cout << p.get_help() << endl;
 	}
-	cout << input << endl;
+	for (auto vv : v) cout << vv << endl;
 	//cout << p.get_help() << endl;
 }
 
@@ -275,19 +277,28 @@ int main(int argc, char** argv)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	test_arg_parser2(argc, argv);
-	//test_arg_parser(argc, argv);
-	//test_logger::config_logger_from_file();
-	//test_time::test_timer();
-	//test_time::test_date();
-	//test_logger::test_logger();
-	//test_filesystem::test_filehandler();
-	//test_os::test_directory();
-	//test_os::test_console_size();
-	//test_formatter::test_formatter();
-	//test_math::test_math();
-	//test_cfg::test_cfg_parser();
-	//test_cfg::test_value();
+	try
+	{
+		test_arg_parser2(argc, argv);
+		//test_arg_parser(argc, argv);
+		test_logger::config_logger_from_file();
+		//test_time::test_timer();
+		//test_time::test_date();
+		test_logger::test_logger();
+		//test_filesystem::test_filehandler();
+		//test_os::test_directory();
+		//test_os::test_console_size();
+		//test_formatter::test_formatter();
+		//test_math::test_math();
+		//test_cfg::test_cfg_parser();
+		//test_cfg::test_value();
+	}
+	catch (std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+		throw;
+	}
+	
 	
 	//int i = 0;
 	//misc::Callback([&]{cout << "test callback!" << i << endl; i = 1; });

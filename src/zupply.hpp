@@ -273,6 +273,7 @@ namespace zz
 			return (std::max)((std::min)(value, h), l);
 		}
 
+		// template meta programming for pow(a, b) where b must be natural number
 		template <unsigned long B, unsigned long E>
 		struct Pow
 		{
@@ -561,27 +562,16 @@ namespace zz
 		{
 		public:
 			Timer();
-
 			void reset();
-
 			std::size_t	elapsed_ns();
-
 			std::string elapsed_ns_str();
-
 			std::size_t elapsed_us();
-
 			std::string elapsed_us_str();
-
 			std::size_t elapsed_ms();
-
 			std::string elapsed_ms_str();
-
 			std::size_t elapsed_sec();
-
 			std::string elapsed_sec_str();
-
 			double elapsed_sec_double();
-
 			std::string to_string(const char *format = "[%ms ms]");
 
 		private:
@@ -738,6 +728,10 @@ namespace zz
 			return ss.str();
 		}
 
+		bool is_digit(char c);
+
+		bool wild_card_match(const char* str, const char* pattern);
+
 		bool ends_with(const std::string& str, const std::string& end);
 
 		bool str_equals(const char* s1, const char* s2);
@@ -817,7 +811,6 @@ namespace zz
 
 	namespace cfg
 	{
-
 		class Value
 		{
 		public:
@@ -831,6 +824,7 @@ namespace zz
 			bool operator== (const Value& other) { return str_ == other.str_; }
 			Value& operator= (const Value& other) { str_ = other.str_; return *this; }
 			template <typename T> std::string store(T t);
+			template <typename T> std::string store(std::vector<T> t);
 			template <typename T> T load(T& t);
 			template <typename T> std::vector<T> load(std::vector<T>& t);
 			template <> bool load(bool& b);
@@ -839,49 +833,6 @@ namespace zz
 		private:
 			std::string str_;
 		};
-
-		template <typename T> inline std::string Value::store(T t)
-		{
-			std::ostringstream oss;
-			oss << t;
-			str_ = oss.str();
-			return str_;
-		}
-
-		template <typename T> inline T Value::load(T& t)
-		{
-			std::istringstream iss(str_);
-			iss >> t;
-			return t;
-		}
-
-		template <> inline bool Value::load(bool& b)
-		{
-			b = false;
-			std::string lowered = fmt::to_lower_ascii(str_);
-			std::istringstream iss(lowered);
-			iss >> std::boolalpha >> b;
-			return b;
-		}
-
-		template <typename T> inline std::vector<T> Value::load(std::vector<T>& t)
-		{
-			std::istringstream iss(str_);
-			t.clear();
-			T val;
-			std::string dummy;
-			while (iss >> val || !iss.eof())
-			{
-				if (iss.fail())
-				{
-					iss.clear();
-					iss >> dummy;
-					continue;
-				}
-				t.push_back(val);
-			}
-			return t;
-		}
 
 		struct CfgLevel
 		{
@@ -1026,7 +977,64 @@ namespace zz
 			std::vector<std::string> errors_;	//!< store parsing errors
 			std::vector<std::string> info_;	//!< program name[0] from argv[0], other infos from user
 		};
-		// implementation for ArgParser
+
+
+		// implementations in cfg:: namespace
+		
+		template <typename T> inline std::string Value::store(T t)
+		{
+			std::ostringstream oss;
+			oss << t;
+			str_ = oss.str();
+			return str_;
+		}
+
+		template <typename T> inline std::string Value::store(std::vector<T> t)
+		{
+			std::ostringstream oss;
+			for (auto e : t)
+			{
+				oss << e << " ";
+			}
+			str_ = oss.str();
+			return str_;
+		}
+
+		template <typename T> inline T Value::load(T& t)
+		{
+			std::istringstream iss(str_);
+			iss >> t;
+			return t;
+		}
+
+		template <> inline bool Value::load(bool& b)
+		{
+			b = false;
+			std::string lowered = fmt::to_lower_ascii(str_);
+			std::istringstream iss(lowered);
+			iss >> std::boolalpha >> b;
+			return b;
+		}
+
+		template <typename T> inline std::vector<T> Value::load(std::vector<T>& t)
+		{
+			std::istringstream iss(str_);
+			t.clear();
+			T val;
+			std::string dummy;
+			while (iss >> val || !iss.eof())
+			{
+				if (iss.fail())
+				{
+					iss.clear();
+					iss >> dummy;
+					continue;
+				}
+				t.push_back(val);
+			}
+			return t;
+		}
+		
 		template <typename T> inline ArgOption& ArgParser::add_opt_value(char shortKey, std::string longKey,
 			T& dst, T defaultValue, std::string help, std::string type)
 		{
@@ -1115,8 +1123,6 @@ namespace zz
 			static const char	*kDefaultLoggerFormat = "[%datetime][T%thread][%logger][%level] %msg";
 			static const char	*kDefaultLoggerDatetimeFormat = "%y-%m-%d %H:%M:%S.%frac";
 
-
-
 			// config file formats
 			static const char	*KConfigGlobalSectionSpecifier = "global";
 			static const char	*KConfigLoggerSectionSpecifier = "loggers";
@@ -1143,127 +1149,31 @@ namespace zz
 			return (LogLevels::sentinel & levelMask & (1 << lvl)) > 0;
 		}
 
-		inline std::string level_mask_to_string(int levelMask)
-		{
-			std::string str("<|");
-			for (int i = 0; i < LogLevels::off; ++i)
-			{
-				if (level_should_log(levelMask, static_cast<LogLevels>(i)))
-				{
-					str += consts::kLevelNames[i];
-					str += "|";
-				}
-			}
-			return str + ">";
-		}
+		std::string level_mask_to_string(int levelMask);
 
-		inline LogLevels level_from_str(std::string level)
-		{
-			std::string upperLevel = fmt::to_upper_ascii(level);
-			for (int i = 0; i < LogLevels::off; ++i)
-			{
-				if (upperLevel == consts::kLevelNames[i])
-				{
-					return static_cast<LogLevels>(i);
-				}
-			}
-			return LogLevels::off;
-		}
+		LogLevels level_from_str(std::string level);
 
-		inline int level_mask_from_string(std::string levels)
-		{
-			int mask = 0;
-			auto levelList = fmt::split_whitespace(levels);
-			for (auto lvl : levelList)
-			{
-				auto l = level_from_str(lvl);
-				mask |= 1 << static_cast<int>(l);
-			}
-			return mask & LogLevels::sentinel;
-		}
+		int level_mask_from_string(std::string levels);
 
 		class LogConfig
 		{
 		public:
-			static LogConfig& instance()
-			{
-				static LogConfig instance_;
-				return instance_;
-			}
-
-			static void set_default_format(std::string format)
-			{
-				LogConfig::instance().set_format(format);
-			}
-
-			static void set_default_datetime_format(std::string dateFormat)
-			{
-				LogConfig::instance().set_datetime_format(dateFormat);
-			}
-
-			static void set_default_sink_list(std::vector<std::string> list)
-			{
-				LogConfig::instance().set_sink_list(list);
-			}
-
-			static void set_default_level_mask(int levelMask)
-			{
-				LogConfig::instance().set_log_level_mask(levelMask);
-			}
-
-			std::vector<std::string> sink_list()
-			{
-				return *sinkList_.get();
-			}
-
-			void set_sink_list(std::vector<std::string> &list)
-			{
-				sinkList_.set(list);
-			}
-
-			int log_level_mask()
-			{
-				return logLevelMask_;
-			}
-
-			void set_log_level_mask(int newMask)
-			{
-				logLevelMask_ = newMask;
-			}
-
-			std::string format()
-			{
-				return *format_.get();
-			}
-
-			void set_format(std::string newFormat)
-			{
-				format_.set(newFormat);
-			}
-
-			std::string datetime_format()
-			{
-				return *datetimeFormat_.get();
-			}
-
-			void set_datetime_format(std::string newDatetimeFormat)
-			{
-				datetimeFormat_.set(newDatetimeFormat);
-			}
+			static LogConfig& instance();
+			static void set_default_format(std::string format);
+			static void set_default_datetime_format(std::string dateFormat);
+			static void set_default_sink_list(std::vector<std::string> list);
+			static void set_default_level_mask(int levelMask);
+			std::vector<std::string> sink_list();
+			void set_sink_list(std::vector<std::string> &list);
+			int log_level_mask();
+			void set_log_level_mask(int newMask);
+			std::string format();
+			void set_format(std::string newFormat);
+			std::string datetime_format();
+			void set_datetime_format(std::string newDatetimeFormat);
 
 		private:
-			LogConfig()
-			{
-				// Default configurations
-				sinkList_.set({ std::string(consts::kStdoutSinkName), std::string(consts::kStderrSinkName) });	//!< attach console by default
-#ifdef NDEBUG
-				logLevelMask_ = 0x3C;	//!< 0x3C->b111100: no debug, no trace
-#else
-				logLevelMask_ = 0x3E;	//!< 0x3E->b111110: debug, no trace
-				format_.set(std::string(consts::kDefaultLoggerFormat));
-				datetimeFormat_.set(std::string(consts::kDefaultLoggerDatetimeFormat));
-#endif
-			}
+			LogConfig();
 
 			cds::AtomicNonTrivial<std::vector<std::string>> sinkList_;
 			std::atomic_int logLevelMask_;
@@ -1340,8 +1250,6 @@ namespace zz
 			void attach_console();
 
 			void detach_console();
-
-
 
 		private:
 
@@ -1592,11 +1500,7 @@ namespace zz
 
 				void log(const LogMessage& msg) override
 				{
-					if (!level_should_log(levelMask_, msg.level_))
-					{
-						return;
-					}
-
+					if (!level_should_log(levelMask_, msg.level_)) return;
 					std::string finalMessage = format_message(msg);
 					sink_it(finalMessage);
 				}
@@ -1826,80 +1730,16 @@ namespace zz
 			class LoggerRegistry : UnMovable
 			{
 			public:
-				static LoggerRegistry& instance()
-				{
-					static LoggerRegistry sInstance;
-					return sInstance;
-				}
-
-				LoggerPtr create(const std::string &name)
-				{
-					auto ptr = new_registry(name);
-					if (!ptr)
-					{
-						throw RuntimeException("Logger with name: " + name + " already existed.");
-					}
-					return ptr;
-				}
-
-				LoggerPtr ensure_get(std::string &name)
-				{
-					auto map = loggers_.get();
-					LoggerPtr	ptr;
-					while (map->find(name) == map->end())
-					{
-						ptr = new_registry(name);
-						map = loggers_.get();
-					}
-					return map->find(name)->second;
-				}
-
-				LoggerPtr get(std::string &name)
-				{
-					auto ptr = loggers_.get();
-					auto pos = ptr->find(name);
-					if (pos != ptr->end())
-					{
-						return pos->second;
-					}
-					return nullptr;
-				}
-
-				std::vector<LoggerPtr> get_all()
-				{
-					std::vector<LoggerPtr> list;
-					auto loggers = loggers_.get();
-					for (auto logger : *loggers)
-					{
-						list.push_back(logger.second);
-					}
-					return list;
-				}
-
-				void drop(const std::string &name)
-				{
-					loggers_.erase(name);
-				}
-
-				void drop_all()
-				{
-					loggers_.clear();
-				}
-
-				void lock()
-				{
-					lock_ = true;
-				}
-
-				void unlock()
-				{
-					lock_ = false;
-				}
-
-				bool is_locked() const
-				{
-					return lock_;
-				}
+				static LoggerRegistry& instance();
+				LoggerPtr create(const std::string &name);
+				LoggerPtr ensure_get(std::string &name);
+				LoggerPtr get(std::string &name);
+				std::vector<LoggerPtr> get_all();
+				void drop(const std::string &name);
+				void drop_all();
+				void lock();
+				void unlock();
+				bool is_locked() const;
 
 			private:
 				LoggerRegistry(){ lock_ = false; }
@@ -1909,8 +1749,6 @@ namespace zz
 				cds::AtomicUnorderedMap<std::string, LoggerPtr> loggers_;
 				std::atomic_bool	lock_;
 			};
-
-
 		} // namespace detail
 
 		inline detail::LineLogger Logger::log_if_enabled(LogLevels lvl)
@@ -2000,431 +1838,48 @@ namespace zz
 			return log_if_enabled(LogLevels::fatal, msg);
 		}
 
+		LoggerPtr get_logger(std::string name, bool createIfNotExists = true);
 
-		// logger.info() << ".." call  style
-		inline detail::LineLogger Logger::trace()
-		{
-			return log_if_enabled(LogLevels::trace);
-		}
-		inline detail::LineLogger Logger::debug()
-		{
-			return log_if_enabled(LogLevels::debug);
-		}
-		inline detail::LineLogger Logger::info()
-		{
-			return log_if_enabled(LogLevels::info);
-		}
-		inline detail::LineLogger Logger::warn()
-		{
-			return log_if_enabled(LogLevels::warn);
-		}
-		inline detail::LineLogger Logger::error()
-		{
-			return log_if_enabled(LogLevels::error);
-		}
-		inline detail::LineLogger Logger::fatal()
-		{
-			return log_if_enabled(LogLevels::fatal);
-		}
+		SinkPtr new_stdout_sink();
 
-		inline SinkPtr Logger::get_sink(std::string name)
-		{
-			auto sinkmap = sinks_.get();
-			auto f = sinkmap->find(name);
-			return (f == sinkmap->end() ? nullptr : f->second);
-		}
+		SinkPtr new_stderr_sink();
 
-		inline void Logger::attach_sink(SinkPtr sink)
-		{
-			if (!sinks_.insert(sink->name(), sink))
-			{
-				throw RuntimeException("Sink with name: " + sink->name() + " already attached to logger: " + name_);
-			}
-		}
+		SinkPtr get_sink(std::string name);
 
-		inline void Logger::detach_sink(SinkPtr sink)
-		{
-			sinks_.erase(sink->name());
-		}
+		void dump_loggers(std::ostream &out = std::cout);
 
-		inline void Logger::log_msg(detail::LogMessage msg)
-		{
-			auto sinkmap = sinks_.get();
-			for (auto sink : *sinkmap)
-			{
-				sink.second->log(msg);
-			}
-		}
+		SinkPtr new_ostream_sink(std::ostream &stream, std::string name, bool forceFlush = false);
 
-		inline std::string Logger::to_string()
-		{
-			std::string str(name() + ": " + level_mask_to_string(levelMask_));
-			str += "\n{\n";
-			auto sinkmap = sinks_.get();
-			for (auto sink : *sinkmap)
-			{
-				str += sink.second->to_string() + "\n";
-			}
-			str += "}";
-			return str;
-		}
+		SinkPtr new_simple_file_sink(std::string filename, bool truncate = false);
 
-		inline LoggerPtr get_logger(std::string name, bool createIfNotExists = true)
-		{
-			if (createIfNotExists)
-			{
-				return detail::LoggerRegistry::instance().ensure_get(name);
-			}
-			else
-			{
-				return detail::LoggerRegistry::instance().get(name);
-			}
-		}
+		SinkPtr new_rotate_file_sink(std::string filename, std::size_t maxSizeInByte = 4194304, bool backupOld = false);
 
-		inline SinkPtr new_stdout_sink()
-		{
-			return detail::StdoutSink::instance();
-		}
+		void lock_loggers();
 
-		inline SinkPtr new_stderr_sink()
-		{
-			return detail::StderrSink::instance();
-		}
+		void unlock_loggers();
 
-		inline void Logger::attach_console()
-		{
-			sinks_.insert(std::string(consts::kStdoutSinkName), new_stdout_sink());
-			sinks_.insert(std::string(consts::kStderrSinkName), new_stderr_sink());
-		}
+		void drop_logger(std::string name);
 
-		inline void Logger::detach_console()
-		{
-			sinks_.erase(std::string(consts::kStdoutSinkName));
-			sinks_.erase(std::string(consts::kStderrSinkName));
-		}
+		void drop_all_loggers();
 
-		inline SinkPtr get_sink(std::string name)
-		{
-			SinkPtr psink = nullptr;
-			auto loggers = detail::LoggerRegistry::instance().get_all();
-			for (auto logger : loggers)
-			{
-				psink = logger->get_sink(name);
-				if (psink)
-				{
-					return psink;
-				}
-			}
-			return nullptr;
-		}
-
-		inline void dump_loggers(std::ostream &out = std::cout)
-		{
-			auto loggers = detail::LoggerRegistry::instance().get_all();
-			out << "{\n";
-			for (auto logger : loggers)
-			{
-				out << logger->to_string() << "\n";
-			}
-			out << "}" << std::endl;
-		}
-
-		inline SinkPtr new_ostream_sink(std::ostream &stream, std::string name, bool forceFlush = false)
-		{
-			auto sinkptr = get_sink(name);
-			if (sinkptr)
-			{
-				throw RuntimeException(name + " already holded by another sink\n" + sinkptr->to_string());
-			}
-			return std::make_shared<detail::OStreamSink>(stream, name.c_str(), forceFlush);
-		}
-
-		inline SinkPtr new_simple_file_sink(std::string filename, bool truncate = false)
-		{
-			auto sinkptr = get_sink(os::absolute_path(filename));
-			if (sinkptr)
-			{
-				throw RuntimeException("File: " + filename + " already holded by another sink!\n" + sinkptr->to_string());
-			}
-			return std::make_shared<detail::SimpleFileSink>(filename, truncate);
-		}
-
-		inline SinkPtr new_rotate_file_sink(std::string filename, std::size_t maxSizeInByte = 4194304, bool backupOld = false)
-		{
-			auto sinkptr = get_sink(os::absolute_path(filename));
-			if (sinkptr)
-			{
-				throw RuntimeException("File: " + filename + " already holded by another sink!\n" + sinkptr->to_string());
-			}
-			return std::make_shared<detail::RotateFileSink>(filename, maxSizeInByte, backupOld);
-		}
-
-		inline void Logger::attach_sink_list(std::vector<std::string> &sinkList)
-		{
-			for (auto sinkname : sinkList)
-			{
-				SinkPtr psink = nullptr;
-				if (sinkname == consts::kStdoutSinkName)
-				{
-					psink = new_stdout_sink();
-				}
-				else if (sinkname == consts::kStderrSinkName)
-				{
-					psink = new_stderr_sink();
-				}
-				else
-				{
-					psink = get_sink(sinkname);
-				}
-				if (psink && (!this->get_sink(psink->name()))) attach_sink(psink);
-			}
-		}
-
-		inline void lock_loggers()
-		{
-			detail::LoggerRegistry::instance().lock();
-		}
-
-		inline void unlock_loggers()
-		{
-			detail::LoggerRegistry::instance().unlock();
-		}
-
-		inline void drop_logger(std::string name)
-		{
-			detail::LoggerRegistry::instance().drop(name);
-		}
-
-		inline void drop_all_loggers()
-		{
-			detail::LoggerRegistry::instance().drop_all();
-		}
-
-		inline void drop_sink(std::string name)
-		{
-			SinkPtr psink = get_sink(name);
-			if (nullptr == psink) return;
-			auto loggers = detail::LoggerRegistry::instance().get_all();
-			for (auto logger : loggers)
-			{
-				logger->detach_sink(psink);
-			}
-		}
-
-		inline LoggerPtr detail::LoggerRegistry::new_registry(const std::string &name)
-		{
-			LoggerPtr newLogger = std::make_shared<Logger>(name);
-			auto defaultSinkList = LogConfig::instance().sink_list();
-			for (auto sinkname : defaultSinkList)
-			{
-				SinkPtr psink = nullptr;
-				if (sinkname == consts::kStdoutSinkName)
-				{
-					psink = new_stdout_sink();
-				}
-				else if (sinkname == consts::kStderrSinkName)
-				{
-					psink = new_stderr_sink();
-				}
-				else
-				{
-					psink = get_sink(sinkname);
-				}
-				if (psink) newLogger->attach_sink(psink);
-			}
-			if (loggers_.insert(name, newLogger))
-			{
-				return newLogger;
-			}
-			return nullptr;
-		}
+		void drop_sink(std::string name);
 
 		namespace detail
 		{
-			inline void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map)
-			{
-				for (auto m : map)
-				{
-					for (auto l = list.begin(); l != list.end(); ++l)
-					{
-						if (m.first == *l)
-						{
-							l = list.erase(l);
-							l = list.insert(l, m.second);
-						}
-					}
-				}
-			}
+			void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map);
 
-			inline void config_loggers_from_section(cfg::CfgLevel::section_map_t &section, std::map<std::string, std::string> &map)
-			{
-				for (auto loggerSec : section)
-				{
-					for (auto value : loggerSec.second.values)
-					{
-						LoggerPtr logger = nullptr;
-						if (consts::kConfigLevelsSpecifier == value.first)
-						{
-							int mask = level_mask_from_string(value.second.str());
-							if (!logger) logger = get_logger(loggerSec.first, true);
-							logger->set_level_mask(mask);
-						}
-						else if (consts::kConfigSinkListSpecifier == value.first)
-						{
-							auto list = fmt::split_whitespace(value.second.str());
-							if (list.empty()) continue;
-							sink_list_revise(list, map);
-							if (!logger) logger = get_logger(loggerSec.first, true);
-							logger->attach_sink_list(list);
-						}
-						else
-						{
-							zupply_internal_warn("Unrecognized configuration key: " + value.first);
-						}
-					}
-				}
-			}
+			void config_loggers_from_section(cfg::CfgLevel::section_map_t &section, std::map<std::string, std::string> &map);
 
-			inline LoggerPtr get_hidden_logger()
-			{
-				auto hlogger = get_logger("hidden", false);
-				if (!hlogger)
-				{
-					hlogger = get_logger("hidden", true);
-					hlogger->set_level_mask(0);
-				}
-				return hlogger;
-			}
+			LoggerPtr get_hidden_logger();
 
-			inline std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section)
-			{
-				std::map<std::string, std::string> sinkMap;
-				for (auto sinkSec : section)
-				{
-					std::string type;
-					std::string filename;
-					std::string fmt;
-					std::string levelStr;
-					SinkPtr sink = nullptr;
-
-					for (auto value : sinkSec.second.values)
-					{
-						// entries
-						if (consts::kConfigSinkTypeSpecifier == value.first)
-						{
-							type = value.second.str();
-						}
-						else if (consts::kConfigSinkFilenameSpecifier == value.first)
-						{
-							filename = value.second.str();
-						}
-						else if (consts::kConfigFormatSpecifier == value.first)
-						{
-							fmt = value.second.str();
-						}
-						else if (consts::kConfigLevelsSpecifier == value.first)
-						{
-							levelStr = value.second.str();
-						}
-						else
-						{
-							zupply_internal_warn("Unrecognized config key entry: " + value.first);
-						}
-					}
-
-					// sink
-					if (type.empty()) throw RuntimeException("No suitable type specified for sink: " + sinkSec.first);
-					if (type == consts::kStdoutSinkName)
-					{
-						sink = new_stdout_sink();
-					}
-					else if (type == consts::kStderrSinkName)
-					{
-						sink = new_stderr_sink();
-					}
-					else
-					{
-						if (filename.empty()) throw RuntimeException("No name specified for sink: " + sinkSec.first);
-						if (type == consts::kOstreamSinkType)
-						{
-							zupply_internal_warn("Currently do not support init ostream logger from config file.");
-						}
-						else if (type == consts::kSimplefileSinkType)
-						{
-							sink = new_simple_file_sink(filename);
-							get_hidden_logger()->attach_sink(sink);
-						}
-						else if (type == consts::kRotatefileSinkType)
-						{
-							sink = new_rotate_file_sink(filename);
-							get_hidden_logger()->attach_sink(sink);
-						}
-						else
-						{
-							zupply_internal_warn("Unrecognized sink type: " + type);
-						}
-					}
-					if (sink)
-					{
-						if (!fmt.empty()) sink->set_format(fmt);
-						if (!levelStr.empty())
-						{
-							int mask = level_mask_from_string(levelStr);
-							sink->set_level_mask(mask);
-						}
-						if (!get_hidden_logger()->get_sink(sink->name()))
-						{
-							get_hidden_logger()->attach_sink(sink);
-						}
-						sinkMap[sinkSec.first] = sink->name();
-					}
-				}
-				return sinkMap;
-			}
+			std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section);
 		} // namespace detail
 
-		inline void config_from_file(std::string cfgFilename)
-		{
-			cfg::CfgParser parser(cfgFilename);
+		void config_from_file(std::string cfgFilename);
 
-			// config for specific sinks
-			auto sinkSection = parser(consts::KConfigSinkSectionSpecifier).sections;
-			auto sinkMap = detail::config_sinks_from_section(sinkSection);
+		void zupply_internal_warn(std::string msg);
 
-			// global format
-			std::string format = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigFormatSpecifier].str();
-			if (!format.empty()) LogConfig::set_default_format(format);
-			// global datetime format
-			std::string datefmt = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigDateTimeFormatSpecifier].str();
-			if (!datefmt.empty()) LogConfig::set_default_datetime_format(datefmt);
-			// global log levels
-			auto v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigLevelsSpecifier];
-			if (!v.str().empty()) LogConfig::set_default_level_mask(level_mask_from_string(v.str()));
-			// global sink list
-			v = parser(consts::KConfigGlobalSectionSpecifier)[consts::kConfigSinkListSpecifier];
-			if (!v.str().empty())
-			{
-				auto list = fmt::split_whitespace(v.str());
-				detail::sink_list_revise(list, sinkMap);
-				LogConfig::set_default_sink_list(list);
-			}
-
-			// config for specific loggers
-			auto loggerSection = parser(consts::KConfigLoggerSectionSpecifier).sections;
-			detail::config_loggers_from_section(loggerSection, sinkMap);
-		}
-
-		inline void zupply_internal_warn(std::string msg)
-		{
-			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
-			zlog->warn() << msg;
-		}
-
-		inline void zupply_internal_error(std::string msg)
-		{
-			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
-			zlog->error() << msg;
-		}
+		void zupply_internal_error(std::string msg);
 	} // namespace log
 } // namespace zz
 

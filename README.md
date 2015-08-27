@@ -30,7 +30,7 @@ for reaserches/small projects/demos.
 ##### zupply is designed to be as easy to integrate as possible, thus you can:
 - Copy zupply.hpp and zupply.cpp into your project
 - Start writing code
-```
+```c++
 #include "zupply.hpp"
 // optional using namespace zz
 using namespace zz;
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 6. [INI or CFG Parser](#configure-parser)
 
 #### Date
-```
+```c++
 // show current date in local time zone
 auto date = zz::time::Date();
 std::cout << "Local time(Pacific) " << date.to_string() << std::endl;

@@ -30,7 +30,8 @@ for reaserches/small projects/demos.
 
 #### What's under construction
 - Image IO functions: to read/write JPEG/PNG/BMP/TGA and GIF probably
-- Serialize/Deserialize the majority of data structures
+- Serializer/Deserializer: for dump/read objects to/from string directly, binary should also be supported
+- Progress bar class that is easy to use
 
 ## Usage
 ##### zupply is designed to be as easy to integrate as possible, thus you can:
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
 ##### Example code
 ```c++
 // show current date in local time zone
-auto date = zz::time::Date();
+zz::time::Date date;
 std::cout << "Local time(Pacific) " << date.to_string() << std::endl;
 // convert to UTC time
 date.to_utc_time();
@@ -106,7 +107,43 @@ Call UTC directly 15-08-26 23:48:03.521
 |   %%    | use %% to skip %                                                |
 
 #### Timer
-
+##### Example Code
+```c++
+const int repeat = 999999;
+// create a timer
+zz::time::Timer t;
+// time consuming function
+long long sum = 0;
+for (int i = 0; i < repeat; ++i) sum += i;
+std::cout << "Summation: " << sum << " elapsed time: " << t.to_string() << std::endl;
+// reset timer, start new timer
+t.reset();
+// another time consuming function
+for (int i = 0; i < repeat; ++i) sum -= i;
+// use formatter
+std::cout << "Subtraction: " << sum << t.to_string(" elapsed time: [%us us]") << std::endl;
+// different quantization
+std::cout << "sec: " << t.elapsed_sec() << std::endl;
+std::cout << "msec: " << t.elapsed_ms() << std::endl;
+std::cout << "usec: " << t.elapsed_us() << std::endl;
+std::cout << "nsec: " << t.elapsed_ns() << std::endl;
+```
+#####Output
+```
+Summation: 499998500001 elapsed time: [2 ms]
+Subtraction: 0 elapsed time: [3002 us]
+sec: 0
+msec: 3
+usec: 3002
+nsec: 3002300
+```
+##### Supported format specifier 
+|Specifier|       Description      |
+|---------|------------------------|
+|  %sec  | quantize in second resolution|
+|  %ms   | quantize in millisecond resolution|
+|  %us   | quantize in microsecond resolution|
+|  %ns   | quantize in nanosecond resolution|
 #### Logger
 
 #### Directory

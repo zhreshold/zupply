@@ -9,7 +9,7 @@
 void test_date()
 {
 	// show current date in local time zone
-	auto date = zz::time::Date();
+	zz::time::Date date;
 	std::cout << "Local time(Pacific) " << date.to_string() << std::endl;
 	// or UTC time
 	date.to_utc_time();
@@ -24,6 +24,28 @@ void test_date()
 	std::cout << "Call UTC directly " << zz::time::Date::utc_time().to_string() << std::endl;
 }
 
+void test_timer()
+{
+	const int repeat = 999999;
+	// create a timer
+	zz::time::Timer t;
+	// time consuming function
+	long long sum = 0;
+	for (int i = 0; i < repeat; ++i) sum += i;
+	std::cout << "Summation: " << sum << " elapsed time: " << t.to_string() << std::endl;
+	// reset timer, start new timer
+	t.reset();
+	// another time consuming function
+	for (int i = 0; i < repeat; ++i) sum -= i;
+	// use formatter
+	std::cout << "Subtraction: " << sum << t.to_string(" elapsed time: [%us us]") << std::endl;
+	// different quantization
+	std::cout << "sec: " << t.elapsed_sec() << std::endl;
+	std::cout << "msec: " << t.elapsed_ms() << std::endl;
+	std::cout << "usec: " << t.elapsed_us() << std::endl;
+	std::cout << "nsec: " << t.elapsed_ns() << std::endl;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -34,6 +56,7 @@ int main(int argc, char** argv)
 	try
 	{
 		test_date();
+		test_timer();
 	}
 	catch (std::exception &e)
 	{

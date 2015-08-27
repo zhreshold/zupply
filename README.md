@@ -12,7 +12,13 @@ for reaserches/small projects/demos.
 
 - ##### If you agree at least two of them, zupply will be the right tool.
 
-#### What's included in Zupply
+#### Features
+- Zero dependency, only C++ 11 starndard
+- Designed to be easily included in projects, no need to link
+- Pure and clean, everything wrapped in namespace zz, almost no polution if you don't expose the namespace
+- Targeting linux/windows/Mac OS X, meanwhile providing unified experience coding on each platform
+
+#### What's included
 - Command line argument parser
 - INI/CFG configuration file parser
 - Easy to use Timer/Date class to measure time and date
@@ -61,6 +67,7 @@ int main(int argc, char** argv)
 6. [INI or CFG Parser](#configure-parser)
 
 #### Date
+##### Example code
 ```c++
 // show current date in local time zone
 auto date = zz::time::Date();

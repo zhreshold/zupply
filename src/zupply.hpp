@@ -59,6 +59,7 @@
 
 #endif
 
+// Optional header only mode, not done.
 #ifdef ZUPPLY_HEADER_ONLY
 #define ZUPPLY_EXPORT inline
 #else
@@ -87,12 +88,16 @@
 #include <algorithm>
 #include <functional>
 
+/*!
+ * \namespace zz
+ * \brief Namespace for zupply
+ */
 namespace zz
 {
 	/*!
-	* \namespace	params
+        * \namespace	zz::consts
 	*
-	* \brief	namespace for parameters.
+        * \brief	Namespace for parameters.
 	*/
 	namespace consts
 	{
@@ -247,24 +252,41 @@ namespace zz
 		explicit WarnException(const std::string &message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
 	};
 
-	struct Size
+        /*!
+         * \struct Size
+         * \brief The Size struct storing width and height
+         */
+        struct Size
 	{
 		int width;
 		int height;
 
 		Size(int x, int y) : width(x), height(y) {}
-		bool operator=(Size& other)
+		bool operator==(Size& other)
 		{
 			return (width == other.width) && (height == other.height);
 		}
 	};
 
+        /*!
+         * \namespace  zz::math
+         * \brief Namespace for math operations
+         */
 	namespace math
 	{
 		using std::min;
 		using std::max;
 		using std::abs;
 
+                /*!
+                 * \fn template<class T> inline const T clip(const T& value, const T& low, const T& high)
+                 * \brief Clip values in-between low and high values
+                 * \param value The value to be clipped
+                 * \param low The lower bound
+                 * \param high The higher bound
+                 * \return Value if value in[low, high] or low if (value < low) or high if (value > high)
+                 * \note Foolproof if low/high are not set correctly
+                 */
 		template<class T> inline const T clip(const T& value, const T& low, const T& high)
 		{
 			// fool proof max/min values
@@ -273,7 +295,9 @@ namespace zz
 			return (std::max)((std::min)(value, h), l);
 		}
 
-		// template meta programming for pow(a, b) where b must be natural number
+                /*!
+                 * \brief Template meta programming for pow(a, b) where b must be natural number
+                 */
 		template <unsigned long B, unsigned long E>
 		struct Pow
 		{
@@ -287,6 +311,12 @@ namespace zz
 		};
 
 
+                /*!
+                 * \fn int round(double value)
+                 * \brief fast round utilizing hardware acceleration features
+                 * \param value
+                 * \return Rounded int
+                 */
 		inline int round(double value)
 		{
 #if ((defined _MSC_VER && defined _M_X64) || (defined __GNUC__ && defined __x86_64__ && defined __SSE2__ && !defined __APPLE__)) && !defined(__CUDACC__) && 0
@@ -320,8 +350,16 @@ namespace zz
 
 	} // namespace math
 
+        /*!
+         * \namespace zz::misc
+         * \brief Namespace for miscellaneous utility functions
+         */
 	namespace misc
 	{
+                /*!
+                 * \fn inline void unused(const T&)
+                 * \brief Suppress warning for unused variables, do nothing actually
+                 */
 		template<typename T>
 		inline void unused(const T&) {}
 
@@ -347,6 +385,9 @@ namespace zz
 		template <typename T>
 		using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 
+                /*!
+                 * \brief The general functor Callback class
+                 */
 		class Callback
 		{
 		public:
@@ -356,6 +397,10 @@ namespace zz
 		};
 	} // namespace misc
 
+        /*!
+         * \namespace zz::cds
+         * \brief Namespace for concurrent data structures
+         */
 	namespace cds
 	{
 		/*!
@@ -368,13 +413,15 @@ namespace zz
 		public:
 			void lock() {}
 			void unlock() {}
-			bool try_lock()
-			{
-				return true;
-			}
+			bool try_lock() { return true; }
 		};
 
 
+                /*!
+                 * \brief AtomicUnorderedMap Template atomic unordered_map<>
+                 * AtomicUnorderedMap is lock-free, however, modification will create copies.
+                 * Thus this structure is good for read-many write-rare purposes.
+                 */
 		template <typename Key, typename Value> class AtomicUnorderedMap
 		{
 			using MapType = std::unordered_map<Key, Value>;
@@ -385,11 +432,21 @@ namespace zz
 				mapPtr_ = std::make_shared<MapType>();
 			}
 
+                        /*!
+                         * \brief Get shared_ptr of unorderd_map instance
+                         * \return Shared_ptr of unordered_map
+                         */
 			MapPtr get()
 			{
 				return std::atomic_load(&mapPtr_);
 			}
 
+                        /*!
+                         * \brief Insert key-value pair to the map
+                         * \param key
+                         * \param value
+                         * \return True on success
+                         */
 			bool insert(const Key& key, const Value& value)
 			{
 				MapPtr p = std::atomic_load(&mapPtr_);
@@ -403,6 +460,11 @@ namespace zz
 				return true;
 			}
 
+                        /*!
+                         * \brief Erase according to key
+                         * \param key
+                         * \return True on success
+                         */
 			bool erase(const Key& key)
 			{
 				MapPtr p = std::atomic_load(&mapPtr_);
@@ -416,6 +478,9 @@ namespace zz
 				return true;
 			}
 
+                        /*!
+                         * \brief Clear all
+                         */
 			void clear()
 			{
 				MapPtr p = atomic_load(&mapPtr_);
@@ -430,6 +495,11 @@ namespace zz
 			std::shared_ptr<MapType>	mapPtr_;
 		};
 
+                /*!
+                 * \brief AtomicNonTrivial Template lock-free class
+                 * AtomicNonTrivial is lock-free, however, modification will create copies.
+                 * Thus this structure is good for read-many write-rare purposes.
+                 */
 		template <typename T> class AtomicNonTrivial
 		{
 		public:
@@ -438,11 +508,20 @@ namespace zz
 				ptr_ = std::make_shared<T>();
 			}
 
+                        /*!
+                         * \brief Get shared_ptr to instance
+                         * \return Shared_ptr to instance
+                         */
 			std::shared_ptr<T> get()
 			{
 				return std::atomic_load(&ptr_);
 			}
 
+                        /*!
+                         * \brief Set to new value
+                         * \param val
+                         * This operation will make a copy which is only visible for future get()
+                         */
 			void set(const T& val)
 			{
 				std::shared_ptr<T> copy = std::make_shared<T>(val);
@@ -456,78 +535,206 @@ namespace zz
 	} // namespace cds
 
 
-
+        /*!
+         * \namespace zz::os
+         * \brief Namespace for OS specific implementations
+         */
 	namespace os
 	{
+                /*!
+                 * \fn int system(const char *const command, const char *const module_name = 0)
+                 * \brief Execute sub-process using system call
+                 * \param command
+                 * \param module_name
+                 * \return Return code of sub-process
+                 */
 		int system(const char *const command, const char *const module_name = 0);
+
+                /*!
+                 * \fn std::size_t thread_id()
+                 * \brief Get thread id
+                 * \return Current thread id
+                 */
 		std::size_t thread_id();
+
+                /*!
+                 * \fn std::tm localtime(std::time_t t)
+                 * \brief Thread-safe version of localtime
+                 * \param t std::time_t
+                 * \return std::tm format localtime
+                 */
 		std::tm localtime(std::time_t t);
+
+                /*!
+                 * \fn std::tm gmtime(std::time_t t)
+                 * \brief Thread-safe version of gmtime
+                 * \param t std::time_t
+                 * \return std::tm format UTC time
+                 */
 		std::tm gmtime(std::time_t t);
 
-		/*!
-		* \fn	std::wstring utf8_to_wstring(std::string &u8str);
-		*
-		* \brief	UTF 8 to wstring.
-		*
-		* \note	This is actually only useful in windows.
-		*
-		* \param [in,out]	u8str	The 8str.
-		*
-		* \return	A std::wstring.
-		*/
+                /*!
+                 * \brief Convert UTF-8 string to wstring
+                 * \param u8str
+                 * \return Converted wstring
+                 */
 		std::wstring utf8_to_wstring(std::string &u8str);
 
+                /*!
+                 * \brief Convert wstring to UTF-8
+                 * \param wstr
+                 * \return Converted UTF-8 string
+                 */
 		std::string wstring_to_utf8(std::wstring &wstr);
 
+                /*!
+                 * \brief Check if path exist in filesystem
+                 * \param path
+                 * \param considerFile Consider file as well?
+                 * \return true if path exists
+                 */
 		bool path_exists(std::string &path, bool considerFile = false);
 
-
+                /*!
+                 * \brief Open fstream using UTF-8 string
+                 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
+                 * \param stream
+                 * \param filename
+                 * \param openmode
+                 */
 		void fstream_open(std::fstream &stream, std::string &filename, std::ios::openmode openmode);
+
+                /*!
+                 * \brief Open ifstream using UTF-8 string
+                 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
+                 * \param stream
+                 * \param filename
+                 * \param openmode
+                 */
 		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode);
 
+                /*!
+                 * \brief rename Rename file, support unicode filename/path.
+                 * \param oldName
+                 * \param newName
+                 * \return true on success
+                 */
 		bool rename(std::string oldName, std::string newName);
 
 		/*!
-		* \fn	std::string endl();
-		*
-		* \brief	Gets the OS dependent line end characters.
-		*
-		* \return	A std::string.
-		*/
+                 * \fn	std::string endl();
+                 *
+                 * \brief	Gets the OS dependent line end characters.
+                 *
+                 * \return	A std::string.
+                 */
 		std::string endl();
 
+                /*!
+                 * \brief Get current working directory
+                 * \return Current working directory
+                 */
 		std::string current_working_directory();
 
+                /*!
+                 * \brief Convert reletive path to absolute path
+                 * \param reletivePath
+                 * \return Absolute path
+                 */
 		std::string absolute_path(std::string reletivePath);
 
+                /*!
+                 * \brief Split path into hierachical sub-folders
+                 * \param path
+                 * \return std::vector<std::string> of sub-folders
+                 * path_split("/usr/local/bin/xxx/")= {"usr","local","bin","xxx"}
+                 */
 		std::vector<std::string> path_split(std::string path);
 
+                /*!
+                 * \brief Join path from sub-folders
+                 * This function will handle system dependent path formats
+                 * such as '/' for unix like OS, and '\\' for windows
+                 * \param elems
+                 * \return Long path
+                 * path_join({"/home/abc/","def"} = "/home/abc/def"
+                 */
 		std::string path_join(std::vector<std::string> elems);
 
+                /*!
+                 * \brief Split filename from path
+                 * \param path
+                 * \return Full filename with extension
+                 */
 		std::string path_split_filename(std::string path);
 
+                /*!
+                 * \brief Split the deepest directory
+                 * \param path
+                 * \return Deepest directory name. E.g. "abc/def/ghi/xxx.xx"->"ghi"
+                 */
 		std::string path_split_directory(std::string path);
 
+                /*!
+                 * \brief Split basename
+                 * \param path
+                 * \return Basename without extension
+                 */
 		std::string path_split_basename(std::string path);
 
+                /*!
+                 * \brief Split extension if any
+                 * \param path
+                 * \return Extension or "" if no extension exists
+                 */
 		std::string path_split_extension(std::string path);
 
+                /*!
+                 * \brief Append string to basename directly, rather than append to extension
+                 * This is more practically useful because nobody want to change extension in most situations.
+                 * Appending string to basename in order to change filename happens.
+                 * \param origPath
+                 * \param whatToAppend
+                 * \return New filename with appended string.
+                 * path_append_basename("/home/test/abc.jpg", "_01") = "/home/test/abc_01.jpg"
+                 */
 		std::string path_append_basename(std::string origPath, std::string whatToAppend);
 
+                /*!
+                 * \brief Create directory if not exist
+                 * \param path
+                 * \return True if directory created/already exist
+                 * \note Will not create recursively, fail if parent directory inexist. Use create_directory_recursive instead.
+                 */
 		bool create_directory(std::string path);
 
+                /*!
+                 * \brief Create directory recursively if not exist
+                 * \param path
+                 * \return True if directory created/already exist, false when failed to create the final directory
+                 * Function create_directory_recursive will create directory recursively.
+                 * For example, create_directory_recursive("/a/b/c") will create /a->/a/b->/a/b/c recursively.
+                 */
 		bool create_directory_recursive(std::string path);
 
+                /*!
+                 * \brief Return the Size of console window
+                 * \return Size, which contains width and height
+                 */
 		Size console_size();
 
 	} // namespace os
 
+        /*!
+         * \namespace zz::time
+         * \brief Namespace for time related stuff
+         */
 	namespace time
 	{
 		/*!
 		* \class	Date
 		*
-		* \brief	A date class.
+                * \brief	A calendar date class.
 		*/
 		class Date
 		{
@@ -535,14 +742,34 @@ namespace zz
 			Date();
 			virtual ~Date() = default;
 
+                        /*!
+                         * \brief Convert to local time zone
+                         */
 			void to_local_time();
 
+                        /*!
+                         * \brief Convert to UTC time zone
+                         */
 			void to_utc_time();
 
+                        /*!
+                         * \brief Convert date to user friendly string.
+                         * Support various formats.
+                         * \param format
+                         * \return Readable string
+                         */
 			std::string to_string(const char *format = "%y-%m-%d %H:%M:%S.%frac");
 
+                        /*!
+                         * \brief Static function to return in local_time
+                         * \return Date instance
+                         */
 			static Date local_time();
 
+                        /*!
+                         * \brief Static function to return in utc_time
+                         * \return Date instance
+                         */
 			static Date utc_time();
 
 		private:
@@ -562,16 +789,71 @@ namespace zz
 		{
 		public:
 			Timer();
+                        /*!
+                         * \brief Reset timer to record new process
+                         */
 			void reset();
+
+                        /*!
+                         * \brief Return elapsed time quantized in nanosecond
+                         * \return Nanosecond elapsed
+                         */
 			std::size_t	elapsed_ns();
+
+                        /*!
+                         * \brief Return string of elapsed time quantized in nanosecond
+                         * \return Nanosecond elapsed in string
+                         */
 			std::string elapsed_ns_str();
+
+                        /*!
+                         * \brief Return elapsed time quantized in microsecond
+                         * \return Microsecond elapsed
+                         */
 			std::size_t elapsed_us();
+
+                        /*!
+                         * \brief Return string of elapsed time quantized in microsecond
+                         * \return Microsecond elapsed in string
+                         */
 			std::string elapsed_us_str();
+
+                        /*!
+                         * \brief Return elapsed time quantized in millisecond
+                         * \return Millisecond elapsed
+                         */
 			std::size_t elapsed_ms();
+
+                        /*!
+                         * \brief Return string of elapsed time quantized in millisecond
+                         * \return Millisecond elapsed in string
+                         */
 			std::string elapsed_ms_str();
+
+                        /*!
+                         * \brief Return elapsed time quantized in second
+                         * \return Second elapsed
+                         */
 			std::size_t elapsed_sec();
+
+                        /*!
+                         * \brief Return string of elapsed time quantized in second
+                         * \return Second elapsed in string
+                         */
 			std::string elapsed_sec_str();
+
+                        /*!
+                         * \brief Return elapsed time in second, no quantization
+                         * \return Second elapsed in double
+                         */
 			double elapsed_sec_double();
+
+                        /*!
+                         * \brief Convert timer to user friendly string.
+                         * Support various formats
+                         * \param format
+                         * \return Formatted string
+                         */
 			std::string to_string(const char *format = "[%ms ms]");
 
 		private:
@@ -595,6 +877,10 @@ namespace zz
 
 	} // namespace time
 
+        /*!
+         * \namespace zz::fs
+         * \brief Namespace for classes adpated to filesystems
+         */
 	namespace fs
 	{
 		namespace consts
@@ -603,19 +889,26 @@ namespace zz
 			static const int kDefaultFileOpenRetryInterval = 10;
 		}
 
+                /*!
+                 * \brief The FileEditor class to modify file
+                 * This class is derived from UnCopyable, so no copy operation.
+                 * Move operation is allowed by std::move();
+                 */
 		class FileEditor : private UnCopyable
 		{
 		public:
 			FileEditor() = default;
+
+                        /*!
+                         * \brief FileEditor constructor
+                         * \param filename
+                         * \param truncateOrNot Whether open in truncate mode or not
+                         * \param retryTimes Retry open file if not success
+                         * \param retryInterval Retry interval in ms
+                         */
 			FileEditor(std::string filename, bool truncateOrNot = false,
 				int retryTimes = consts::kDefaultFileOpenRetryTimes,
-				int retryInterval = consts::kDefaultFileOpenRetryInterval)
-			{
-				// use absolute path
-				filename_ = os::absolute_path(filename);
-				// try open
-				this->try_open(retryTimes, retryInterval, truncateOrNot);
-			};
+				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
 			/*!
 			* \fn	File::File(File&& from)
@@ -624,38 +917,68 @@ namespace zz
 			*
 			* \param [in,out]	other	Source for the instance.
 			*/
-			FileEditor(FileEditor&& other) : filename_(std::move(other.filename_)),
-				stream_(std::move(other.stream_)),
-				readPos_(std::move(other.readPos_)),
-				writePos_(std::move(other.writePos_))
-			{
-				other.filename_ = std::string();
-			};
+			FileEditor(FileEditor&& other);
 
 			virtual ~FileEditor() { this->close(); }
 
 			// No move operator
 			FileEditor& operator=(FileEditor&&) = delete;
 
-			// overload << operator
+                        /*!
+                         * \brief Overload << operator just like a stream
+                         */
 			template <typename T>
 			FileEditor& operator<<(T what) { stream_ << what; return *this; }
 
+                        /*!
+                         * \brief Return filename
+                         * \return Filename of this object
+                         */
 			std::string filename() const { return filename_; }
 
-			bool open(bool truncateOrNot = false);
+                        /*!
+                         * \brief Open file
+                         * \param filename
+                         * \param truncateOrNot Whether open in truncate mode or not
+                         * \param retryTimes Retry open file if not success
+                         * \param retryInterval Retry interval in ms
+                         * \return
+                         */
 			bool open(std::string filename, bool truncateOrNot = false,
 				int retryTimes = consts::kDefaultFileOpenRetryTimes,
 				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
-			bool try_open(int retryTime, int retryInterval, bool truncateOrNot = false);
+                        /*!
+                         * \brief Reopen current file
+                         * \param truncateOrNot
+                         * \return True if success
+                         */
 			bool reopen(bool truncateOrNot = true);
+
+                        /*!
+                         * \brief Close current file
+                         */
 			void close();
+
+                        /*!
+                         * \brief Check whether current file handler is set
+                         * \return True if valid file
+                         */
 			bool is_valid() const { return !filename_.empty(); }
+
+                        /*!
+                         * \brief Check if file is opened
+                         * \return True if opened
+                         */
 			bool is_open() const { return stream_.is_open(); }
+
+                        /*!
+                         * \brief Flush file stream
+                         */
 			void flush() { stream_.flush(); }
 		private:
-
+                        bool open(bool truncateOrNot = false);
+                        bool try_open(int retryTime, int retryInterval, bool truncateOrNot = false);
 			void check_valid() { if (!this->is_valid()) throw RuntimeException("Invalid File Editor!"); }
 
 			std::string		filename_;
@@ -664,45 +987,82 @@ namespace zz
 			std::streampos	writePos_;
 		};
 
+                /*!
+                 * \brief The FileReader class for read-only operations.
+                 * This class is derived from UnCopyable, so no copy operation.
+                 * Move operation is allowed by std::move();
+                 */
 		class FileReader : private UnCopyable
 		{
 		public:
 			FileReader() = delete;
+
+                        /*!
+                         * \brief FileReader constructor
+                         * \param filename
+                         * \param retryTimes Retry open times
+                         * \param retryInterval Retry interval in ms
+                         */
 			FileReader(std::string filename, int retryTimes = consts::kDefaultFileOpenRetryTimes,
-				int retryInterval = consts::kDefaultFileOpenRetryInterval)
-			{
-				// use absolute path
-				filename_ = os::absolute_path(filename);
-				// try open
-				this->try_open(retryTimes, retryInterval);
-			}
+				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
-			FileReader(FileReader&& other) : filename_(std::move(other.filename_)), istream_(std::move(other.istream_))
-			{
-				other.filename_ = std::string();
-			};
+                        /*!
+                         * \brief FileReader move constructor
+                         * \param other
+                         */
+			FileReader(FileReader&& other);
 
+                        /*!
+                         * \brief Return filename
+                         * \return Filename
+                         */
 			std::string filename() const { return filename_; }
 
+                        /*!
+                         * \brief Check if is opened
+                         * \return True if opened
+                         */
 			bool is_open() const { return istream_.is_open(); }
+
+                        /*!
+                         * \brief Check if valid filename is set
+                         * \return True if valid
+                         */
 			bool is_valid() const { return !filename_.empty(); }
-			bool open();
-			bool try_open(int retryTime, int retryInterval);
-			void close() { istream_.close(); };
+
+                        /*!
+                         * \brief Close file handler
+                         */
+                        void close() { istream_.close(); }
+
+                        /*!
+                         * \brief Get file size in byte, member function
+                         * \return File size in byte
+                         */
 			std::size_t	file_size();
 
 		private:
-
+                        bool open();
+                        bool try_open(int retryTime, int retryInterval);
 			void check_valid(){ if (!this->is_valid()) throw RuntimeException("Invalid File Reader!"); }
 			std::string		filename_;
 			std::ifstream	istream_;
 		};
 
+                /*!
+                 * \brief Get file size in byte
+                 * \param filename
+                 * \return File size in byte, 0 if empty or any error occurred.
+                 */
 		std::size_t get_file_size(std::string filename);
 
 	} //namespace fs
 
 
+        /*!
+         * \namespace zz::fmt
+         * \brief Namespace for formatting functions
+         */
 	namespace fmt
 	{
 		namespace consts
@@ -721,6 +1081,12 @@ namespace zz
 			};
 		} // namespace detail
 
+                /*!
+                 * \brief Convert int to left zero padded string
+                 * \param num Integer number
+                 * \param length String length
+                 * \return Zero-padded string
+                 */
 		inline std::string int_to_zero_pad_str(int num, int length)
 		{
 			std::ostringstream ss;
@@ -728,78 +1094,269 @@ namespace zz
 			return ss.str();
 		}
 
+                /*!
+                 * \brief Check if is digit
+                 * \param c
+                 * \return
+                 */
 		bool is_digit(char c);
 
+                /*!
+                 * \brief Match string with wildcard.
+                 * Match string with wildcard pattern, '*' and '?' supported.
+                 * \param str
+                 * \param pattern
+                 * \return True for success match
+                 */
 		bool wild_card_match(const char* str, const char* pattern);
 
+                /*!
+                 * \brief Check if string starts with specified sub-string
+                 * \param str
+                 * \param start
+                 * \return True if success
+                 */
+                bool starts_with(const std::string& str, const std::string& start);
+
+                /*!
+                 * \brief Check if string ends with specified sub-string
+                 * \param str
+                 * \param end
+                 * \return True if success
+                 */
 		bool ends_with(const std::string& str, const std::string& end);
 
+                /*!
+                 * \brief Replace all from one to another sub-string
+                 * \param str
+                 * \param replaceWhat
+                 * \param replaceWith
+                 * \return Reference to modified string
+                 */
+		std::string& replace_all(std::string& str, const std::string& replaceWhat, const std::string& replaceWith);
+
+                /*!
+                 * \brief Replace all from one to another sub-string, char version
+                 * \param str
+                 * \param replaceWhat
+                 * \param replaceWith
+                 * \return Reference to modified string
+                 */
+		std::string& replace_all(std::string& str, char replaceWhat, char replaceWith);
+
+                /*!
+                 * \brief Compare c style raw string
+                 * Will take care of string not ends with '\0',
+                 * which is unsafe using strcmp().
+                 * \param s1
+                 * \param s2
+                 * \return True if same
+                 */
 		bool str_equals(const char* s1, const char* s2);
 
+                /*!
+                 * \brief Left trim whitespace
+                 * \param str
+                 * \return Trimed string
+                 */
 		std::string& ltrim(std::string& str);
 
+                /*!
+                 * \brief Right trim whitespace
+                 * \param str
+                 * \return Trimed string
+                 */
 		std::string& rtrim(std::string& str);
 
+                /*!
+                 * \brief Left and right trim whitespace
+                 * \param str
+                 * \return Trimed string
+                 */
 		std::string& trim(std::string& str);
 
+                /*!
+                 * \brief Strip specified sub-string from left.
+                 * The strip will do strict check from left, even whitespace.
+                 * This function will change string in-place
+                 * \param str Original string
+                 * \param what What to be stripped
+                 * \return Stripped string
+                 */
 		std::string& lstrip(std::string& str, std::string what);
 
+                /*!
+                 * \brief Strip specified sub-string from right.
+                 * The strip will do strict check from right, even whitespace.
+                 * This function will change string in-place
+                 * \param str Original string
+                 * \param what What to be stripped
+                 * \return Stripped string
+                 */
 		std::string& rstrip(std::string& str, std::string what);
 
+                /*!
+                 * \brief Skip from right until delimiter string found.
+                 * This function modify string in-place.
+                 * \param str
+                 * \param delim
+                 * \return Skipped string
+                 */
 		std::string& rskip(std::string& str, std::string delim);
 
+                /*!
+                 * \brief Split string into parts with specified single char delimiter
+                 * \param s
+                 * \param delim
+                 * \return A std::vector of parts in std::string
+                 */
 		std::vector<std::string> split(const std::string s, char delim = ' ');
 
+                /*!
+                 * \brief Split string into parts with specified string delimiter.
+                 * The entire delimiter must be matched exactly
+                 * \param s
+                 * \param delim
+                 * \return A std::vector of parts in std::string
+                 */
 		std::vector<std::string> split(const std::string s, std::string delim);
 
+                /*!
+                 * \brief Split string into parts with multiple single char delimiter
+                 * \param s
+                 * \param delim A std::string contains multiple single char delimiter, e.g.(' \t\n')
+                 * \return A std::vector of parts in std::string
+                 */
 		std::vector<std::string> split_multi_delims(const std::string s, std::string delims);
 
+                /*!
+                 * \brief Special case to split_multi_delims(), split all whitespace.
+                 * \param s
+                 * \return A std::vector of parts in std::string
+                 */
 		std::vector<std::string> split_whitespace(const std::string s);
 
+                /*!
+                 * \brief Split string in two parts with specified delim
+                 * \param s
+                 * \param delim
+                 * \return A std::pair of std::string, ret.first = first part, ret.second = second part
+                 */
 		std::pair<std::string, std::string> split_first_occurance(const std::string s, char delim);
 
+                /*!
+                 * \brief Concatenates a std::vector of strings into a string with delimiters
+                 * \param elems
+                 * \param delim
+                 * \return Concatenated string
+                 */
 		std::string join(std::vector<std::string> elems, char delim);
 
+                /*!
+                 * \brief Go through vector and erase empty ones.
+                 * Erase in-place in vector.
+                 * \param vec
+                 * \return Clean vector with no empty elements.
+                 */
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
 
+                /*!
+                 * \brief Replace first occurance of one string with specified another string.
+                 * Replace in-place.
+                 * \param str
+                 * \param replaceWhat What substring to be replaced.
+                 * \param replaceWith What string to replace.
+                 */
 		void replace_first_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
+                /*!
+                 * \brief Replace every occurance of one string with specified another string.
+                 * Replace in-place.
+                 * \param str
+                 * \param replaceWhat What substring to be replaced.
+                 * \param replaceWith What string to replace.
+                 */
 		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
+                /*!
+                 * \brief Convert string to lower case.
+                 * Support ASCII characters only. Unicode string will trigger undefined behavior.
+                 * \param mixed Mixed case string
+                 * \return Lower case string.
+                 */
 		std::string to_lower_ascii(std::string mixed);
 
+                /*!
+                 * \brief Convert string to upper case.
+                 * Support ASCII characters only. Unicode string will trigger undefined behavior.
+                 * \param mixed Mixed case string
+                 * \return Upper case string.
+                 */
 		std::string to_upper_ascii(std::string mixed);
 
+                /*!
+                 * \brief C++ 11 UTF-8 string to UTF-16 string
+                 * \param u8str UTF-8 string
+                 * \return UTF-16 string
+                 */
 		inline std::u16string utf8_to_utf16(std::string &u8str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
 			return cvt.from_bytes(u8str);
 		}
 
+                /*!
+                 * \brief C++ 11 UTF-16 string to UTF-8 string
+                 * \param u16str UTF-16 string
+                 * \return UTF-8 string
+                 */
 		inline std::string utf16_to_utf8(std::u16string &u16str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
 			return cvt.to_bytes(u16str);
 		}
 
+                /*!
+                 * \brief C++ 11 UTF-8 string to UTF-32 string
+                 * \param u8str UTF-8 string
+                 * \return UTF-32 string
+                 */
 		inline std::u32string utf8_to_utf32(std::string &u8str)
 		{
 			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
 			return cvt.from_bytes(u8str);
 		}
 
+                /*!
+                 * \brief C++ 11 UTF-32 string to UTF-8 string
+                 * \param u32str UTF-32 string
+                 * \return UTF-8 string
+                 */
 		inline std::string utf32_to_utf8(std::u32string &u32str)
 		{
 			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
 			return cvt.to_bytes(u32str);
 		}
 
+                /*!
+                 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg &last)
+                 * \brief Format function to replace each {} with templated type variable
+                 * \param fmt Original string with place-holder {}
+                 * \param last The last variable in variadic template function
+                 */
 		template<typename Arg>
 		inline void format_string(std::string &fmt, const Arg &last)
 		{
 			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(last));
 		}
 
+                /*!
+                 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
+                 * \brief Vairadic variable version of format function to replace each {} with templated type variable
+                 * \param fmt Original string with place-holder {}
+                 * \param current The current variable to be converted
+                 * \param ... more Variadic variables to be templated.
+                 */
 		template<typename Arg, typename... Args>
 		inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
 		{
@@ -809,31 +1366,121 @@ namespace zz
 
 	} // namespace fmt
 
+        /*!
+         * \namespace zz::cfg
+         * \brief Namespace for configuration related classes and functions
+         */
 	namespace cfg
 	{
+                /*!
+                 * \brief The Value class for store/load various type to/from string
+                 */
 		class Value
 		{
 		public:
+                        /*!
+                         * \brief Value default constructor
+                         */
 			Value(){}
+
+                        /*!
+                         * \brief Value constructor from raw string
+                         * \param cstr
+                         */
 			Value(const char* cstr) : str_(cstr) {}
+
+                        /*!
+                         * \brief Value constrctor from string
+                         * \param str
+                         */
 			Value(std::string str) : str_(str) {}
+
+                        /*!
+                         * \brief Value copy constructor
+                         * \param other
+                         */
 			Value(const Value& other) : str_(other.str_) {}
+
+                        /*!
+                         * \brief Return stored string
+                         * \return String
+                         */
 			std::string str() const { return str_; }
+
+                        /*!
+                         * \brief Check if stored string is empty
+                         * \return True if empty
+                         */
 			bool empty() const { return str_.empty(); }
+
+                        /*!
+                         * \brief Clear stored string
+                         */
 			void clear() { str_.clear(); }
+
+                        /*!
+                         * \brief Overloaded operator == for comparison
+                         * \param other
+                         * \return True if stored strings are same
+                         */
 			bool operator== (const Value& other) { return str_ == other.str_; }
+
+                        /*!
+                         * \brief Overloaded operator = for copy
+                         * \param other
+                         * \return
+                         */
 			Value& operator= (const Value& other) { str_ = other.str_; return *this; }
+
+                        /*!
+                         * \fn template <typename T> std::string store(T t);
+                         * \brief Store value from template type T
+                         * Support type that can << to a stringstream
+                         */
 			template <typename T> std::string store(T t);
+
+                        /*!
+                         * \fn template <typename T> std::string store(std::vector<T> t);
+                         * \brief Template specification of store for vector of type T
+                         * Support type that can << to a stringstream
+                         */
 			template <typename T> std::string store(std::vector<T> t);
+
+                        /*!
+                         * \fn template <typename T> T load(T& t);
+                         * \brief Load value to template type T
+                         * Support type that can >> to a stringstream
+                         */
 			template <typename T> T load(T& t);
+
+                        /*!
+                         * \fn template <typename T> std::string load(std::vector<T> t);
+                         * \brief Template specification of load for vector of type T
+                         * Support type that can >> to a stringstream
+                         */
 			template <typename T> std::vector<T> load(std::vector<T>& t);
+
+                        /*!
+                         * \fn template <> bool load(bool& b);
+                         * \brief Template specification of load for bool type
+                         * Support "1", "0", or alpha version of boolean value,
+                         * such as "True", "False", case-insensitive.
+                         */
 			template <> bool load(bool& b);
+
+                        /*!
+                         * \fn template <typename T> T load() { T t; return load(t); }
+                         * \brief Template for load function with no input.
+                         */
 			template <typename T> T load() { T t; return load(t); }
 			
 		private:
 			std::string str_;
 		};
 
+                /*!
+                 * \brief The CfgLevel struct, internal struct for cfgParser
+                 */
 		struct CfgLevel
 		{
 			CfgLevel() : parent(nullptr), depth(0) {}
@@ -865,14 +1512,42 @@ namespace zz
 			}
 		};
 
+                /*!
+                 * \brief The CfgParser class for INI/CFG file parsing
+                 */
 		class CfgParser
 		{
 		public:
+                        /*!
+                         * \brief CfgParser constructor from filename
+                         * \param filename
+                         */
 			CfgParser(std::string filename);
+
+                        /*!
+                         * \brief CfgParser constructor from stream
+                         * \param s
+                         */
 			CfgParser(std::istream& s) : pstream_(&s), ln_(0) { parse(root_); }
+
+                        /*!
+                         * \brief Get root section of configuration
+                         * \return Root level of config file
+                         */
 			CfgLevel& root() { return root_; }
 
+                        /*!
+                         * \brief Overloaded operator [] for config values
+                         * \param name Config value entry
+                         * \return Value
+                         */
 			Value operator[](const std::string& name) { return root_.values[name]; }
+
+                        /*!
+                         * \brief Overloaded operator () for config sections
+                         * \param name Section entry.
+                         * \return Section from given name.
+                         */
 			CfgLevel& operator()(const std::string& name) { return root_.sections[name]; }
 
 		private:
@@ -1422,8 +2097,7 @@ namespace zz
 				template <typename... Args>
 				void write(const char* fmt, const Args&... args)
 				{
-					if (!enabled_)
-						return;
+					if (!enabled_) return;
 					std::string buf(fmt);
 					fmt::format_string(buf, args...);
 					msg_.buffer_ += buf;
@@ -1579,16 +2253,7 @@ namespace zz
 			class RotateFileSink : public Sink
 			{
 			public:
-				RotateFileSink(const std::string filename, std::size_t maxSizeInByte, bool backup)
-					:maxSizeInByte_(maxSizeInByte), backup_(backup)
-				{
-					if (backup_)
-					{
-						back_up(filename);
-					}
-					fileEditor_.open(filename, true);
-					currentSize_ = 0;
-				}
+				RotateFileSink(const std::string filename, std::size_t maxSizeInByte, bool backup);
 
 				void flush() override
 				{
@@ -1616,33 +2281,8 @@ namespace zz
 				}
 
 			private:
-				void back_up(std::string oldFile)
-				{
-					std::string backupName = os::path_append_basename(oldFile,
-						time::Date::local_time().to_string("_%y-%m-%d_%H-%M-%S-%frac"));
-					os::rename(oldFile, backupName);
-				}
-
-				void rotate()
-				{
-					std::lock_guard<std::mutex> lock(mutex_);
-					// check again in case other thread 
-					// just waited for this operation
-					if (currentSize_ > maxSizeInByte_)
-					{
-						if (backup_)
-						{
-							fileEditor_.close();
-							back_up(fileEditor_.filename());
-							fileEditor_.open(true);
-						}
-						else
-						{
-							fileEditor_.reopen(true);
-						}
-						currentSize_ = 0;
-					}
-				}
+				void back_up(std::string oldFile);
+				void rotate();
 
 				fs::FileEditor				fileEditor_;
 				std::mutex					mutex_;

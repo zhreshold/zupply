@@ -337,16 +337,16 @@ namespace zz
 			return std::string(s1) == std::string(s2);	// this is safe, not with strcmp
 		}
 
-		std::string& left_zero_padding(std::string &str, int width)
-		{
-			int toPad = width - static_cast<int>(str.length());
-			while (toPad > 0)
-			{
-				str = consts::kZeroPaddingStr + str;
-				--toPad;
-			}
-			return str;
-		}
+		//std::string& left_zero_padding(std::string &str, int width)
+		//{
+		//	int toPad = width - static_cast<int>(str.length());
+		//	while (toPad > 0)
+		//	{
+		//		str = consts::kZeroPaddingStr + str;
+		//		--toPad;
+		//	}
+		//	return str;
+		//}
 
 		std::string to_lower_ascii(std::string mixed)
 		{
@@ -364,6 +364,21 @@ namespace zz
 
 	namespace fs
 	{
+		FileEditor::FileEditor(std::string filename, bool truncateOrNot, int retryTimes, int retryInterval)
+		{
+			// use absolute path
+			filename_ = os::absolute_path(filename);
+			// try open
+			this->try_open(retryTimes, retryInterval, truncateOrNot);
+		};
+
+		FileEditor::FileEditor(FileEditor&& other) : filename_(std::move(other.filename_)),
+			stream_(std::move(other.stream_)),
+			readPos_(std::move(other.readPos_)),
+			writePos_(std::move(other.writePos_))
+		{
+			other.filename_ = std::string();
+		};
 
 		bool FileEditor::open(bool truncateOrNot)
 		{
@@ -414,6 +429,19 @@ namespace zz
 			}
 			return this->is_open();
 		}
+
+		FileReader::FileReader(std::string filename, int retryTimes, int retryInterval)
+		{
+			// use absolute path
+			filename_ = os::absolute_path(filename);
+			// try open
+			this->try_open(retryTimes, retryInterval);
+		}
+
+		FileReader::FileReader(FileReader&& other) : filename_(std::move(other.filename_)), istream_(std::move(other.istream_))
+		{
+			other.filename_ = std::string();
+		};
 
 		bool FileReader::open()
 		{
@@ -1730,6 +1758,45 @@ namespace zz
 					return newLogger;
 				}
 				return nullptr;
+			}
+
+			RotateFileSink::RotateFileSink(const std::string filename, std::size_t maxSizeInByte, bool backup)
+				:maxSizeInByte_(maxSizeInByte), backup_(backup)
+			{
+				if (backup_)
+				{
+					back_up(filename);
+				}
+				fileEditor_.open(filename, true);
+				currentSize_ = 0;
+			}
+
+			void RotateFileSink::back_up(std::string oldFile)
+			{
+				std::string backupName = os::path_append_basename(oldFile,
+					time::Date::local_time().to_string("_%y-%m-%d_%H-%M-%S-%frac"));
+				os::rename(oldFile, backupName);
+			}
+
+			void RotateFileSink::rotate()
+			{
+				std::lock_guard<std::mutex> lock(mutex_);
+				// check again in case other thread 
+				// just waited for this operation
+				if (currentSize_ > maxSizeInByte_)
+				{
+					if (backup_)
+					{
+						fileEditor_.close();
+						back_up(fileEditor_.filename());
+						fileEditor_.open(true);
+					}
+					else
+					{
+						fileEditor_.reopen(true);
+					}
+					currentSize_ = 0;
+				}
 			}
 
 			void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map)

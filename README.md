@@ -57,9 +57,9 @@ int main(int argc, char** argv)
 - G++ 4.9.x and newer
 - Clang++ 3.5 or newer
 
-## Wiki
+## Documentation
 ###### So much to write, try hard :P
-#### Contents
+### Contents
 1. [Date](#date) and [Timer](#timer)
 2. [Logger](#logger)
 3. [Directory](#directory) and [File](#file)
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 5. [Argument Parser](#argument-parser)
 6. [INI or CFG Parser](#configure-parser)
 
-#### Date
+### Date
 ##### Example code
 ```c++
 // show current date in local time zone
@@ -106,7 +106,7 @@ Call UTC directly 15-08-26 23:48:03.521
 |   ...   | many more options, check [std::put_time](#http://en.cppreference.com/w/cpp/io/manip/put_time) documentation|
 |   %%    | use %% to skip %                                                |
 
-#### Timer
+### Timer
 ##### Example Code
 ```c++
 const int repeat = 999999;
@@ -127,15 +127,22 @@ std::cout << "sec: " << t.elapsed_sec() << std::endl;
 std::cout << "msec: " << t.elapsed_ms() << std::endl;
 std::cout << "usec: " << t.elapsed_us() << std::endl;
 std::cout << "nsec: " << t.elapsed_ns() << std::endl;
+// use double, no quantize
+std::cout << "sec in double: " << t.elapsed_sec_double() << std::endl;
+// sleep for 2000 ms
+zz::time::sleep(2000);
+std::cout << "After sleep for 2 sec: " << t.elapsed_sec_double() << std::endl;
 ```
 #####Output
 ```
-Summation: 499998500001 elapsed time: [2 ms]
+Summation: 499998500001 elapsed time: [3 ms]
 Subtraction: 0 elapsed time: [3002 us]
 sec: 0
 msec: 3
 usec: 3002
 nsec: 3002300
+sec in double: 0.0030023
+After sleep for 2 sec: 2.00421
 ```
 ##### Supported format specifier 
 |Specifier|       Description      |
@@ -144,14 +151,15 @@ nsec: 3002300
 |  %ms   | quantize in millisecond resolution|
 |  %us   | quantize in microsecond resolution|
 |  %ns   | quantize in nanosecond resolution|
-#### Logger
+|  %%    | skip % |
+### Logger
 
-#### Directory
+### Directory
 
-#### File
+### File
 
-#### Formatter
+### Formatter
 
-#### Argument Parser
+### Argument Parser
 
-#### Configure Parser
+### Configure Parser

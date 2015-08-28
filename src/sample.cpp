@@ -44,6 +44,11 @@ void test_timer()
 	std::cout << "msec: " << t.elapsed_ms() << std::endl;
 	std::cout << "usec: " << t.elapsed_us() << std::endl;
 	std::cout << "nsec: " << t.elapsed_ns() << std::endl;
+	// use double, no quantize
+	std::cout << "sec in double: " << t.elapsed_sec_double() << std::endl;
+	// sleep for 2000 ms
+	zz::time::sleep(2000);
+	std::cout << "After sleep for 2 sec: " << t.elapsed_sec_double() << std::endl;
 }
 
 

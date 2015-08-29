@@ -1,13 +1,13 @@
 /* Doxygen main page */
-/*!	 \mainpage zupply Main Page
-#	 zupply - Portable light-weight multi-functional easy to use library for C++
+/*! \mainpage Zupply
+###   A light-weight portable C++ 11 library for researches and demos
 
 *   Author: Joshua Zhang
 *   Date since: June-2015
 *
 *   Copyright (c) <2015> <JOSHUA Z. ZHANG>
 *
-*	 Open source according to MIT License.
+*   Open source according to MIT License.
 *
 *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -17,6 +17,9 @@
 *   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
+*
+*
+#### Open source project on Github: [link](https://github.com/ZhreShold/zupply)
 ***************************************************************************/
 
 
@@ -1479,7 +1482,8 @@ namespace zz
 		};
 
                 /*!
-                 * \brief The CfgLevel struct, internal struct for cfgParser
+                 * \brief The CfgLevel struct, internal struct for cfgParser.
+                 * Tree structure for config sections
                  */
 		struct CfgLevel
 		{
@@ -1564,20 +1568,99 @@ namespace zz
 			std::size_t		ln_;
 		};
 
+                /*!
+                 * \brief The ArgOption class for ArgParser
+                 */
 		class ArgOption
 		{
 			friend class ArgParser;
 		public:
+
+                        /*!
+                         * \brief ArgOption constructor with short key and long key
+                         * \param shortKey A char, use 'a'
+                         * \param longKey A std::string "long"
+                         */
 			ArgOption::ArgOption(char shortKey, std::string longKey);
+
+                        /*!
+                         * \brief ArgOption constructor with short key only
+                         * \param shortKey A char, use 'a'
+                         */
 			ArgOption::ArgOption(char shortKey);
+
+                        /*!
+                         * \brief ArgOption constructor with long key only
+                         * \param longKey A std::string "long"
+                         */
 			ArgOption::ArgOption(std::string longKey);
+
+                        /*!
+                         * \brief Set callback function when this option is triggered.
+                         * One can use lambda function as callback
+                         * \param todo Function callback
+                         * \return Reference to this option
+                         */
 			ArgOption& call(std::function<void()> todo);
+
+                        /*!
+                         * \brief Set callback functions.
+                         * Both TODO function and Default function required.
+                         * If ArgParser detect this option, the TODO function will be called.
+                         * Otherwise, the default callback function will be executed.
+                         * \param todo Callback function when triggered
+                         * \param otherwise Default function if this option not found
+                         * \return Reference to this option
+                         */
 			ArgOption& call(std::function<void()> todo, std::function<void()> otherwise);
+
+                        /*!
+                         * \brief Set help info for this option.
+                         * Use this to add description for this option.
+                         * \param helpInfo
+                         * \return Reference to this option
+                         */
 			ArgOption& set_help(std::string helpInfo);
+
+                        /*!
+                         * \brief Set this option to required or not.
+                         * After parsing arguments, if this set to required but not found,
+                         * ArgParser will generate an error information.
+                         * \param require Require this option if set to true
+                         * \return Reference to this option
+                         */
 			ArgOption& require(bool require = true);
+
+                        /*!
+                         * \brief Set this option to allow option be called only once.
+                         * This is set to disable accidentally set a variable multiply times.
+                         * \param onlyOnce Allow this option be used only once
+                         * \return Reference to this option
+                         */
 			ArgOption& set_once(bool onlyOnce = true);
+
+                        /*!
+                         * \brief Set option variable type.
+                         * Optional. Let user know what type this option take, INT, FLOAT, STRING...
+                         * \param type Type name in string, just a reminder.
+                         * \return Reference to this option
+                         */
 			ArgOption& set_type(std::string type);
+
+                        /*!
+                         * \brief Set minimum number of argument this option take.
+                         * If minimum number not satisfied, ArgParser will generate an error.
+                         * \param minCount
+                         * \return Reference to this option
+                         */
 			ArgOption& set_min(int minCount);
+
+                        /*!
+                         * \brief Set maximum number of argument this option take.
+                         * If maximum number not satisfied, ArgParser will generate an error.
+                         * \param maxCount
+                         * \return Reference to this option
+                         */
 			ArgOption& set_max(int maxCount);
 
 		private:
@@ -1599,37 +1682,186 @@ namespace zz
 			std::vector<std::function<void()>> othercall_;	//!< call these when option not found	
 		};
 
+                /*!
+                 * \brief The ArgParser class.
+                 * For parsing command line arguments.
+                 */
 		class ArgParser
 		{
 		public:
+                        /*!
+                         * \brief ArgParser default constructor
+                         */
 			ArgParser();
+
+                        /*!
+                         * \brief Add option with short key only.
+                         * \param shortKey A char
+                         * \return Reference to the added option
+                         */
 			ArgOption& add_opt(char shortKey);
+
+                        /*!
+                         * \brief Add option with long key only.
+                         * \param shortKey A std::string long key
+                         * \return Reference to the added option
+                         */
 			ArgOption& add_opt(std::string longKey);
+
+                        /*!
+                         * \brief Add option with short key only.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \return Reference to the added option
+                         */
 			ArgOption& add_opt(char shortKey, std::string longKey);
+
+                        /*!
+                         * \fn template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
+                                T& dst, T defaultValue, std::string help = "", std::string type = "");
+                         * \brief Template function for an option take a value.
+                         * This will store the value from argument to dst, otherwise dst = defaultValue.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \param dst Reference to the variable to be set
+                         * \param defaultValue Default value if this option not found
+                         * \param help Help description to this option
+                         * \param type Help describe the type of this option
+                         * \return Reference to the added option
+                         */
 			template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
 				T& dst, T defaultValue, std::string help = "", std::string type = "");
+
+                        /*!
+                         * \fn template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
+                                T defaultValue, std::string help = "", std::string type = "");
+                         * \brief Template function for an option take a value. Overload with no short key
+                         * This will store the value from argument to dst, otherwise dst = defaultValue.
+                         * \param longKey A std::string
+                         * \param dst Reference to the variable to be set
+                         * \param defaultValue Default value if this option not found
+                         * \param help Help description to this option
+                         * \param type Help describe the type of this option
+                         * \return Reference to the added option
+                         */
 			template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
 				T defaultValue, std::string help = "", std::string type = "");
 
+                        /*!
+                         * \brief Add an toggle option.
+                         * When this option found, dst = true, otherwise dst = false.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \param help Help description.
+                         * \param dst Pointer to a bool variable to be set accroding to this option.
+                         * \return Reference to the added option
+                         */
 			ArgOption& add_opt_flag(char shortKey, std::string longKey, std::string help = "", bool* dst = nullptr);
+
+                        /*!
+                         * \brief Add an toggle option. Overloaded with no short key.
+                         * When this option found, dst = true, otherwise dst = false.
+                         * \param longKey A std::string
+                         * \param help Help description.
+                         * \param dst Pointer to a bool variable to be set accroding to this option.
+                         * \return Reference to the added option
+                         */
 			ArgOption& add_opt_flag(std::string longKey, std::string help = "", bool* dst = nullptr);
 
+                        /*!
+                         * \brief Add a special option used to display help information for argument parser.
+                         * When triggered, program will print help info and exit.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \param help Option description
+                         */
 			void add_opt_help(char shortKey, std::string longKey, std::string help = "print this help and exit");
+
+                        /*!
+                         * \brief Add a special option used to display help information for argument parser.
+                         * When triggered, program will print help info and exit.
+                         * Long key only.
+                         * \param longKey A std::string
+                         * \param help Option description
+                         */
 			void add_opt_help(std::string longKey, std::string = "print this help and exit");
 
+                        /*!
+                         * \brief Add a special option used to display version information for argument parser.
+                         * When triggered, program will print version info and exit.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \param help Option description
+                         */
 			void add_opt_version(char shortKey, std::string longKey, std::string version, std::string help = "print version and exit");
+
+                        /*!
+                         * \brief Add a special option used to display version information for argument parser.
+                         * When triggered, program will print version info and exit. Long key only.
+                         * \param shortKey A char
+                         * \param longKey A std::string
+                         * \param help Option description
+                         */
 			void add_opt_version(std::string longKey, std::string version, std::string help = "print version and exit");
 
+                        /*!
+                         * \brief Return version info.
+                         * \return Version info in string
+                         */
 			std::string version() const { return info_[1]; }
 
+                        /*!
+                         * \brief Start parsing arguments
+                         * \param argc
+                         * \param argv
+                         * \param ignoreUnknown Whether or not ignore unknown option keys
+                         */
 			void parse(int argc, char** argv, bool ignoreUnknown = false);
 
+                        /*!
+                         * \brief Get error count generated during parsing
+                         * \return Number of errors generated.
+                         */
 			std::size_t count_error() { return errors_.size(); }
+
+                        /*!
+                         * \brief Count the occurance of the option by short key
+                         * \param shortKey
+                         * \return Occurance count
+                         */
 			int	count(char shortKey);
+
+                        /*!
+                         * \brief Count the occurance of the option by long key
+                         * \param longKey
+                         * \return Occurance count
+                         */
 			int count(std::string longKey);
+
+                        /*!
+                         * \brief Get all errors generated during parsing.
+                         * \return Errors in string
+                         */
 			std::string get_error();
+
+                        /*!
+                         * \brief Get help information of entire parser.
+                         * \return All help information
+                         */
 			std::string get_help();
+
+                        /*!
+                         * \brief Overloaded operator [] to retrieve the value by long key
+                         * \param longKey
+                         * \return Value type where the argument was stored
+                         */
 			Value operator[](const std::string& longKey);
+
+                        /*!
+                         * \brief Overloaded operator [] to retrieve the value by short key
+                         * \param shortKey
+                         * \return Value type where the argument was stored
+                         */
 			Value operator[](const char shortKey);
 
 		private:
@@ -1729,8 +1961,13 @@ namespace zz
 
 	} // namespace cfg
 
+        /*!
+         * \namespace zz::log
+         * \brief Namespace for logging and message stuffs
+         */
 	namespace log
 	{
+                // \cond
 		void zupply_internal_warn(std::string msg);
 		void zupply_internal_error(std::string msg);
 
@@ -1767,7 +2004,7 @@ namespace zz
 
 		typedef enum LogLevelEnum
 		{
-			trace = 0,
+                        trace = 0,
 			debug = 1,
 			info = 2,
 			warn = 3,
@@ -1830,13 +2067,46 @@ namespace zz
 
 		int level_mask_from_string(std::string levels);
 
+                // \endcond
+
+                /*!
+                 * \brief The LogConfig class.
+                 * For get/set logging configurations.
+                 */
 		class LogConfig
 		{
 		public:
+                        /*!
+                         * \brief Get instance of LogConfig class.
+                         * LogConfig is a singleton class, so use this to get the instance.
+                         * \return Reference to instance.
+                         */
 			static LogConfig& instance();
+
+                        /*!
+                         * \brief Set default format for all future loggers.
+                         * \param format
+                         */
 			static void set_default_format(std::string format);
+
+                        /*!
+                         * \brief Set default datetime format for all future loggers.
+                         * \param dateFormat
+                         */
 			static void set_default_datetime_format(std::string dateFormat);
+
+                        /*!
+                         * \brief Set default sink list for all future loggers.
+                         * \param list A vector of strings storing the name of sinks
+                         */
 			static void set_default_sink_list(std::vector<std::string> list);
+
+                        /*!
+                         * \brief Set default level mask for all future loggers.
+                         * Level mask is an int.
+                         * Each bit control if corresponding level should be logged or not.
+                         * \param levelMask A bit mask.
+                         */
 			static void set_default_level_mask(int levelMask);
 			std::vector<std::string> sink_list();
 			void set_sink_list(std::vector<std::string> &list);

@@ -19,7 +19,7 @@
 *
 *
 *
-#### Open source project on Github: [link](https://github.com/ZhreShold/zupply)
+#### Project on Github: [link](https://github.com/ZhreShold/zupply)
 ***************************************************************************/
 
 
@@ -2108,13 +2108,53 @@ namespace zz
                          * \param levelMask A bit mask.
                          */
 			static void set_default_level_mask(int levelMask);
+
+                        /*!
+                         * \brief Get default sink list
+                         * \return std::vector of sink names
+                         */
 			std::vector<std::string> sink_list();
+
+                        /*!
+                         * \brief Set default sink list
+                         * \param list Vector of names of the sinks to be set
+                         */
 			void set_sink_list(std::vector<std::string> &list);
+
+                        /*!
+                         * \brief Get default log level mask
+                         * \return Integer representing levels using bit mask
+                         */
 			int log_level_mask();
+
+                        /*!
+                         * \brief Set default log level mask
+                         * \param newMask
+                         */
 			void set_log_level_mask(int newMask);
+
+                        /*!
+                         * \brief Get default logger format
+                         * \return Default format
+                         */
 			std::string format();
+
+                        /*!
+                         * \brief Set default logger format
+                         * \param newFormat
+                         */
 			void set_format(std::string newFormat);
+
+                        /*!
+                         * \brief Get default datetime format
+                         * \return Default datetime format
+                         */
 			std::string datetime_format();
+
+                        /*!
+                         * \brief Set default datetime format
+                         * \param newDatetimeFormat
+                         */
 			void set_datetime_format(std::string newDatetimeFormat);
 
 		private:
@@ -2126,43 +2166,157 @@ namespace zz
 			cds::AtomicNonTrivial<std::string> datetimeFormat_;
 		};
 
+                /*!
+                 * \brief The Logger class
+                 * Logger is the object to be called to log some message.
+                 * Each logger may links to several Sinks as logging destinations.
+                 */
 		class Logger : UnMovable
 		{
 		public:
+                        /*!
+                         * \brief Logger default constructor
+                         * \param name Logger's name, need a name to retrieve the logger
+                         */
 			Logger(std::string name) : name_(name)
 			{
 				levelMask_ = LogConfig::instance().log_level_mask();
 			}
 
+                        /*!
+                         * \brief Logger constructor with name and mask
+                         * \param name
+                         * \param levelMask Specify which levels should be logged
+                         */
 			Logger(std::string name, int levelMask) : name_(name)
 			{
 				levelMask_ = levelMask;
 			}
 
 			// logger.info(format string, arg1, arg2, arg3, ...) call style
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.trace(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args);
+
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.debug(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args);
+
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.info(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args);
+
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.warn(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args);
+
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.error(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args);
+
+                        /*!
+                         * \fn template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args)
+                         * \brief Variadic argument style to log some message.
+                         * Logger.fatal(format string, arg1, arg2, arg3, ...) call style
+                         */
 			template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args);
 
 
 			// logger.info(msg) << ".." call style
+                        /*!
+                         * \fn template <typename T> detail::LineLogger trace(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.trace(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger trace(const T& msg);
+
+                        /*!
+                         * \fn template <typename T> detail::LineLogger debug(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.debug(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger debug(const T& msg);
+
+                        /*!
+                         * \fn template <typename T> detail::LineLogger info(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.info(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger info(const T& msg);
+
+                        /*!
+                         * \fn template <typename T> detail::LineLogger warn(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.warn(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger warn(const T& msg);
+
+                        /*!
+                         * \fn template <typename T> detail::LineLogger error(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.error(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger error(const T& msg);
+
+                        /*!
+                         * \fn template <typename T> detail::LineLogger fatal(const T& msg)
+                         * \brief Log message and overload with more stream style message.
+                         * Logger.fatal(msg) << ".." call style
+                         */
 			template <typename T> detail::LineLogger fatal(const T& msg);
 
 
 			// logger.info() << ".." call  style
+
+                        /*!
+                         * \brief Trace level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger trace();
+
+                        /*!
+                         * \brief Debug level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger debug();
+
+                        /*!
+                         * \brief Info level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger info();
+
+                        /*!
+                         * \brief Warn level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger warn();
+
+                        /*!
+                         * \brief Error level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger error();
+
+                        /*!
+                         * \brief Fatal level overloaded with stream style message.
+                         * \return LineLogger
+                         */
 			detail::LineLogger fatal();
 
 			//const LogLevels level() const
@@ -2170,30 +2324,73 @@ namespace zz
 			//	return static_cast<LogLevels>(level_.load(std::memory_order_relaxed));
 			//}
 
+                        /*!
+                         * \brief Set level mask to this logger
+                         * \param levelMask
+                         */
 			void set_level_mask(int levelMask)
 			{
 				levelMask_ = levelMask & LogLevels::sentinel;
 			}
 
+                        /*!
+                         * \brief Check if a specific level should be logged in this logger
+                         * \param msgLevel
+                         * \return True if the level should be logged
+                         */
 			bool should_log(LogLevels msgLevel) const
 			{
 				return level_should_log(levelMask_, msgLevel);
 			}
 
+                        /*!
+                         * \brief Get name of the logger
+                         * \return Name of the logger
+                         */
 			std::string name() const { return name_; };
 
+                        /*!
+                         * \brief Get user friendly information about this logger.
+                         * Get informations such as log levels, sink list, etc...
+                         * \return User friendly string info.
+                         */
 			std::string to_string();
 
+                        /*!
+                         * \brief Get pointer to a sink by name.
+                         * \param name Name of the sink
+                         * \return Shared pointer to the sink, return nullptr if not found.
+                         */
 			SinkPtr get_sink(std::string name);
 
+                        /*!
+                         * \brief Attach a sink to this logger.
+                         * \param sink
+                         */
 			void attach_sink(SinkPtr sink);
 
+                        /*!
+                         * \brief Detach a sink from this logger.
+                         * \param sink
+                         */
 			void detach_sink(SinkPtr sink);
 
+                        /*!
+                         * \brief Attach the entire vector of sinks to the logger.
+                         * \param sinkList
+                         */
 			void attach_sink_list(std::vector<std::string> &sinkList);
 
+                        /*!
+                         * \brief Attach stdout and stderr to the logger.
+                         * Special case of attach_sink()
+                         */
 			void attach_console();
 
+                        /*!
+                         * \brief Detach stdout and stderr from the logger if exist.
+                         * Special case of detach_sink()
+                         */
 			void detach_console();
 
 		private:
@@ -2216,6 +2413,8 @@ namespace zz
 		};
 		typedef std::shared_ptr<Logger> LoggerPtr;
 
+
+                // \cond
 		namespace detail
 		{
 			template<typename T>
@@ -2748,32 +2947,97 @@ namespace zz
 			return log_if_enabled(LogLevels::fatal, msg);
 		}
 
+                // \endcond
+
+                /*!
+                 * \brief Get logger by name
+                 * \param name
+                 * \param createIfNotExists Create new logger with the name provided if not exist.
+                 * \return Shared pointer to the logger.
+                 */
 		LoggerPtr get_logger(std::string name, bool createIfNotExists = true);
 
+                /*!
+                 * \brief Get the sink pointer to stdout
+                 * \return Shared pointer to stdout sink.
+                 */
 		SinkPtr new_stdout_sink();
 
+                /*!
+                 * \brief Get the sink pointer to stderr
+                 * \return Shared pointer to stderr sink.
+                 */
 		SinkPtr new_stderr_sink();
 
+                /*!
+                 * \brief Get the sink pointer from name provided.
+                 * Return nullptr if sink does not exist.
+                 * \return Shared pointer to sink.
+                 */
 		SinkPtr get_sink(std::string name);
 
+                /*!
+                 * \brief Dump all loggers info.
+                 * \param out The stream where you want the info direct to, default std::cout
+                 */
 		void dump_loggers(std::ostream &out = std::cout);
 
+                /*!
+                 * \brief Create new ostream sink from existing ostream.
+                 * \param stream
+                 * \param name
+                 * \param forceFlush
+                 * \return Shared pointer to the new sink.
+                 */
 		SinkPtr new_ostream_sink(std::ostream &stream, std::string name, bool forceFlush = false);
 
+                /*!
+                 * \brief Create new simple file sink withe filename provided.
+                 * \param filename
+                 * \param truncate Open the file in truncate mode?
+                 * \return Shared pointer to the new sink.
+                 */
 		SinkPtr new_simple_file_sink(std::string filename, bool truncate = false);
 
+                /*!
+                 * \brief Create new rotate file sink.
+                 * \param filename
+                 * \param maxSizeInByte Maximum size in byte, sink will truncate the file and rewrite new content if exceed this size.
+                 * \param backupOld Whether keep backups of the old files.
+                 * \return Shared pointer to the new sink
+                 */
 		SinkPtr new_rotate_file_sink(std::string filename, std::size_t maxSizeInByte = 4194304, bool backupOld = false);
 
+                /*!
+                 * \brief Lock all loggers.
+                 * When locked, loggers cannot be modified.
+                 */
 		void lock_loggers();
 
+                /*!
+                 * \brief Unlock all loggers.
+                 * When locked, loggers cannot be modified.
+                 */
 		void unlock_loggers();
 
+                /*!
+                 * \brief Delete a logger with the name given.
+                 * \param name
+                 */
 		void drop_logger(std::string name);
 
+                /*!
+                 * \brief Delete all loggers.
+                 */
 		void drop_all_loggers();
 
+                /*!
+                 * \brief Delete the sink, detach it from every logger.
+                 * \param name
+                 */
 		void drop_sink(std::string name);
 
+                // \cond
 		namespace detail
 		{
 			void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map);
@@ -2784,12 +3048,19 @@ namespace zz
 
 			std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section);
 		} // namespace detail
+                // \endcond
 
+                /*!
+                 * \brief Config loggers from a config file
+                 * \param cfgFilename
+                 */
 		void config_from_file(std::string cfgFilename);
 
+                // \cond
 		void zupply_internal_warn(std::string msg);
 
 		void zupply_internal_error(std::string msg);
+                // \endcond
 	} // namespace log
 } // namespace zz
 

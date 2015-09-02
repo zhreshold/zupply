@@ -71,6 +71,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classzz_1_1log_1_1_log_config.html" title="The LogConfig class. For get/set logging configurations. ">LogConfig</a> class. For get/set logging configurations.  <a href="classzz_1_1log_1_1_log_config.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html">Logger</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> class <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> is the object to be called to log some message. Each logger may links to several Sinks as logging destinations.  <a href="classzz_1_1log_1_1_logger.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -90,47 +91,50 @@ LogLevels&#160;</td><td class="memItemRight" valign="bottom"><b>level_from_str</
 <tr class="memitem:a341880901577d09108e4a28d2da2aca9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a341880901577d09108e4a28d2da2aca9"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>level_mask_from_string</b> (std::string levels)</td></tr>
 <tr class="separator:a341880901577d09108e4a28d2da2aca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2167900c3041806e947656ad5085a216"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2167900c3041806e947656ad5085a216"></a>
-LoggerPtr&#160;</td><td class="memItemRight" valign="bottom"><b>get_logger</b> (std::string name, bool createIfNotExists)</td></tr>
-<tr class="separator:a2167900c3041806e947656ad5085a216"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e879022da883342c7834740a19a4b4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e879022da883342c7834740a19a4b4b"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>new_stdout_sink</b> ()</td></tr>
+<tr class="memitem:a3f73b82920d43ca311e63a9e7566718c"><td class="memItemLeft" align="right" valign="top">LoggerPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a3f73b82920d43ca311e63a9e7566718c">get_logger</a> (std::string name, bool createIfNotExists=true)</td></tr>
+<tr class="memdesc:a3f73b82920d43ca311e63a9e7566718c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get logger by name.  <a href="#a3f73b82920d43ca311e63a9e7566718c">More...</a><br /></td></tr>
+<tr class="separator:a3f73b82920d43ca311e63a9e7566718c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e879022da883342c7834740a19a4b4b"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a2e879022da883342c7834740a19a4b4b">new_stdout_sink</a> ()</td></tr>
+<tr class="memdesc:a2e879022da883342c7834740a19a4b4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the sink pointer to stdout.  <a href="#a2e879022da883342c7834740a19a4b4b">More...</a><br /></td></tr>
 <tr class="separator:a2e879022da883342c7834740a19a4b4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae149329ee05b38c01dbe34c6e6b8f214"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae149329ee05b38c01dbe34c6e6b8f214"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>new_stderr_sink</b> ()</td></tr>
+<tr class="memitem:ae149329ee05b38c01dbe34c6e6b8f214"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#ae149329ee05b38c01dbe34c6e6b8f214">new_stderr_sink</a> ()</td></tr>
+<tr class="memdesc:ae149329ee05b38c01dbe34c6e6b8f214"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the sink pointer to stderr.  <a href="#ae149329ee05b38c01dbe34c6e6b8f214">More...</a><br /></td></tr>
 <tr class="separator:ae149329ee05b38c01dbe34c6e6b8f214"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa283a6da6bed1dbda81e539ed09612ca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa283a6da6bed1dbda81e539ed09612ca"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>get_sink</b> (std::string name)</td></tr>
+<tr class="memitem:aa283a6da6bed1dbda81e539ed09612ca"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#aa283a6da6bed1dbda81e539ed09612ca">get_sink</a> (std::string name)</td></tr>
+<tr class="memdesc:aa283a6da6bed1dbda81e539ed09612ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the sink pointer from name provided. Return nullptr if sink does not exist.  <a href="#aa283a6da6bed1dbda81e539ed09612ca">More...</a><br /></td></tr>
 <tr class="separator:aa283a6da6bed1dbda81e539ed09612ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01d9dee0c2f8b776c0762de7aaccb992"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01d9dee0c2f8b776c0762de7aaccb992"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_loggers</b> (std::ostream &amp;out)</td></tr>
-<tr class="separator:a01d9dee0c2f8b776c0762de7aaccb992"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58bb6a362991b061c673ff0130eea3ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58bb6a362991b061c673ff0130eea3ee"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>new_ostream_sink</b> (std::ostream &amp;stream, std::string name, bool forceFlush)</td></tr>
-<tr class="separator:a58bb6a362991b061c673ff0130eea3ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa78689125e0aa4086c572bef740134b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa78689125e0aa4086c572bef740134b2"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>new_simple_file_sink</b> (std::string filename, bool truncate)</td></tr>
-<tr class="separator:aa78689125e0aa4086c572bef740134b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaff04701e2615f9476f47ba514aca072"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaff04701e2615f9476f47ba514aca072"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>new_rotate_file_sink</b> (std::string filename, std::size_t maxSizeInByte, bool backupOld)</td></tr>
-<tr class="separator:aaff04701e2615f9476f47ba514aca072"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ef7ef15d8c6fc5ddd2c314fa40da330"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a3ef7ef15d8c6fc5ddd2c314fa40da330">dump_loggers</a> (std::ostream &amp;out=std::cout)</td></tr>
+<tr class="memdesc:a3ef7ef15d8c6fc5ddd2c314fa40da330"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dump all loggers info.  <a href="#a3ef7ef15d8c6fc5ddd2c314fa40da330">More...</a><br /></td></tr>
+<tr class="separator:a3ef7ef15d8c6fc5ddd2c314fa40da330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a221219092eb970d8ea38ae4106a79e8d"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a221219092eb970d8ea38ae4106a79e8d">new_ostream_sink</a> (std::ostream &amp;stream, std::string name, bool forceFlush=false)</td></tr>
+<tr class="memdesc:a221219092eb970d8ea38ae4106a79e8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new ostream sink from existing ostream.  <a href="#a221219092eb970d8ea38ae4106a79e8d">More...</a><br /></td></tr>
+<tr class="separator:a221219092eb970d8ea38ae4106a79e8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a836f337e7f350b7216d40512f7233a20"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a836f337e7f350b7216d40512f7233a20">new_simple_file_sink</a> (std::string filename, bool truncate=false)</td></tr>
+<tr class="memdesc:a836f337e7f350b7216d40512f7233a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new simple file sink withe filename provided.  <a href="#a836f337e7f350b7216d40512f7233a20">More...</a><br /></td></tr>
+<tr class="separator:a836f337e7f350b7216d40512f7233a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54cc5f2efacb4099ed9697f1d2c5ea64"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a54cc5f2efacb4099ed9697f1d2c5ea64">new_rotate_file_sink</a> (std::string filename, std::size_t maxSizeInByte=4194304, bool backupOld=false)</td></tr>
+<tr class="memdesc:a54cc5f2efacb4099ed9697f1d2c5ea64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create new rotate file sink.  <a href="#a54cc5f2efacb4099ed9697f1d2c5ea64">More...</a><br /></td></tr>
+<tr class="separator:a54cc5f2efacb4099ed9697f1d2c5ea64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad47ccde6d3ddd643fcaead620605dfc5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad47ccde6d3ddd643fcaead620605dfc5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>lock_loggers</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#ad47ccde6d3ddd643fcaead620605dfc5">lock_loggers</a> ()</td></tr>
+<tr class="memdesc:ad47ccde6d3ddd643fcaead620605dfc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lock all loggers. When locked, loggers cannot be modified. <br /></td></tr>
 <tr class="separator:ad47ccde6d3ddd643fcaead620605dfc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21ebb77fa15a26aca2d95a0f2c236f65"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21ebb77fa15a26aca2d95a0f2c236f65"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>unlock_loggers</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a21ebb77fa15a26aca2d95a0f2c236f65">unlock_loggers</a> ()</td></tr>
+<tr class="memdesc:a21ebb77fa15a26aca2d95a0f2c236f65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unlock all loggers. When locked, loggers cannot be modified. <br /></td></tr>
 <tr class="separator:a21ebb77fa15a26aca2d95a0f2c236f65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe9902816775e0f0be8e8442dd608589"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe9902816775e0f0be8e8442dd608589"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drop_logger</b> (std::string name)</td></tr>
+<tr class="memitem:abe9902816775e0f0be8e8442dd608589"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#abe9902816775e0f0be8e8442dd608589">drop_logger</a> (std::string name)</td></tr>
+<tr class="memdesc:abe9902816775e0f0be8e8442dd608589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a logger with the name given.  <a href="#abe9902816775e0f0be8e8442dd608589">More...</a><br /></td></tr>
 <tr class="separator:abe9902816775e0f0be8e8442dd608589"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7078fea3f0cd8f6e56677aa206a41f0b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7078fea3f0cd8f6e56677aa206a41f0b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drop_all_loggers</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a7078fea3f0cd8f6e56677aa206a41f0b">drop_all_loggers</a> ()</td></tr>
+<tr class="memdesc:a7078fea3f0cd8f6e56677aa206a41f0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete all loggers. <br /></td></tr>
 <tr class="separator:a7078fea3f0cd8f6e56677aa206a41f0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05e6ad6d2f94bb1509d4879ec1afce6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a05e6ad6d2f94bb1509d4879ec1afce6c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drop_sink</b> (std::string name)</td></tr>
+<tr class="memitem:a05e6ad6d2f94bb1509d4879ec1afce6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a05e6ad6d2f94bb1509d4879ec1afce6c">drop_sink</a> (std::string name)</td></tr>
+<tr class="memdesc:a05e6ad6d2f94bb1509d4879ec1afce6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete the sink, detach it from every logger.  <a href="#a05e6ad6d2f94bb1509d4879ec1afce6c">More...</a><br /></td></tr>
 <tr class="separator:a05e6ad6d2f94bb1509d4879ec1afce6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7aca82c6107628139b3ec04d910ff095"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7aca82c6107628139b3ec04d910ff095"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>config_from_file</b> (std::string cfgFilename)</td></tr>
+<tr class="memitem:a7aca82c6107628139b3ec04d910ff095"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a7aca82c6107628139b3ec04d910ff095">config_from_file</a> (std::string cfgFilename)</td></tr>
+<tr class="memdesc:a7aca82c6107628139b3ec04d910ff095"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config loggers from a config file.  <a href="#a7aca82c6107628139b3ec04d910ff095">More...</a><br /></td></tr>
 <tr class="separator:a7aca82c6107628139b3ec04d910ff095"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c1e5d66d18db4059d7339e3f2d3c440"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c1e5d66d18db4059d7339e3f2d3c440"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_warn</b> (std::string msg)</td></tr>
@@ -141,7 +145,317 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_error
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Namespace for logging and message stuffs. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a7aca82c6107628139b3ec04d910ff095"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::config_from_file </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>cfgFilename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Config loggers from a config file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cfgFilename</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="abe9902816775e0f0be8e8442dd608589"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::drop_logger </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Delete a logger with the name given. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a05e6ad6d2f94bb1509d4879ec1afce6c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::drop_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Delete the sink, detach it from every logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3ef7ef15d8c6fc5ddd2c314fa40da330"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::dump_loggers </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>out</em> = <code>std::cout</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dump all loggers info. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">out</td><td>The stream where you want the info direct to, default std::cout </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3f73b82920d43ca311e63a9e7566718c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">LoggerPtr zz::log::get_logger </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>createIfNotExists</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get logger by name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td></td></tr>
+    <tr><td class="paramname">createIfNotExists</td><td>Create new logger with the name provided if not exist. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to the logger. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa283a6da6bed1dbda81e539ed09612ca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::get_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the sink pointer from name provided. Return nullptr if sink does not exist. </p>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to sink. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a221219092eb970d8ea38ae4106a79e8d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::new_ostream_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>forceFlush</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create new ostream sink from existing ostream. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stream</td><td></td></tr>
+    <tr><td class="paramname">name</td><td></td></tr>
+    <tr><td class="paramname">forceFlush</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to the new sink. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a54cc5f2efacb4099ed9697f1d2c5ea64"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::new_rotate_file_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>maxSizeInByte</em> = <code>4194304</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>backupOld</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create new rotate file sink. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td></td></tr>
+    <tr><td class="paramname">maxSizeInByte</td><td>Maximum size in byte, sink will truncate the file and rewrite new content if exceed this size. </td></tr>
+    <tr><td class="paramname">backupOld</td><td>Whether keep backups of the old files. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to the new sink </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a836f337e7f350b7216d40512f7233a20"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::new_simple_file_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>truncate</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create new simple file sink withe filename provided. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td></td></tr>
+    <tr><td class="paramname">truncate</td><td>Open the file in truncate mode? </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to the new sink. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae149329ee05b38c01dbe34c6e6b8f214"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::new_stderr_sink </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the sink pointer to stderr. </p>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to stderr sink. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2e879022da883342c7834740a19a4b4b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::new_stdout_sink </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the sink pointer to stdout. </p>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to stdout sink. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>
@@ -150,7 +464,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_error
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 28 2015 18:32:36 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

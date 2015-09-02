@@ -99,6 +99,9 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a001f05a47a5faf60e029656301cfccd4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a001f05a47a5faf60e029656301cfccd4">open</a> (std::string <a class="el" href="classzz_1_1fs_1_1_file_editor.html#a7a6239ac8af94712d6b662b4f4d81596">filename</a>, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td></tr>
 <tr class="memdesc:a001f05a47a5faf60e029656301cfccd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open file.  <a href="#a001f05a47a5faf60e029656301cfccd4">More...</a><br /></td></tr>
 <tr class="separator:a001f05a47a5faf60e029656301cfccd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a2ed0d8a8350d8b1b18f451c7026f6a0d">open</a> (bool truncateOrNot=false)</td></tr>
+<tr class="memdesc:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open file.  <a href="#a2ed0d8a8350d8b1b18f451c7026f6a0d">More...</a><br /></td></tr>
+<tr class="separator:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac62a2d83f09e11f2f5ebd716c398084"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#aac62a2d83f09e11f2f5ebd716c398084">reopen</a> (bool truncateOrNot=true)</td></tr>
 <tr class="memdesc:aac62a2d83f09e11f2f5ebd716c398084"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reopen current file.  <a href="#aac62a2d83f09e11f2f5ebd716c398084">More...</a><br /></td></tr>
 <tr class="separator:aac62a2d83f09e11f2f5ebd716c398084"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -294,7 +297,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True if success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2ed0d8a8350d8b1b18f451c7026f6a0d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::fs::FileEditor::open </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>truncateOrNot</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Open file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">truncateOrNot</td><td>Whether open in truncate mode or not </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if success </dd></dl>
 
 </div>
 </div>
@@ -336,7 +364,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 28 2015 18:32:36 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

@@ -62,6 +62,11 @@
 <div class="title">zz::log::Logger Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>The <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> class <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> is the object to be called to log some message. Each logger may links to several Sinks as logging destinations.  
+ <a href="classzz_1_1log_1_1_logger.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="zupply_8hpp_source.html">zupply.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for zz::log::Logger:</div>
 <div class="dyncontent">
@@ -74,109 +79,516 @@ Inheritance diagram for zz::log::Logger:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa8e0e209e211fe10074c3013b9136927"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8e0e209e211fe10074c3013b9136927"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Logger</b> (std::string name)</td></tr>
+<tr class="memitem:aa8e0e209e211fe10074c3013b9136927"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#aa8e0e209e211fe10074c3013b9136927">Logger</a> (std::string <a class="el" href="classzz_1_1log_1_1_logger.html#a143f11ebfc5b654b23c34d3361b1ff83">name</a>)</td></tr>
+<tr class="memdesc:aa8e0e209e211fe10074c3013b9136927"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> default constructor.  <a href="#aa8e0e209e211fe10074c3013b9136927">More...</a><br /></td></tr>
 <tr class="separator:aa8e0e209e211fe10074c3013b9136927"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a368b609729357bc1a18238a1949fd55f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a368b609729357bc1a18238a1949fd55f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Logger</b> (std::string name, int levelMask)</td></tr>
+<tr class="memitem:a368b609729357bc1a18238a1949fd55f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a368b609729357bc1a18238a1949fd55f">Logger</a> (std::string <a class="el" href="classzz_1_1log_1_1_logger.html#a143f11ebfc5b654b23c34d3361b1ff83">name</a>, int levelMask)</td></tr>
+<tr class="memdesc:a368b609729357bc1a18238a1949fd55f"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> constructor with name and mask.  <a href="#a368b609729357bc1a18238a1949fd55f">More...</a><br /></td></tr>
 <tr class="separator:a368b609729357bc1a18238a1949fd55f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff6c31da25a910a5821a48ceaae4f5b7"><td class="memTemplParams" colspan="2"><a class="anchor" id="aff6c31da25a910a5821a48ceaae4f5b7"></a>
+<tr class="memitem:a77b6ab236c3dc1f3d3fc26323250ddfb"><td class="memTemplParams" colspan="2"><a class="anchor" id="a77b6ab236c3dc1f3d3fc26323250ddfb"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:aff6c31da25a910a5821a48ceaae4f5b7"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>trace</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:aff6c31da25a910a5821a48ceaae4f5b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4748c9a1ceca6379d23842ee51a2bc10"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4748c9a1ceca6379d23842ee51a2bc10"></a>
+<tr class="memitem:a77b6ab236c3dc1f3d3fc26323250ddfb"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a77b6ab236c3dc1f3d3fc26323250ddfb">trace</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:a77b6ab236c3dc1f3d3fc26323250ddfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#a77b6ab236c3dc1f3d3fc26323250ddfb" title="Variadic argument style to log some message. Logger.trace(format string, arg1, arg2, arg3, ...) call style. ">Logger.trace</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:a77b6ab236c3dc1f3d3fc26323250ddfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dbd3f793393922fec5e94a7012f56a4"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4dbd3f793393922fec5e94a7012f56a4"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a4748c9a1ceca6379d23842ee51a2bc10"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>debug</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:a4748c9a1ceca6379d23842ee51a2bc10"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f07a24e8945abd406588c3f9f963329"><td class="memTemplParams" colspan="2"><a class="anchor" id="a3f07a24e8945abd406588c3f9f963329"></a>
+<tr class="memitem:a4dbd3f793393922fec5e94a7012f56a4"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a4dbd3f793393922fec5e94a7012f56a4">debug</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:a4dbd3f793393922fec5e94a7012f56a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#a4dbd3f793393922fec5e94a7012f56a4" title="Variadic argument style to log some message. Logger.debug(format string, arg1, arg2, arg3, ...) call style. ">Logger.debug</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:a4dbd3f793393922fec5e94a7012f56a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a2c2c5921257bb6139e780873a51e48"><td class="memTemplParams" colspan="2"><a class="anchor" id="a0a2c2c5921257bb6139e780873a51e48"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a3f07a24e8945abd406588c3f9f963329"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>info</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:a3f07a24e8945abd406588c3f9f963329"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90e36be95cd5e59d3661cddeaf69444c"><td class="memTemplParams" colspan="2"><a class="anchor" id="a90e36be95cd5e59d3661cddeaf69444c"></a>
+<tr class="memitem:a0a2c2c5921257bb6139e780873a51e48"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a0a2c2c5921257bb6139e780873a51e48">info</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:a0a2c2c5921257bb6139e780873a51e48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#a0a2c2c5921257bb6139e780873a51e48" title="Variadic argument style to log some message. Logger.info(format string, arg1, arg2, arg3, ...) call style. ">Logger.info</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:a0a2c2c5921257bb6139e780873a51e48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4be5f6ea250bb82141e7913502477d9f"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4be5f6ea250bb82141e7913502477d9f"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a90e36be95cd5e59d3661cddeaf69444c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>warn</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:a90e36be95cd5e59d3661cddeaf69444c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a021434b63ae3006ac00291da6af30808"><td class="memTemplParams" colspan="2"><a class="anchor" id="a021434b63ae3006ac00291da6af30808"></a>
+<tr class="memitem:a4be5f6ea250bb82141e7913502477d9f"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a4be5f6ea250bb82141e7913502477d9f">warn</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:a4be5f6ea250bb82141e7913502477d9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#a4be5f6ea250bb82141e7913502477d9f" title="Variadic argument style to log some message. Logger.warn(format string, arg1, arg2, arg3, ...) call style. ">Logger.warn</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:a4be5f6ea250bb82141e7913502477d9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04e05948f3e3299efabafe54802e6d7c"><td class="memTemplParams" colspan="2"><a class="anchor" id="a04e05948f3e3299efabafe54802e6d7c"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a021434b63ae3006ac00291da6af30808"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>error</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:a021434b63ae3006ac00291da6af30808"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7100ee7e53e6b6d3e074d0bfcbeb4a19"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7100ee7e53e6b6d3e074d0bfcbeb4a19"></a>
+<tr class="memitem:a04e05948f3e3299efabafe54802e6d7c"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a04e05948f3e3299efabafe54802e6d7c">error</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:a04e05948f3e3299efabafe54802e6d7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#a04e05948f3e3299efabafe54802e6d7c" title="Variadic argument style to log some message. Logger.error(format string, arg1, arg2, arg3, ...) call style. ">Logger.error</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:a04e05948f3e3299efabafe54802e6d7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afafd3650699a230e334d3c643fd72ccd"><td class="memTemplParams" colspan="2"><a class="anchor" id="afafd3650699a230e334d3c643fd72ccd"></a>
 template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a7100ee7e53e6b6d3e074d0bfcbeb4a19"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fatal</b> (const char *fmt, const Args &amp;...args)</td></tr>
-<tr class="separator:a7100ee7e53e6b6d3e074d0bfcbeb4a19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81a7670cb294839b968dda0ae35501d4"><td class="memTemplParams" colspan="2"><a class="anchor" id="a81a7670cb294839b968dda0ae35501d4"></a>
+<tr class="memitem:afafd3650699a230e334d3c643fd72ccd"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#afafd3650699a230e334d3c643fd72ccd">fatal</a> (const char *fmt, const Args &amp;...args)</td></tr>
+<tr class="memdesc:afafd3650699a230e334d3c643fd72ccd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variadic argument style to log some message. <a class="el" href="classzz_1_1log_1_1_logger.html#afafd3650699a230e334d3c643fd72ccd" title="Variadic argument style to log some message. Logger.fatal(format string, arg1, arg2, arg3, ...) call style. ">Logger.fatal</a>(format string, arg1, arg2, arg3, ...) call style. <br /></td></tr>
+<tr class="separator:afafd3650699a230e334d3c643fd72ccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a003025ea973f1744af43595e0eedef"><td class="memTemplParams" colspan="2"><a class="anchor" id="a6a003025ea973f1744af43595e0eedef"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a81a7670cb294839b968dda0ae35501d4"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>trace</b> (const T &amp;msg)</td></tr>
-<tr class="separator:a81a7670cb294839b968dda0ae35501d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6315feceee008b01893195cac7f4bfe"><td class="memTemplParams" colspan="2"><a class="anchor" id="aa6315feceee008b01893195cac7f4bfe"></a>
+<tr class="memitem:a6a003025ea973f1744af43595e0eedef"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a6a003025ea973f1744af43595e0eedef">trace</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:a6a003025ea973f1744af43595e0eedef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.trace(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:a6a003025ea973f1744af43595e0eedef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d1d493dc7528d4142e279aae74eafd2"><td class="memTemplParams" colspan="2"><a class="anchor" id="a3d1d493dc7528d4142e279aae74eafd2"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:aa6315feceee008b01893195cac7f4bfe"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>debug</b> (const T &amp;msg)</td></tr>
-<tr class="separator:aa6315feceee008b01893195cac7f4bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc63c1447b826b2f8aca1e4fdfd4984b"><td class="memTemplParams" colspan="2"><a class="anchor" id="afc63c1447b826b2f8aca1e4fdfd4984b"></a>
+<tr class="memitem:a3d1d493dc7528d4142e279aae74eafd2"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a3d1d493dc7528d4142e279aae74eafd2">debug</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:a3d1d493dc7528d4142e279aae74eafd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.debug(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:a3d1d493dc7528d4142e279aae74eafd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab508864d72e2a0b6f67368ebe1154cea"><td class="memTemplParams" colspan="2"><a class="anchor" id="ab508864d72e2a0b6f67368ebe1154cea"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:afc63c1447b826b2f8aca1e4fdfd4984b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>info</b> (const T &amp;msg)</td></tr>
-<tr class="separator:afc63c1447b826b2f8aca1e4fdfd4984b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae23ec636ec708601c23f356c78046540"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae23ec636ec708601c23f356c78046540"></a>
+<tr class="memitem:ab508864d72e2a0b6f67368ebe1154cea"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#ab508864d72e2a0b6f67368ebe1154cea">info</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:ab508864d72e2a0b6f67368ebe1154cea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.info(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:ab508864d72e2a0b6f67368ebe1154cea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e8499d2788451e543ff6b48457f35c2"><td class="memTemplParams" colspan="2"><a class="anchor" id="a9e8499d2788451e543ff6b48457f35c2"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ae23ec636ec708601c23f356c78046540"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>warn</b> (const T &amp;msg)</td></tr>
-<tr class="separator:ae23ec636ec708601c23f356c78046540"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2bdfd44c115a5dcd9ff81d4bbf8c2f5"><td class="memTemplParams" colspan="2"><a class="anchor" id="ac2bdfd44c115a5dcd9ff81d4bbf8c2f5"></a>
+<tr class="memitem:a9e8499d2788451e543ff6b48457f35c2"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a9e8499d2788451e543ff6b48457f35c2">warn</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:a9e8499d2788451e543ff6b48457f35c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.warn(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:a9e8499d2788451e543ff6b48457f35c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fd1e71a25545a50fe2530d5f7dbb506"><td class="memTemplParams" colspan="2"><a class="anchor" id="a8fd1e71a25545a50fe2530d5f7dbb506"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac2bdfd44c115a5dcd9ff81d4bbf8c2f5"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>error</b> (const T &amp;msg)</td></tr>
-<tr class="separator:ac2bdfd44c115a5dcd9ff81d4bbf8c2f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0c35c210dadb926cfecd43fbc6cae72"><td class="memTemplParams" colspan="2"><a class="anchor" id="ac0c35c210dadb926cfecd43fbc6cae72"></a>
+<tr class="memitem:a8fd1e71a25545a50fe2530d5f7dbb506"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a8fd1e71a25545a50fe2530d5f7dbb506">error</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:a8fd1e71a25545a50fe2530d5f7dbb506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.error(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:a8fd1e71a25545a50fe2530d5f7dbb506"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39ad2886c192c93b98a9a804f1ffd2ae"><td class="memTemplParams" colspan="2"><a class="anchor" id="a39ad2886c192c93b98a9a804f1ffd2ae"></a>
 template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac0c35c210dadb926cfecd43fbc6cae72"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fatal</b> (const T &amp;msg)</td></tr>
-<tr class="separator:ac0c35c210dadb926cfecd43fbc6cae72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc8e2e94c9fdd1b5dc556c429eee2127"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc8e2e94c9fdd1b5dc556c429eee2127"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>trace</b> ()</td></tr>
+<tr class="memitem:a39ad2886c192c93b98a9a804f1ffd2ae"><td class="memTemplItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a39ad2886c192c93b98a9a804f1ffd2ae">fatal</a> (const T &amp;msg)</td></tr>
+<tr class="memdesc:a39ad2886c192c93b98a9a804f1ffd2ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log message and overload with more stream style message. Logger.fatal(msg) &lt;&lt; ".." call style. <br /></td></tr>
+<tr class="separator:a39ad2886c192c93b98a9a804f1ffd2ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc8e2e94c9fdd1b5dc556c429eee2127"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#adc8e2e94c9fdd1b5dc556c429eee2127">trace</a> ()</td></tr>
+<tr class="memdesc:adc8e2e94c9fdd1b5dc556c429eee2127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trace level overloaded with stream style message.  <a href="#adc8e2e94c9fdd1b5dc556c429eee2127">More...</a><br /></td></tr>
 <tr class="separator:adc8e2e94c9fdd1b5dc556c429eee2127"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28e9d6bb30d9b7e26e9ecf58608c485f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28e9d6bb30d9b7e26e9ecf58608c485f"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>debug</b> ()</td></tr>
+<tr class="memitem:a28e9d6bb30d9b7e26e9ecf58608c485f"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a28e9d6bb30d9b7e26e9ecf58608c485f">debug</a> ()</td></tr>
+<tr class="memdesc:a28e9d6bb30d9b7e26e9ecf58608c485f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Debug level overloaded with stream style message.  <a href="#a28e9d6bb30d9b7e26e9ecf58608c485f">More...</a><br /></td></tr>
 <tr class="separator:a28e9d6bb30d9b7e26e9ecf58608c485f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf182f9b7878675c1b04d7f451698b2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf182f9b7878675c1b04d7f451698b2c"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>info</b> ()</td></tr>
+<tr class="memitem:adf182f9b7878675c1b04d7f451698b2c"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#adf182f9b7878675c1b04d7f451698b2c">info</a> ()</td></tr>
+<tr class="memdesc:adf182f9b7878675c1b04d7f451698b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Info level overloaded with stream style message.  <a href="#adf182f9b7878675c1b04d7f451698b2c">More...</a><br /></td></tr>
 <tr class="separator:adf182f9b7878675c1b04d7f451698b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1634f5c2fc55eb198e95c505fdde5f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1634f5c2fc55eb198e95c505fdde5f5"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>warn</b> ()</td></tr>
+<tr class="memitem:ad1634f5c2fc55eb198e95c505fdde5f5"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#ad1634f5c2fc55eb198e95c505fdde5f5">warn</a> ()</td></tr>
+<tr class="memdesc:ad1634f5c2fc55eb198e95c505fdde5f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Warn level overloaded with stream style message.  <a href="#ad1634f5c2fc55eb198e95c505fdde5f5">More...</a><br /></td></tr>
 <tr class="separator:ad1634f5c2fc55eb198e95c505fdde5f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4526636e57acaa0b09ea63f37b75ad78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4526636e57acaa0b09ea63f37b75ad78"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>error</b> ()</td></tr>
+<tr class="memitem:a4526636e57acaa0b09ea63f37b75ad78"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a4526636e57acaa0b09ea63f37b75ad78">error</a> ()</td></tr>
+<tr class="memdesc:a4526636e57acaa0b09ea63f37b75ad78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error level overloaded with stream style message.  <a href="#a4526636e57acaa0b09ea63f37b75ad78">More...</a><br /></td></tr>
 <tr class="separator:a4526636e57acaa0b09ea63f37b75ad78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84029651e3fb9668f412e71a83225c49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84029651e3fb9668f412e71a83225c49"></a>
-<a class="el" href="classzz_1_1log_1_1detail_1_1_line_logger.html">detail::LineLogger</a>&#160;</td><td class="memItemRight" valign="bottom"><b>fatal</b> ()</td></tr>
+<tr class="memitem:a84029651e3fb9668f412e71a83225c49"><td class="memItemLeft" align="right" valign="top">detail::LineLogger&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a84029651e3fb9668f412e71a83225c49">fatal</a> ()</td></tr>
+<tr class="memdesc:a84029651e3fb9668f412e71a83225c49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fatal level overloaded with stream style message.  <a href="#a84029651e3fb9668f412e71a83225c49">More...</a><br /></td></tr>
 <tr class="separator:a84029651e3fb9668f412e71a83225c49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89287744e29f7425f80d62da4a1cbe5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89287744e29f7425f80d62da4a1cbe5e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_level_mask</b> (int levelMask)</td></tr>
+<tr class="memitem:a89287744e29f7425f80d62da4a1cbe5e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a89287744e29f7425f80d62da4a1cbe5e">set_level_mask</a> (int levelMask)</td></tr>
+<tr class="memdesc:a89287744e29f7425f80d62da4a1cbe5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set level mask to this logger.  <a href="#a89287744e29f7425f80d62da4a1cbe5e">More...</a><br /></td></tr>
 <tr class="separator:a89287744e29f7425f80d62da4a1cbe5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6df52fd11f4b607e791a10586ed3718"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6df52fd11f4b607e791a10586ed3718"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>should_log</b> (LogLevels msgLevel) const </td></tr>
+<tr class="memitem:aa6df52fd11f4b607e791a10586ed3718"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#aa6df52fd11f4b607e791a10586ed3718">should_log</a> (LogLevels msgLevel) const </td></tr>
+<tr class="memdesc:aa6df52fd11f4b607e791a10586ed3718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if a specific level should be logged in this logger.  <a href="#aa6df52fd11f4b607e791a10586ed3718">More...</a><br /></td></tr>
 <tr class="separator:aa6df52fd11f4b607e791a10586ed3718"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a143f11ebfc5b654b23c34d3361b1ff83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a143f11ebfc5b654b23c34d3361b1ff83"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> () const </td></tr>
+<tr class="memitem:a143f11ebfc5b654b23c34d3361b1ff83"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a143f11ebfc5b654b23c34d3361b1ff83">name</a> () const </td></tr>
+<tr class="memdesc:a143f11ebfc5b654b23c34d3361b1ff83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get name of the logger.  <a href="#a143f11ebfc5b654b23c34d3361b1ff83">More...</a><br /></td></tr>
 <tr class="separator:a143f11ebfc5b654b23c34d3361b1ff83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a459bfc6f27696e194865b7c2ecb5633f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a459bfc6f27696e194865b7c2ecb5633f"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> ()</td></tr>
+<tr class="memitem:a459bfc6f27696e194865b7c2ecb5633f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a459bfc6f27696e194865b7c2ecb5633f">to_string</a> ()</td></tr>
+<tr class="memdesc:a459bfc6f27696e194865b7c2ecb5633f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get user friendly information about this logger. Get informations such as log levels, sink list, etc...  <a href="#a459bfc6f27696e194865b7c2ecb5633f">More...</a><br /></td></tr>
 <tr class="separator:a459bfc6f27696e194865b7c2ecb5633f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa75e430b32821ca3e3a2515054746416"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa75e430b32821ca3e3a2515054746416"></a>
-SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><b>get_sink</b> (std::string name)</td></tr>
+<tr class="memitem:aa75e430b32821ca3e3a2515054746416"><td class="memItemLeft" align="right" valign="top">SinkPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#aa75e430b32821ca3e3a2515054746416">get_sink</a> (std::string <a class="el" href="classzz_1_1log_1_1_logger.html#a143f11ebfc5b654b23c34d3361b1ff83">name</a>)</td></tr>
+<tr class="memdesc:aa75e430b32821ca3e3a2515054746416"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get pointer to a sink by name.  <a href="#aa75e430b32821ca3e3a2515054746416">More...</a><br /></td></tr>
 <tr class="separator:aa75e430b32821ca3e3a2515054746416"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3209ba7d2fabfa61a04856eb5c7d8b4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3209ba7d2fabfa61a04856eb5c7d8b4a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>attach_sink</b> (SinkPtr sink)</td></tr>
+<tr class="memitem:a3209ba7d2fabfa61a04856eb5c7d8b4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a3209ba7d2fabfa61a04856eb5c7d8b4a">attach_sink</a> (SinkPtr sink)</td></tr>
+<tr class="memdesc:a3209ba7d2fabfa61a04856eb5c7d8b4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach a sink to this logger.  <a href="#a3209ba7d2fabfa61a04856eb5c7d8b4a">More...</a><br /></td></tr>
 <tr class="separator:a3209ba7d2fabfa61a04856eb5c7d8b4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af74df9978d178974e0ed224848b260a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af74df9978d178974e0ed224848b260a9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>detach_sink</b> (SinkPtr sink)</td></tr>
+<tr class="memitem:af74df9978d178974e0ed224848b260a9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#af74df9978d178974e0ed224848b260a9">detach_sink</a> (SinkPtr sink)</td></tr>
+<tr class="memdesc:af74df9978d178974e0ed224848b260a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach a sink from this logger.  <a href="#af74df9978d178974e0ed224848b260a9">More...</a><br /></td></tr>
 <tr class="separator:af74df9978d178974e0ed224848b260a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af91c8950196605734ce9a102634c70a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af91c8950196605734ce9a102634c70a2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>attach_sink_list</b> (std::vector&lt; std::string &gt; &amp;sinkList)</td></tr>
+<tr class="memitem:af91c8950196605734ce9a102634c70a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#af91c8950196605734ce9a102634c70a2">attach_sink_list</a> (std::vector&lt; std::string &gt; &amp;sinkList)</td></tr>
+<tr class="memdesc:af91c8950196605734ce9a102634c70a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach the entire vector of sinks to the logger.  <a href="#af91c8950196605734ce9a102634c70a2">More...</a><br /></td></tr>
 <tr class="separator:af91c8950196605734ce9a102634c70a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8bba067f4cca3f0bd4555d13cd15dad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab8bba067f4cca3f0bd4555d13cd15dad"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>attach_console</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#ab8bba067f4cca3f0bd4555d13cd15dad">attach_console</a> ()</td></tr>
+<tr class="memdesc:ab8bba067f4cca3f0bd4555d13cd15dad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach stdout and stderr to the logger. Special case of <a class="el" href="classzz_1_1log_1_1_logger.html#a3209ba7d2fabfa61a04856eb5c7d8b4a" title="Attach a sink to this logger. ">attach_sink()</a> <br /></td></tr>
 <tr class="separator:ab8bba067f4cca3f0bd4555d13cd15dad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a126500f08e4499579c905f057a2480d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a126500f08e4499579c905f057a2480d0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>detach_console</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1log_1_1_logger.html#a126500f08e4499579c905f057a2480d0">detach_console</a> ()</td></tr>
+<tr class="memdesc:a126500f08e4499579c905f057a2480d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach stdout and stderr from the logger if exist. Special case of <a class="el" href="classzz_1_1log_1_1_logger.html#af74df9978d178974e0ed224848b260a9" title="Detach a sink from this logger. ">detach_sink()</a> <br /></td></tr>
 <tr class="separator:a126500f08e4499579c905f057a2480d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> class <a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> is the object to be called to log some message. Each logger may links to several Sinks as logging destinations. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa8e0e209e211fe10074c3013b9136927"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">zz::log::Logger::Logger </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> default constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td><a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a>'s name, need a name to retrieve the logger </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a368b609729357bc1a18238a1949fd55f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">zz::log::Logger::Logger </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>levelMask</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classzz_1_1log_1_1_logger.html" title="The Logger class Logger is the object to be called to log some message. Each logger may links to seve...">Logger</a> constructor with name and mask. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td></td></tr>
+    <tr><td class="paramname">levelMask</td><td>Specify which levels should be logged </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a3209ba7d2fabfa61a04856eb5c7d8b4a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::Logger::attach_sink </td>
+          <td>(</td>
+          <td class="paramtype">SinkPtr&#160;</td>
+          <td class="paramname"><em>sink</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attach a sink to this logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sink</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="af91c8950196605734ce9a102634c70a2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::Logger::attach_sink_list </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>sinkList</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attach the entire vector of sinks to the logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sinkList</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a28e9d6bb30d9b7e26e9ecf58608c485f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::debug </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Debug level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="af74df9978d178974e0ed224848b260a9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::Logger::detach_sink </td>
+          <td>(</td>
+          <td class="paramtype">SinkPtr&#160;</td>
+          <td class="paramname"><em>sink</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Detach a sink from this logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sink</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a4526636e57acaa0b09ea63f37b75ad78"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::error </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Error level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a84029651e3fb9668f412e71a83225c49"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::fatal </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fatal level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa75e430b32821ca3e3a2515054746416"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SinkPtr zz::log::Logger::get_sink </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get pointer to a sink by name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>Name of the sink </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared pointer to the sink, return nullptr if not found. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adf182f9b7878675c1b04d7f451698b2c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::info </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Info level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a143f11ebfc5b654b23c34d3361b1ff83"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::log::Logger::name </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get name of the logger. </p>
+<dl class="section return"><dt>Returns</dt><dd>Name of the logger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a89287744e29f7425f80d62da4a1cbe5e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::Logger::set_level_mask </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>levelMask</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set level mask to this logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">levelMask</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa6df52fd11f4b607e791a10586ed3718"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::log::Logger::should_log </td>
+          <td>(</td>
+          <td class="paramtype">LogLevels&#160;</td>
+          <td class="paramname"><em>msgLevel</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check if a specific level should be logged in this logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msgLevel</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the level should be logged </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a459bfc6f27696e194865b7c2ecb5633f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::log::Logger::to_string </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get user friendly information about this logger. Get informations such as log levels, sink list, etc... </p>
+<dl class="section return"><dt>Returns</dt><dd>User friendly string info. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adc8e2e94c9fdd1b5dc556c429eee2127"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::trace </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Trace level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad1634f5c2fc55eb198e95c505fdde5f5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">detail::LineLogger zz::log::Logger::warn </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Warn level overloaded with stream style message. </p>
+<dl class="section return"><dt>Returns</dt><dd>LineLogger </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>D:/Dev/vs_projects/zupply/src/<a class="el" href="zupply_8hpp_source.html">zupply.hpp</a></li>
 <li>D:/Dev/vs_projects/zupply/src/zupply.cpp</li>
@@ -190,7 +602,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>detach_console</b> ()
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Aug 28 2015 18:32:36 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

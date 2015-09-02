@@ -17,7 +17,9 @@ cache/
 [Rr]eleases/
 x64/
 x86/
-build/
+build/*
+!build/CMakeLists.txt
+!build/create_visual_studio_2013_project.bat
 bld/
 [Bb]in/
 [Oo]bj/

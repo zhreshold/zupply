@@ -98,10 +98,10 @@
 namespace zz
 {
 	/*!
-        * \namespace	zz::consts
-	*
-        * \brief	Namespace for parameters.
-	*/
+		* \namespace	zz::consts
+		*
+		* \brief	Namespace for parameters.
+		*/
 	namespace consts
 	{
 		static const char* kExceptionPrefixGeneral = "[Zupply Exception] ";
@@ -255,11 +255,11 @@ namespace zz
 		explicit WarnException(const std::string &message) : Exception(message, consts::kExceptionPrefixStrictWarn){};
 	};
 
-        /*!
-         * \struct Size
-         * \brief The Size struct storing width and height
-         */
-        struct Size
+	/*!
+	 * \struct Size
+	 * \brief The Size struct storing width and height
+	 */
+	struct Size
 	{
 		int width;
 		int height;
@@ -271,25 +271,25 @@ namespace zz
 		}
 	};
 
-        /*!
-         * \namespace  zz::math
-         * \brief Namespace for math operations
-         */
+	/*!
+	 * \namespace  zz::math
+	 * \brief Namespace for math operations
+	 */
 	namespace math
 	{
 		using std::min;
 		using std::max;
 		using std::abs;
 
-                /*!
-                 * \fn template<class T> inline const T clip(const T& value, const T& low, const T& high)
-                 * \brief Clip values in-between low and high values
-                 * \param value The value to be clipped
-                 * \param low The lower bound
-                 * \param high The higher bound
-                 * \return Value if value in[low, high] or low if (value < low) or high if (value > high)
-                 * \note Foolproof if low/high are not set correctly
-                 */
+		/*!
+		 * \fn template<class T> inline const T clip(const T& value, const T& low, const T& high)
+		 * \brief Clip values in-between low and high values
+		 * \param value The value to be clipped
+		 * \param low The lower bound
+		 * \param high The higher bound
+		 * \return Value if value in[low, high] or low if (value < low) or high if (value > high)
+		 * \note Foolproof if low/high are not set correctly
+		 */
 		template<class T> inline const T clip(const T& value, const T& low, const T& high)
 		{
 			// fool proof max/min values
@@ -298,9 +298,9 @@ namespace zz
 			return (std::max)((std::min)(value, h), l);
 		}
 
-                /*!
-                 * \brief Template meta programming for pow(a, b) where b must be natural number
-                 */
+		/*!
+		 * \brief Template meta programming for pow(a, b) where b must be natural number
+		 */
 		template <unsigned long B, unsigned long E>
 		struct Pow
 		{
@@ -314,12 +314,12 @@ namespace zz
 		};
 
 
-                /*!
-                 * \fn int round(double value)
-                 * \brief fast round utilizing hardware acceleration features
-                 * \param value
-                 * \return Rounded int
-                 */
+		/*!
+		 * \fn int round(double value)
+		 * \brief fast round utilizing hardware acceleration features
+		 * \param value
+		 * \return Rounded int
+		 */
 		inline int round(double value)
 		{
 #if ((defined _MSC_VER && defined _M_X64) || (defined __GNUC__ && defined __x86_64__ && defined __SSE2__ && !defined __APPLE__)) && !defined(__CUDACC__) && 0
@@ -353,16 +353,16 @@ namespace zz
 
 	} // namespace math
 
-        /*!
-         * \namespace zz::misc
-         * \brief Namespace for miscellaneous utility functions
-         */
+	/*!
+	 * \namespace zz::misc
+	 * \brief Namespace for miscellaneous utility functions
+	 */
 	namespace misc
 	{
-                /*!
-                 * \fn inline void unused(const T&)
-                 * \brief Suppress warning for unused variables, do nothing actually
-                 */
+		/*!
+		 * \fn inline void unused(const T&)
+		 * \brief Suppress warning for unused variables, do nothing actually
+		 */
 		template<typename T>
 		inline void unused(const T&) {}
 
@@ -388,9 +388,9 @@ namespace zz
 		template <typename T>
 		using is_iterable = decltype(detail::is_iterable_impl<T>(0));
 
-                /*!
-                 * \brief The general functor Callback class
-                 */
+		/*!
+		 * \brief The general functor Callback class
+		 */
 		class Callback
 		{
 		public:
@@ -400,10 +400,10 @@ namespace zz
 		};
 	} // namespace misc
 
-        /*!
-         * \namespace zz::cds
-         * \brief Namespace for concurrent data structures
-         */
+	/*!
+	 * \namespace zz::cds
+	 * \brief Namespace for concurrent data structures
+	 */
 	namespace cds
 	{
 		/*!
@@ -420,11 +420,11 @@ namespace zz
 		};
 
 
-                /*!
-                 * \brief AtomicUnorderedMap Template atomic unordered_map<>
-                 * AtomicUnorderedMap is lock-free, however, modification will create copies.
-                 * Thus this structure is good for read-many write-rare purposes.
-                 */
+		/*!
+		 * \brief AtomicUnorderedMap Template atomic unordered_map<>
+		 * AtomicUnorderedMap is lock-free, however, modification will create copies.
+		 * Thus this structure is good for read-many write-rare purposes.
+		 */
 		template <typename Key, typename Value> class AtomicUnorderedMap
 		{
 			using MapType = std::unordered_map<Key, Value>;
@@ -435,21 +435,21 @@ namespace zz
 				mapPtr_ = std::make_shared<MapType>();
 			}
 
-                        /*!
-                         * \brief Get shared_ptr of unorderd_map instance
-                         * \return Shared_ptr of unordered_map
-                         */
+			/*!
+			 * \brief Get shared_ptr of unorderd_map instance
+			 * \return Shared_ptr of unordered_map
+			 */
 			MapPtr get()
 			{
 				return std::atomic_load(&mapPtr_);
 			}
 
-                        /*!
-                         * \brief Insert key-value pair to the map
-                         * \param key
-                         * \param value
-                         * \return True on success
-                         */
+			/*!
+			 * \brief Insert key-value pair to the map
+			 * \param key
+			 * \param value
+			 * \return True on success
+			 */
 			bool insert(const Key& key, const Value& value)
 			{
 				MapPtr p = std::atomic_load(&mapPtr_);
@@ -463,11 +463,11 @@ namespace zz
 				return true;
 			}
 
-                        /*!
-                         * \brief Erase according to key
-                         * \param key
-                         * \return True on success
-                         */
+			/*!
+			 * \brief Erase according to key
+			 * \param key
+			 * \return True on success
+			 */
 			bool erase(const Key& key)
 			{
 				MapPtr p = std::atomic_load(&mapPtr_);
@@ -481,9 +481,9 @@ namespace zz
 				return true;
 			}
 
-                        /*!
-                         * \brief Clear all
-                         */
+			/*!
+			 * \brief Clear all
+			 */
 			void clear()
 			{
 				MapPtr p = atomic_load(&mapPtr_);
@@ -498,11 +498,11 @@ namespace zz
 			std::shared_ptr<MapType>	mapPtr_;
 		};
 
-                /*!
-                 * \brief AtomicNonTrivial Template lock-free class
-                 * AtomicNonTrivial is lock-free, however, modification will create copies.
-                 * Thus this structure is good for read-many write-rare purposes.
-                 */
+		/*!
+		 * \brief AtomicNonTrivial Template lock-free class
+		 * AtomicNonTrivial is lock-free, however, modification will create copies.
+		 * Thus this structure is good for read-many write-rare purposes.
+		 */
 		template <typename T> class AtomicNonTrivial
 		{
 		public:
@@ -511,20 +511,20 @@ namespace zz
 				ptr_ = std::make_shared<T>();
 			}
 
-                        /*!
-                         * \brief Get shared_ptr to instance
-                         * \return Shared_ptr to instance
-                         */
+			/*!
+			 * \brief Get shared_ptr to instance
+			 * \return Shared_ptr to instance
+			 */
 			std::shared_ptr<T> get()
 			{
 				return std::atomic_load(&ptr_);
 			}
 
-                        /*!
-                         * \brief Set to new value
-                         * \param val
-                         * This operation will make a copy which is only visible for future get()
-                         */
+			/*!
+			 * \brief Set to new value
+			 * \param val
+			 * This operation will make a copy which is only visible for future get()
+			 */
 			void set(const T& val)
 			{
 				std::shared_ptr<T> copy = std::make_shared<T>(val);
@@ -538,206 +538,206 @@ namespace zz
 	} // namespace cds
 
 
-        /*!
-         * \namespace zz::os
-         * \brief Namespace for OS specific implementations
-         */
+	/*!
+	 * \namespace zz::os
+	 * \brief Namespace for OS specific implementations
+	 */
 	namespace os
 	{
-                /*!
-                 * \fn int system(const char *const command, const char *const module_name = 0)
-                 * \brief Execute sub-process using system call
-                 * \param command
-                 * \param module_name
-                 * \return Return code of sub-process
-                 */
+		/*!
+		 * \fn int system(const char *const command, const char *const module_name = 0)
+		 * \brief Execute sub-process using system call
+		 * \param command
+		 * \param module_name
+		 * \return Return code of sub-process
+		 */
 		int system(const char *const command, const char *const module_name = 0);
 
-                /*!
-                 * \fn std::size_t thread_id()
-                 * \brief Get thread id
-                 * \return Current thread id
-                 */
+		/*!
+		 * \fn std::size_t thread_id()
+		 * \brief Get thread id
+		 * \return Current thread id
+		 */
 		std::size_t thread_id();
 
-                /*!
-                 * \fn std::tm localtime(std::time_t t)
-                 * \brief Thread-safe version of localtime
-                 * \param t std::time_t
-                 * \return std::tm format localtime
-                 */
+		/*!
+		 * \fn std::tm localtime(std::time_t t)
+		 * \brief Thread-safe version of localtime
+		 * \param t std::time_t
+		 * \return std::tm format localtime
+		 */
 		std::tm localtime(std::time_t t);
 
-                /*!
-                 * \fn std::tm gmtime(std::time_t t)
-                 * \brief Thread-safe version of gmtime
-                 * \param t std::time_t
-                 * \return std::tm format UTC time
-                 */
+		/*!
+		 * \fn std::tm gmtime(std::time_t t)
+		 * \brief Thread-safe version of gmtime
+		 * \param t std::time_t
+		 * \return std::tm format UTC time
+		 */
 		std::tm gmtime(std::time_t t);
 
-                /*!
-                 * \brief Convert UTF-8 string to wstring
-                 * \param u8str
-                 * \return Converted wstring
-                 */
+		/*!
+		 * \brief Convert UTF-8 string to wstring
+		 * \param u8str
+		 * \return Converted wstring
+		 */
 		std::wstring utf8_to_wstring(std::string &u8str);
 
-                /*!
-                 * \brief Convert wstring to UTF-8
-                 * \param wstr
-                 * \return Converted UTF-8 string
-                 */
+		/*!
+		 * \brief Convert wstring to UTF-8
+		 * \param wstr
+		 * \return Converted UTF-8 string
+		 */
 		std::string wstring_to_utf8(std::wstring &wstr);
 
-                /*!
-                 * \brief Check if path exist in filesystem
-                 * \param path
-                 * \param considerFile Consider file as well?
-                 * \return true if path exists
-                 */
+		/*!
+		 * \brief Check if path exist in filesystem
+		 * \param path
+		 * \param considerFile Consider file as well?
+		 * \return true if path exists
+		 */
 		bool path_exists(std::string &path, bool considerFile = false);
 
-                /*!
-                 * \brief Open fstream using UTF-8 string
-                 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
-                 * \param stream
-                 * \param filename
-                 * \param openmode
-                 */
+		/*!
+		 * \brief Open fstream using UTF-8 string
+		 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
+		 * \param stream
+		 * \param filename
+		 * \param openmode
+		 */
 		void fstream_open(std::fstream &stream, std::string &filename, std::ios::openmode openmode);
 
-                /*!
-                 * \brief Open ifstream using UTF-8 string
-                 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
-                 * \param stream
-                 * \param filename
-                 * \param openmode
-                 */
+		/*!
+		 * \brief Open ifstream using UTF-8 string
+		 * This is a wrapper function because Windows will require wstring to process unicode filename/path.
+		 * \param stream
+		 * \param filename
+		 * \param openmode
+		 */
 		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode);
 
-                /*!
-                 * \brief rename Rename file, support unicode filename/path.
-                 * \param oldName
-                 * \param newName
-                 * \return true on success
-                 */
+		/*!
+		 * \brief rename Rename file, support unicode filename/path.
+		 * \param oldName
+		 * \param newName
+		 * \return true on success
+		 */
 		bool rename(std::string oldName, std::string newName);
 
 		/*!
-                 * \fn	std::string endl();
-                 *
-                 * \brief	Gets the OS dependent line end characters.
-                 *
-                 * \return	A std::string.
-                 */
+				 * \fn	std::string endl();
+				 *
+				 * \brief	Gets the OS dependent line end characters.
+				 *
+				 * \return	A std::string.
+				 */
 		std::string endl();
 
-                /*!
-                 * \brief Get current working directory
-                 * \return Current working directory
-                 */
+		/*!
+		 * \brief Get current working directory
+		 * \return Current working directory
+		 */
 		std::string current_working_directory();
 
-                /*!
-                 * \brief Convert reletive path to absolute path
-                 * \param reletivePath
-                 * \return Absolute path
-                 */
+		/*!
+		 * \brief Convert reletive path to absolute path
+		 * \param reletivePath
+		 * \return Absolute path
+		 */
 		std::string absolute_path(std::string reletivePath);
 
-                /*!
-                 * \brief Split path into hierachical sub-folders
-                 * \param path
-                 * \return std::vector<std::string> of sub-folders
-                 * path_split("/usr/local/bin/xxx/")= {"usr","local","bin","xxx"}
-                 */
+		/*!
+		 * \brief Split path into hierachical sub-folders
+		 * \param path
+		 * \return std::vector<std::string> of sub-folders
+		 * path_split("/usr/local/bin/xxx/")= {"usr","local","bin","xxx"}
+		 */
 		std::vector<std::string> path_split(std::string path);
 
-                /*!
-                 * \brief Join path from sub-folders
-                 * This function will handle system dependent path formats
-                 * such as '/' for unix like OS, and '\\' for windows
-                 * \param elems
-                 * \return Long path
-                 * path_join({"/home/abc/","def"} = "/home/abc/def"
-                 */
+		/*!
+		 * \brief Join path from sub-folders
+		 * This function will handle system dependent path formats
+		 * such as '/' for unix like OS, and '\\' for windows
+		 * \param elems
+		 * \return Long path
+		 * path_join({"/home/abc/","def"} = "/home/abc/def"
+		 */
 		std::string path_join(std::vector<std::string> elems);
 
-                /*!
-                 * \brief Split filename from path
-                 * \param path
-                 * \return Full filename with extension
-                 */
+		/*!
+		 * \brief Split filename from path
+		 * \param path
+		 * \return Full filename with extension
+		 */
 		std::string path_split_filename(std::string path);
 
-                /*!
-                 * \brief Split the deepest directory
-                 * \param path
-                 * \return Deepest directory name. E.g. "abc/def/ghi/xxx.xx"->"ghi"
-                 */
+		/*!
+		 * \brief Split the deepest directory
+		 * \param path
+		 * \return Deepest directory name. E.g. "abc/def/ghi/xxx.xx"->"ghi"
+		 */
 		std::string path_split_directory(std::string path);
 
-                /*!
-                 * \brief Split basename
-                 * \param path
-                 * \return Basename without extension
-                 */
+		/*!
+		 * \brief Split basename
+		 * \param path
+		 * \return Basename without extension
+		 */
 		std::string path_split_basename(std::string path);
 
-                /*!
-                 * \brief Split extension if any
-                 * \param path
-                 * \return Extension or "" if no extension exists
-                 */
+		/*!
+		 * \brief Split extension if any
+		 * \param path
+		 * \return Extension or "" if no extension exists
+		 */
 		std::string path_split_extension(std::string path);
 
-                /*!
-                 * \brief Append string to basename directly, rather than append to extension
-                 * This is more practically useful because nobody want to change extension in most situations.
-                 * Appending string to basename in order to change filename happens.
-                 * \param origPath
-                 * \param whatToAppend
-                 * \return New filename with appended string.
-                 * path_append_basename("/home/test/abc.jpg", "_01") = "/home/test/abc_01.jpg"
-                 */
+		/*!
+		 * \brief Append string to basename directly, rather than append to extension
+		 * This is more practically useful because nobody want to change extension in most situations.
+		 * Appending string to basename in order to change filename happens.
+		 * \param origPath
+		 * \param whatToAppend
+		 * \return New filename with appended string.
+		 * path_append_basename("/home/test/abc.jpg", "_01") = "/home/test/abc_01.jpg"
+		 */
 		std::string path_append_basename(std::string origPath, std::string whatToAppend);
 
-                /*!
-                 * \brief Create directory if not exist
-                 * \param path
-                 * \return True if directory created/already exist
-                 * \note Will not create recursively, fail if parent directory inexist. Use create_directory_recursive instead.
-                 */
+		/*!
+		 * \brief Create directory if not exist
+		 * \param path
+		 * \return True if directory created/already exist
+		 * \note Will not create recursively, fail if parent directory inexist. Use create_directory_recursive instead.
+		 */
 		bool create_directory(std::string path);
 
-                /*!
-                 * \brief Create directory recursively if not exist
-                 * \param path
-                 * \return True if directory created/already exist, false when failed to create the final directory
-                 * Function create_directory_recursive will create directory recursively.
-                 * For example, create_directory_recursive("/a/b/c") will create /a->/a/b->/a/b/c recursively.
-                 */
+		/*!
+		 * \brief Create directory recursively if not exist
+		 * \param path
+		 * \return True if directory created/already exist, false when failed to create the final directory
+		 * Function create_directory_recursive will create directory recursively.
+		 * For example, create_directory_recursive("/a/b/c") will create /a->/a/b->/a/b/c recursively.
+		 */
 		bool create_directory_recursive(std::string path);
 
-                /*!
-                 * \brief Return the Size of console window
-                 * \return Size, which contains width and height
-                 */
+		/*!
+		 * \brief Return the Size of console window
+		 * \return Size, which contains width and height
+		 */
 		Size console_size();
 
 	} // namespace os
 
-        /*!
-         * \namespace zz::time
-         * \brief Namespace for time related stuff
-         */
+	/*!
+	 * \namespace zz::time
+	 * \brief Namespace for time related stuff
+	 */
 	namespace time
 	{
 		/*!
 		* \class	Date
 		*
-                * \brief	A calendar date class.
+		* \brief	A calendar date class.
 		*/
 		class Date
 		{
@@ -745,34 +745,34 @@ namespace zz
 			Date();
 			virtual ~Date() = default;
 
-                        /*!
-                         * \brief Convert to local time zone
-                         */
+			/*!
+			 * \brief Convert to local time zone
+			 */
 			void to_local_time();
 
-                        /*!
-                         * \brief Convert to UTC time zone
-                         */
+			/*!
+			 * \brief Convert to UTC time zone
+			 */
 			void to_utc_time();
 
-                        /*!
-                         * \brief Convert date to user friendly string.
-                         * Support various formats.
-                         * \param format
-                         * \return Readable string
-                         */
+			/*!
+			 * \brief Convert date to user friendly string.
+			 * Support various formats.
+			 * \param format
+			 * \return Readable string
+			 */
 			std::string to_string(const char *format = "%y-%m-%d %H:%M:%S.%frac");
 
-                        /*!
-                         * \brief Static function to return in local_time
-                         * \return Date instance
-                         */
+			/*!
+			 * \brief Static function to return in local_time
+			 * \return Date instance
+			 */
 			static Date local_time();
 
-                        /*!
-                         * \brief Static function to return in utc_time
-                         * \return Date instance
-                         */
+			/*!
+			 * \brief Static function to return in utc_time
+			 * \return Date instance
+			 */
 			static Date utc_time();
 
 		private:
@@ -792,71 +792,71 @@ namespace zz
 		{
 		public:
 			Timer();
-                        /*!
-                         * \brief Reset timer to record new process
-                         */
+			/*!
+			 * \brief Reset timer to record new process
+			 */
 			void reset();
 
-                        /*!
-                         * \brief Return elapsed time quantized in nanosecond
-                         * \return Nanosecond elapsed
-                         */
+			/*!
+			 * \brief Return elapsed time quantized in nanosecond
+			 * \return Nanosecond elapsed
+			 */
 			std::size_t	elapsed_ns();
 
-                        /*!
-                         * \brief Return string of elapsed time quantized in nanosecond
-                         * \return Nanosecond elapsed in string
-                         */
+			/*!
+			 * \brief Return string of elapsed time quantized in nanosecond
+			 * \return Nanosecond elapsed in string
+			 */
 			std::string elapsed_ns_str();
 
-                        /*!
-                         * \brief Return elapsed time quantized in microsecond
-                         * \return Microsecond elapsed
-                         */
+			/*!
+			 * \brief Return elapsed time quantized in microsecond
+			 * \return Microsecond elapsed
+			 */
 			std::size_t elapsed_us();
 
-                        /*!
-                         * \brief Return string of elapsed time quantized in microsecond
-                         * \return Microsecond elapsed in string
-                         */
+			/*!
+			 * \brief Return string of elapsed time quantized in microsecond
+			 * \return Microsecond elapsed in string
+			 */
 			std::string elapsed_us_str();
 
-                        /*!
-                         * \brief Return elapsed time quantized in millisecond
-                         * \return Millisecond elapsed
-                         */
+			/*!
+			 * \brief Return elapsed time quantized in millisecond
+			 * \return Millisecond elapsed
+			 */
 			std::size_t elapsed_ms();
 
-                        /*!
-                         * \brief Return string of elapsed time quantized in millisecond
-                         * \return Millisecond elapsed in string
-                         */
+			/*!
+			 * \brief Return string of elapsed time quantized in millisecond
+			 * \return Millisecond elapsed in string
+			 */
 			std::string elapsed_ms_str();
 
-                        /*!
-                         * \brief Return elapsed time quantized in second
-                         * \return Second elapsed
-                         */
+			/*!
+			 * \brief Return elapsed time quantized in second
+			 * \return Second elapsed
+			 */
 			std::size_t elapsed_sec();
 
-                        /*!
-                         * \brief Return string of elapsed time quantized in second
-                         * \return Second elapsed in string
-                         */
+			/*!
+			 * \brief Return string of elapsed time quantized in second
+			 * \return Second elapsed in string
+			 */
 			std::string elapsed_sec_str();
 
-                        /*!
-                         * \brief Return elapsed time in second, no quantization
-                         * \return Second elapsed in double
-                         */
+			/*!
+			 * \brief Return elapsed time in second, no quantization
+			 * \return Second elapsed in double
+			 */
 			double elapsed_sec_double();
 
-                        /*!
-                         * \brief Convert timer to user friendly string.
-                         * Support various formats
-                         * \param format
-                         * \return Formatted string
-                         */
+			/*!
+			 * \brief Convert timer to user friendly string.
+			 * Support various formats
+			 * \param format
+			 * \return Formatted string
+			 */
 			std::string to_string(const char *format = "[%ms ms]");
 
 		private:
@@ -880,10 +880,10 @@ namespace zz
 
 	} // namespace time
 
-        /*!
-         * \namespace zz::fs
-         * \brief Namespace for classes adpated to filesystems
-         */
+	/*!
+	 * \namespace zz::fs
+	 * \brief Namespace for classes adpated to filesystems
+	 */
 	namespace fs
 	{
 		namespace consts
@@ -892,23 +892,23 @@ namespace zz
 			static const int kDefaultFileOpenRetryInterval = 10;
 		}
 
-                /*!
-                 * \brief The FileEditor class to modify file
-                 * This class is derived from UnCopyable, so no copy operation.
-                 * Move operation is allowed by std::move();
-                 */
+		/*!
+		 * \brief The FileEditor class to modify file
+		 * This class is derived from UnCopyable, so no copy operation.
+		 * Move operation is allowed by std::move();
+		 */
 		class FileEditor : private UnCopyable
 		{
 		public:
 			FileEditor() = default;
 
-                        /*!
-                         * \brief FileEditor constructor
-                         * \param filename
-                         * \param truncateOrNot Whether open in truncate mode or not
-                         * \param retryTimes Retry open file if not success
-                         * \param retryInterval Retry interval in ms
-                         */
+			/*!
+			 * \brief FileEditor constructor
+			 * \param filename
+			 * \param truncateOrNot Whether open in truncate mode or not
+			 * \param retryTimes Retry open file if not success
+			 * \param retryInterval Retry interval in ms
+			 */
 			FileEditor(std::string filename, bool truncateOrNot = false,
 				int retryTimes = consts::kDefaultFileOpenRetryTimes,
 				int retryInterval = consts::kDefaultFileOpenRetryInterval);
@@ -927,61 +927,68 @@ namespace zz
 			// No move operator
 			FileEditor& operator=(FileEditor&&) = delete;
 
-                        /*!
-                         * \brief Overload << operator just like a stream
-                         */
+			/*!
+			 * \brief Overload << operator just like a stream
+			 */
 			template <typename T>
 			FileEditor& operator<<(T what) { stream_ << what; return *this; }
 
-                        /*!
-                         * \brief Return filename
-                         * \return Filename of this object
-                         */
+			/*!
+			 * \brief Return filename
+			 * \return Filename of this object
+			 */
 			std::string filename() const { return filename_; }
 
-                        /*!
-                         * \brief Open file
-                         * \param filename
-                         * \param truncateOrNot Whether open in truncate mode or not
-                         * \param retryTimes Retry open file if not success
-                         * \param retryInterval Retry interval in ms
-                         * \return
-                         */
+			/*!
+			 * \brief Open file
+			 * \param filename
+			 * \param truncateOrNot Whether open in truncate mode or not
+			 * \param retryTimes Retry open file if not success
+			 * \param retryInterval Retry interval in ms
+			 * \return True if success
+			 */
 			bool open(std::string filename, bool truncateOrNot = false,
 				int retryTimes = consts::kDefaultFileOpenRetryTimes,
 				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
-                        /*!
-                         * \brief Reopen current file
-                         * \param truncateOrNot
-                         * \return True if success
-                         */
+			/*!
+			* \brief Open file
+			* \param truncateOrNot Whether open in truncate mode or not
+			* \return True if success
+			*/
+			bool open(bool truncateOrNot = false);
+
+			/*!
+			 * \brief Reopen current file
+			 * \param truncateOrNot
+			 * \return True if success
+			 */
 			bool reopen(bool truncateOrNot = true);
 
-                        /*!
-                         * \brief Close current file
-                         */
+			/*!
+			 * \brief Close current file
+			 */
 			void close();
 
-                        /*!
-                         * \brief Check whether current file handler is set
-                         * \return True if valid file
-                         */
+			/*!
+			 * \brief Check whether current file handler is set
+			 * \return True if valid file
+			 */
 			bool is_valid() const { return !filename_.empty(); }
 
-                        /*!
-                         * \brief Check if file is opened
-                         * \return True if opened
-                         */
+			/*!
+			 * \brief Check if file is opened
+			 * \return True if opened
+			 */
 			bool is_open() const { return stream_.is_open(); }
 
-                        /*!
-                         * \brief Flush file stream
-                         */
+			/*!
+			 * \brief Flush file stream
+			 */
 			void flush() { stream_.flush(); }
 		private:
-                        bool open(bool truncateOrNot = false);
-                        bool try_open(int retryTime, int retryInterval, bool truncateOrNot = false);
+
+			bool try_open(int retryTime, int retryInterval, bool truncateOrNot = false);
 			void check_valid() { if (!this->is_valid()) throw RuntimeException("Invalid File Editor!"); }
 
 			std::string		filename_;
@@ -990,82 +997,82 @@ namespace zz
 			std::streampos	writePos_;
 		};
 
-                /*!
-                 * \brief The FileReader class for read-only operations.
-                 * This class is derived from UnCopyable, so no copy operation.
-                 * Move operation is allowed by std::move();
-                 */
+		/*!
+		 * \brief The FileReader class for read-only operations.
+		 * This class is derived from UnCopyable, so no copy operation.
+		 * Move operation is allowed by std::move();
+		 */
 		class FileReader : private UnCopyable
 		{
 		public:
 			FileReader() = delete;
 
-                        /*!
-                         * \brief FileReader constructor
-                         * \param filename
-                         * \param retryTimes Retry open times
-                         * \param retryInterval Retry interval in ms
-                         */
+			/*!
+			 * \brief FileReader constructor
+			 * \param filename
+			 * \param retryTimes Retry open times
+			 * \param retryInterval Retry interval in ms
+			 */
 			FileReader(std::string filename, int retryTimes = consts::kDefaultFileOpenRetryTimes,
 				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
-                        /*!
-                         * \brief FileReader move constructor
-                         * \param other
-                         */
+			/*!
+			 * \brief FileReader move constructor
+			 * \param other
+			 */
 			FileReader(FileReader&& other);
 
-                        /*!
-                         * \brief Return filename
-                         * \return Filename
-                         */
+			/*!
+			 * \brief Return filename
+			 * \return Filename
+			 */
 			std::string filename() const { return filename_; }
 
-                        /*!
-                         * \brief Check if is opened
-                         * \return True if opened
-                         */
+			/*!
+			 * \brief Check if is opened
+			 * \return True if opened
+			 */
 			bool is_open() const { return istream_.is_open(); }
 
-                        /*!
-                         * \brief Check if valid filename is set
-                         * \return True if valid
-                         */
+			/*!
+			 * \brief Check if valid filename is set
+			 * \return True if valid
+			 */
 			bool is_valid() const { return !filename_.empty(); }
 
-                        /*!
-                         * \brief Close file handler
-                         */
-                        void close() { istream_.close(); }
+			/*!
+			 * \brief Close file handler
+			 */
+			void close() { istream_.close(); }
 
-                        /*!
-                         * \brief Get file size in byte, member function
-                         * \return File size in byte
-                         */
+			/*!
+			 * \brief Get file size in byte, member function
+			 * \return File size in byte
+			 */
 			std::size_t	file_size();
 
 		private:
-                        bool open();
-                        bool try_open(int retryTime, int retryInterval);
+			bool open();
+			bool try_open(int retryTime, int retryInterval);
 			void check_valid(){ if (!this->is_valid()) throw RuntimeException("Invalid File Reader!"); }
 			std::string		filename_;
 			std::ifstream	istream_;
 		};
 
-                /*!
-                 * \brief Get file size in byte
-                 * \param filename
-                 * \return File size in byte, 0 if empty or any error occurred.
-                 */
+		/*!
+		 * \brief Get file size in byte
+		 * \param filename
+		 * \return File size in byte, 0 if empty or any error occurred.
+		 */
 		std::size_t get_file_size(std::string filename);
 
 	} //namespace fs
 
 
-        /*!
-         * \namespace zz::fmt
-         * \brief Namespace for formatting functions
-         */
+	/*!
+	 * \namespace zz::fmt
+	 * \brief Namespace for formatting functions
+	 */
 	namespace fmt
 	{
 		namespace consts
@@ -1084,12 +1091,12 @@ namespace zz
 			};
 		} // namespace detail
 
-                /*!
-                 * \brief Convert int to left zero padded string
-                 * \param num Integer number
-                 * \param length String length
-                 * \return Zero-padded string
-                 */
+		/*!
+		 * \brief Convert int to left zero padded string
+		 * \param num Integer number
+		 * \param length String length
+		 * \return Zero-padded string
+		 */
 		inline std::string int_to_zero_pad_str(int num, int length)
 		{
 			std::ostringstream ss;
@@ -1097,269 +1104,269 @@ namespace zz
 			return ss.str();
 		}
 
-                /*!
-                 * \brief Check if is digit
-                 * \param c
-                 * \return
-                 */
+		/*!
+		 * \brief Check if is digit
+		 * \param c
+		 * \return
+		 */
 		bool is_digit(char c);
 
-                /*!
-                 * \brief Match string with wildcard.
-                 * Match string with wildcard pattern, '*' and '?' supported.
-                 * \param str
-                 * \param pattern
-                 * \return True for success match
-                 */
+		/*!
+		 * \brief Match string with wildcard.
+		 * Match string with wildcard pattern, '*' and '?' supported.
+		 * \param str
+		 * \param pattern
+		 * \return True for success match
+		 */
 		bool wild_card_match(const char* str, const char* pattern);
 
-                /*!
-                 * \brief Check if string starts with specified sub-string
-                 * \param str
-                 * \param start
-                 * \return True if success
-                 */
-                bool starts_with(const std::string& str, const std::string& start);
+		/*!
+		 * \brief Check if string starts with specified sub-string
+		 * \param str
+		 * \param start
+		 * \return True if success
+		 */
+		bool starts_with(const std::string& str, const std::string& start);
 
-                /*!
-                 * \brief Check if string ends with specified sub-string
-                 * \param str
-                 * \param end
-                 * \return True if success
-                 */
+		/*!
+		 * \brief Check if string ends with specified sub-string
+		 * \param str
+		 * \param end
+		 * \return True if success
+		 */
 		bool ends_with(const std::string& str, const std::string& end);
 
-                /*!
-                 * \brief Replace all from one to another sub-string
-                 * \param str
-                 * \param replaceWhat
-                 * \param replaceWith
-                 * \return Reference to modified string
-                 */
+		/*!
+		 * \brief Replace all from one to another sub-string
+		 * \param str
+		 * \param replaceWhat
+		 * \param replaceWith
+		 * \return Reference to modified string
+		 */
 		std::string& replace_all(std::string& str, const std::string& replaceWhat, const std::string& replaceWith);
 
-                /*!
-                 * \brief Replace all from one to another sub-string, char version
-                 * \param str
-                 * \param replaceWhat
-                 * \param replaceWith
-                 * \return Reference to modified string
-                 */
+		/*!
+		 * \brief Replace all from one to another sub-string, char version
+		 * \param str
+		 * \param replaceWhat
+		 * \param replaceWith
+		 * \return Reference to modified string
+		 */
 		std::string& replace_all(std::string& str, char replaceWhat, char replaceWith);
 
-                /*!
-                 * \brief Compare c style raw string
-                 * Will take care of string not ends with '\0',
-                 * which is unsafe using strcmp().
-                 * \param s1
-                 * \param s2
-                 * \return True if same
-                 */
+		/*!
+		 * \brief Compare c style raw string
+		 * Will take care of string not ends with '\0',
+		 * which is unsafe using strcmp().
+		 * \param s1
+		 * \param s2
+		 * \return True if same
+		 */
 		bool str_equals(const char* s1, const char* s2);
 
-                /*!
-                 * \brief Left trim whitespace
-                 * \param str
-                 * \return Trimed string
-                 */
+		/*!
+		 * \brief Left trim whitespace
+		 * \param str
+		 * \return Trimed string
+		 */
 		std::string& ltrim(std::string& str);
 
-                /*!
-                 * \brief Right trim whitespace
-                 * \param str
-                 * \return Trimed string
-                 */
+		/*!
+		 * \brief Right trim whitespace
+		 * \param str
+		 * \return Trimed string
+		 */
 		std::string& rtrim(std::string& str);
 
-                /*!
-                 * \brief Left and right trim whitespace
-                 * \param str
-                 * \return Trimed string
-                 */
+		/*!
+		 * \brief Left and right trim whitespace
+		 * \param str
+		 * \return Trimed string
+		 */
 		std::string& trim(std::string& str);
 
-                /*!
-                 * \brief Strip specified sub-string from left.
-                 * The strip will do strict check from left, even whitespace.
-                 * This function will change string in-place
-                 * \param str Original string
-                 * \param what What to be stripped
-                 * \return Stripped string
-                 */
+		/*!
+		 * \brief Strip specified sub-string from left.
+		 * The strip will do strict check from left, even whitespace.
+		 * This function will change string in-place
+		 * \param str Original string
+		 * \param what What to be stripped
+		 * \return Stripped string
+		 */
 		std::string& lstrip(std::string& str, std::string what);
 
-                /*!
-                 * \brief Strip specified sub-string from right.
-                 * The strip will do strict check from right, even whitespace.
-                 * This function will change string in-place
-                 * \param str Original string
-                 * \param what What to be stripped
-                 * \return Stripped string
-                 */
+		/*!
+		 * \brief Strip specified sub-string from right.
+		 * The strip will do strict check from right, even whitespace.
+		 * This function will change string in-place
+		 * \param str Original string
+		 * \param what What to be stripped
+		 * \return Stripped string
+		 */
 		std::string& rstrip(std::string& str, std::string what);
 
-                /*!
-                 * \brief Skip from right until delimiter string found.
-                 * This function modify string in-place.
-                 * \param str
-                 * \param delim
-                 * \return Skipped string
-                 */
+		/*!
+		 * \brief Skip from right until delimiter string found.
+		 * This function modify string in-place.
+		 * \param str
+		 * \param delim
+		 * \return Skipped string
+		 */
 		std::string& rskip(std::string& str, std::string delim);
 
-                /*!
-                 * \brief Split string into parts with specified single char delimiter
-                 * \param s
-                 * \param delim
-                 * \return A std::vector of parts in std::string
-                 */
+		/*!
+		 * \brief Split string into parts with specified single char delimiter
+		 * \param s
+		 * \param delim
+		 * \return A std::vector of parts in std::string
+		 */
 		std::vector<std::string> split(const std::string s, char delim = ' ');
 
-                /*!
-                 * \brief Split string into parts with specified string delimiter.
-                 * The entire delimiter must be matched exactly
-                 * \param s
-                 * \param delim
-                 * \return A std::vector of parts in std::string
-                 */
+		/*!
+		 * \brief Split string into parts with specified string delimiter.
+		 * The entire delimiter must be matched exactly
+		 * \param s
+		 * \param delim
+		 * \return A std::vector of parts in std::string
+		 */
 		std::vector<std::string> split(const std::string s, std::string delim);
 
-                /*!
-                 * \brief Split string into parts with multiple single char delimiter
-                 * \param s
-                 * \param delim A std::string contains multiple single char delimiter, e.g.(' \t\n')
-                 * \return A std::vector of parts in std::string
-                 */
+		/*!
+		 * \brief Split string into parts with multiple single char delimiter
+		 * \param s
+		 * \param delim A std::string contains multiple single char delimiter, e.g.(' \t\n')
+		 * \return A std::vector of parts in std::string
+		 */
 		std::vector<std::string> split_multi_delims(const std::string s, std::string delims);
 
-                /*!
-                 * \brief Special case to split_multi_delims(), split all whitespace.
-                 * \param s
-                 * \return A std::vector of parts in std::string
-                 */
+		/*!
+		 * \brief Special case to split_multi_delims(), split all whitespace.
+		 * \param s
+		 * \return A std::vector of parts in std::string
+		 */
 		std::vector<std::string> split_whitespace(const std::string s);
 
-                /*!
-                 * \brief Split string in two parts with specified delim
-                 * \param s
-                 * \param delim
-                 * \return A std::pair of std::string, ret.first = first part, ret.second = second part
-                 */
+		/*!
+		 * \brief Split string in two parts with specified delim
+		 * \param s
+		 * \param delim
+		 * \return A std::pair of std::string, ret.first = first part, ret.second = second part
+		 */
 		std::pair<std::string, std::string> split_first_occurance(const std::string s, char delim);
 
-                /*!
-                 * \brief Concatenates a std::vector of strings into a string with delimiters
-                 * \param elems
-                 * \param delim
-                 * \return Concatenated string
-                 */
+		/*!
+		 * \brief Concatenates a std::vector of strings into a string with delimiters
+		 * \param elems
+		 * \param delim
+		 * \return Concatenated string
+		 */
 		std::string join(std::vector<std::string> elems, char delim);
 
-                /*!
-                 * \brief Go through vector and erase empty ones.
-                 * Erase in-place in vector.
-                 * \param vec
-                 * \return Clean vector with no empty elements.
-                 */
+		/*!
+		 * \brief Go through vector and erase empty ones.
+		 * Erase in-place in vector.
+		 * \param vec
+		 * \return Clean vector with no empty elements.
+		 */
 		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
 
-                /*!
-                 * \brief Replace first occurance of one string with specified another string.
-                 * Replace in-place.
-                 * \param str
-                 * \param replaceWhat What substring to be replaced.
-                 * \param replaceWith What string to replace.
-                 */
+		/*!
+		 * \brief Replace first occurance of one string with specified another string.
+		 * Replace in-place.
+		 * \param str
+		 * \param replaceWhat What substring to be replaced.
+		 * \param replaceWith What string to replace.
+		 */
 		void replace_first_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
-                /*!
-                 * \brief Replace every occurance of one string with specified another string.
-                 * Replace in-place.
-                 * \param str
-                 * \param replaceWhat What substring to be replaced.
-                 * \param replaceWith What string to replace.
-                 */
+		/*!
+		 * \brief Replace every occurance of one string with specified another string.
+		 * Replace in-place.
+		 * \param str
+		 * \param replaceWhat What substring to be replaced.
+		 * \param replaceWith What string to replace.
+		 */
 		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
 
-                /*!
-                 * \brief Convert string to lower case.
-                 * Support ASCII characters only. Unicode string will trigger undefined behavior.
-                 * \param mixed Mixed case string
-                 * \return Lower case string.
-                 */
+		/*!
+		 * \brief Convert string to lower case.
+		 * Support ASCII characters only. Unicode string will trigger undefined behavior.
+		 * \param mixed Mixed case string
+		 * \return Lower case string.
+		 */
 		std::string to_lower_ascii(std::string mixed);
 
-                /*!
-                 * \brief Convert string to upper case.
-                 * Support ASCII characters only. Unicode string will trigger undefined behavior.
-                 * \param mixed Mixed case string
-                 * \return Upper case string.
-                 */
+		/*!
+		 * \brief Convert string to upper case.
+		 * Support ASCII characters only. Unicode string will trigger undefined behavior.
+		 * \param mixed Mixed case string
+		 * \return Upper case string.
+		 */
 		std::string to_upper_ascii(std::string mixed);
 
-                /*!
-                 * \brief C++ 11 UTF-8 string to UTF-16 string
-                 * \param u8str UTF-8 string
-                 * \return UTF-16 string
-                 */
+		/*!
+		 * \brief C++ 11 UTF-8 string to UTF-16 string
+		 * \param u8str UTF-8 string
+		 * \return UTF-16 string
+		 */
 		inline std::u16string utf8_to_utf16(std::string &u8str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
 			return cvt.from_bytes(u8str);
 		}
 
-                /*!
-                 * \brief C++ 11 UTF-16 string to UTF-8 string
-                 * \param u16str UTF-16 string
-                 * \return UTF-8 string
-                 */
+		/*!
+		 * \brief C++ 11 UTF-16 string to UTF-8 string
+		 * \param u16str UTF-16 string
+		 * \return UTF-8 string
+		 */
 		inline std::string utf16_to_utf8(std::u16string &u16str)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
 			return cvt.to_bytes(u16str);
 		}
 
-                /*!
-                 * \brief C++ 11 UTF-8 string to UTF-32 string
-                 * \param u8str UTF-8 string
-                 * \return UTF-32 string
-                 */
+		/*!
+		 * \brief C++ 11 UTF-8 string to UTF-32 string
+		 * \param u8str UTF-8 string
+		 * \return UTF-32 string
+		 */
 		inline std::u32string utf8_to_utf32(std::string &u8str)
 		{
 			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
 			return cvt.from_bytes(u8str);
 		}
 
-                /*!
-                 * \brief C++ 11 UTF-32 string to UTF-8 string
-                 * \param u32str UTF-32 string
-                 * \return UTF-8 string
-                 */
+		/*!
+		 * \brief C++ 11 UTF-32 string to UTF-8 string
+		 * \param u32str UTF-32 string
+		 * \return UTF-8 string
+		 */
 		inline std::string utf32_to_utf8(std::u32string &u32str)
 		{
 			std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
 			return cvt.to_bytes(u32str);
 		}
 
-                /*!
-                 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg &last)
-                 * \brief Format function to replace each {} with templated type variable
-                 * \param fmt Original string with place-holder {}
-                 * \param last The last variable in variadic template function
-                 */
+		/*!
+		 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg &last)
+		 * \brief Format function to replace each {} with templated type variable
+		 * \param fmt Original string with place-holder {}
+		 * \param last The last variable in variadic template function
+		 */
 		template<typename Arg>
 		inline void format_string(std::string &fmt, const Arg &last)
 		{
 			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(last));
 		}
 
-                /*!
-                 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
-                 * \brief Vairadic variable version of format function to replace each {} with templated type variable
-                 * \param fmt Original string with place-holder {}
-                 * \param current The current variable to be converted
-                 * \param ... more Variadic variables to be templated.
-                 */
+		/*!
+		 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
+		 * \brief Vairadic variable version of format function to replace each {} with templated type variable
+		 * \param fmt Original string with place-holder {}
+		 * \param current The current variable to be converted
+		 * \param ... more Variadic variables to be templated.
+		 */
 		template<typename Arg, typename... Args>
 		inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
 		{
@@ -1369,122 +1376,122 @@ namespace zz
 
 	} // namespace fmt
 
-        /*!
-         * \namespace zz::cfg
-         * \brief Namespace for configuration related classes and functions
-         */
+	/*!
+	 * \namespace zz::cfg
+	 * \brief Namespace for configuration related classes and functions
+	 */
 	namespace cfg
 	{
-                /*!
-                 * \brief The Value class for store/load various type to/from string
-                 */
+		/*!
+		 * \brief The Value class for store/load various type to/from string
+		 */
 		class Value
 		{
 		public:
-                        /*!
-                         * \brief Value default constructor
-                         */
+			/*!
+			 * \brief Value default constructor
+			 */
 			Value(){}
 
-                        /*!
-                         * \brief Value constructor from raw string
-                         * \param cstr
-                         */
+			/*!
+			 * \brief Value constructor from raw string
+			 * \param cstr
+			 */
 			Value(const char* cstr) : str_(cstr) {}
 
-                        /*!
-                         * \brief Value constrctor from string
-                         * \param str
-                         */
+			/*!
+			 * \brief Value constrctor from string
+			 * \param str
+			 */
 			Value(std::string str) : str_(str) {}
 
-                        /*!
-                         * \brief Value copy constructor
-                         * \param other
-                         */
+			/*!
+			 * \brief Value copy constructor
+			 * \param other
+			 */
 			Value(const Value& other) : str_(other.str_) {}
 
-                        /*!
-                         * \brief Return stored string
-                         * \return String
-                         */
+			/*!
+			 * \brief Return stored string
+			 * \return String
+			 */
 			std::string str() const { return str_; }
 
-                        /*!
-                         * \brief Check if stored string is empty
-                         * \return True if empty
-                         */
+			/*!
+			 * \brief Check if stored string is empty
+			 * \return True if empty
+			 */
 			bool empty() const { return str_.empty(); }
 
-                        /*!
-                         * \brief Clear stored string
-                         */
+			/*!
+			 * \brief Clear stored string
+			 */
 			void clear() { str_.clear(); }
 
-                        /*!
-                         * \brief Overloaded operator == for comparison
-                         * \param other
-                         * \return True if stored strings are same
-                         */
+			/*!
+			 * \brief Overloaded operator == for comparison
+			 * \param other
+			 * \return True if stored strings are same
+			 */
 			bool operator== (const Value& other) { return str_ == other.str_; }
 
-                        /*!
-                         * \brief Overloaded operator = for copy
-                         * \param other
-                         * \return
-                         */
+			/*!
+			 * \brief Overloaded operator = for copy
+			 * \param other
+			 * \return
+			 */
 			Value& operator= (const Value& other) { str_ = other.str_; return *this; }
 
-                        /*!
-                         * \fn template <typename T> std::string store(T t);
-                         * \brief Store value from template type T
-                         * Support type that can << to a stringstream
-                         */
+			/*!
+			 * \fn template <typename T> std::string store(T t);
+			 * \brief Store value from template type T
+			 * Support type that can << to a stringstream
+			 */
 			template <typename T> std::string store(T t);
 
-                        /*!
-                         * \fn template <typename T> std::string store(std::vector<T> t);
-                         * \brief Template specification of store for vector of type T
-                         * Support type that can << to a stringstream
-                         */
+			/*!
+			 * \fn template <typename T> std::string store(std::vector<T> t);
+			 * \brief Template specification of store for vector of type T
+			 * Support type that can << to a stringstream
+			 */
 			template <typename T> std::string store(std::vector<T> t);
 
-                        /*!
-                         * \fn template <typename T> T load(T& t);
-                         * \brief Load value to template type T
-                         * Support type that can >> to a stringstream
-                         */
+			/*!
+			 * \fn template <typename T> T load(T& t);
+			 * \brief Load value to template type T
+			 * Support type that can >> to a stringstream
+			 */
 			template <typename T> T load(T& t);
 
-                        /*!
-                         * \fn template <typename T> std::string load(std::vector<T> t);
-                         * \brief Template specification of load for vector of type T
-                         * Support type that can >> to a stringstream
-                         */
+			/*!
+			 * \fn template <typename T> std::string load(std::vector<T> t);
+			 * \brief Template specification of load for vector of type T
+			 * Support type that can >> to a stringstream
+			 */
 			template <typename T> std::vector<T> load(std::vector<T>& t);
 
-                        /*!
-                         * \fn template <> bool load(bool& b);
-                         * \brief Template specification of load for bool type
-                         * Support "1", "0", or alpha version of boolean value,
-                         * such as "True", "False", case-insensitive.
-                         */
+			/*!
+			 * \fn template <> bool load(bool& b);
+			 * \brief Template specification of load for bool type
+			 * Support "1", "0", or alpha version of boolean value,
+			 * such as "True", "False", case-insensitive.
+			 */
 			template <> bool load(bool& b);
 
-                        /*!
-                         * \fn template <typename T> T load() { T t; return load(t); }
-                         * \brief Template for load function with no input.
-                         */
+			/*!
+			 * \fn template <typename T> T load() { T t; return load(t); }
+			 * \brief Template for load function with no input.
+			 */
 			template <typename T> T load() { T t; return load(t); }
-			
+
 		private:
 			std::string str_;
 		};
 
-                /*!
-                 * \brief The CfgLevel struct, internal struct for cfgParser.
-                 * Tree structure for config sections
-                 */
+		/*!
+		 * \brief The CfgLevel struct, internal struct for cfgParser.
+		 * Tree structure for config sections
+		 */
 		struct CfgLevel
 		{
 			CfgLevel() : parent(nullptr), depth(0) {}
@@ -1516,42 +1523,42 @@ namespace zz
 			}
 		};
 
-                /*!
-                 * \brief The CfgParser class for INI/CFG file parsing
-                 */
+		/*!
+		 * \brief The CfgParser class for INI/CFG file parsing
+		 */
 		class CfgParser
 		{
 		public:
-                        /*!
-                         * \brief CfgParser constructor from filename
-                         * \param filename
-                         */
+			/*!
+			 * \brief CfgParser constructor from filename
+			 * \param filename
+			 */
 			CfgParser(std::string filename);
 
-                        /*!
-                         * \brief CfgParser constructor from stream
-                         * \param s
-                         */
+			/*!
+			 * \brief CfgParser constructor from stream
+			 * \param s
+			 */
 			CfgParser(std::istream& s) : pstream_(&s), ln_(0) { parse(root_); }
 
-                        /*!
-                         * \brief Get root section of configuration
-                         * \return Root level of config file
-                         */
+			/*!
+			 * \brief Get root section of configuration
+			 * \return Root level of config file
+			 */
 			CfgLevel& root() { return root_; }
 
-                        /*!
-                         * \brief Overloaded operator [] for config values
-                         * \param name Config value entry
-                         * \return Value
-                         */
+			/*!
+			 * \brief Overloaded operator [] for config values
+			 * \param name Config value entry
+			 * \return Value
+			 */
 			Value operator[](const std::string& name) { return root_.values[name]; }
 
-                        /*!
-                         * \brief Overloaded operator () for config sections
-                         * \param name Section entry.
-                         * \return Section from given name.
-                         */
+			/*!
+			 * \brief Overloaded operator () for config sections
+			 * \param name Section entry.
+			 * \return Section from given name.
+			 */
 			CfgLevel& operator()(const std::string& name) { return root_.sections[name]; }
 
 		private:
@@ -1568,99 +1575,99 @@ namespace zz
 			std::size_t		ln_;
 		};
 
-                /*!
-                 * \brief The ArgOption class for ArgParser
-                 */
+		/*!
+		 * \brief The ArgOption class for ArgParser
+		 */
 		class ArgOption
 		{
 			friend class ArgParser;
 		public:
 
-                        /*!
-                         * \brief ArgOption constructor with short key and long key
-                         * \param shortKey A char, use 'a'
-                         * \param longKey A std::string "long"
-                         */
+			/*!
+			 * \brief ArgOption constructor with short key and long key
+			 * \param shortKey A char, use 'a'
+			 * \param longKey A std::string "long"
+			 */
 			ArgOption::ArgOption(char shortKey, std::string longKey);
 
-                        /*!
-                         * \brief ArgOption constructor with short key only
-                         * \param shortKey A char, use 'a'
-                         */
+			/*!
+			 * \brief ArgOption constructor with short key only
+			 * \param shortKey A char, use 'a'
+			 */
 			ArgOption::ArgOption(char shortKey);
 
-                        /*!
-                         * \brief ArgOption constructor with long key only
-                         * \param longKey A std::string "long"
-                         */
+			/*!
+			 * \brief ArgOption constructor with long key only
+			 * \param longKey A std::string "long"
+			 */
 			ArgOption::ArgOption(std::string longKey);
 
-                        /*!
-                         * \brief Set callback function when this option is triggered.
-                         * One can use lambda function as callback
-                         * \param todo Function callback
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set callback function when this option is triggered.
+			 * One can use lambda function as callback
+			 * \param todo Function callback
+			 * \return Reference to this option
+			 */
 			ArgOption& call(std::function<void()> todo);
 
-                        /*!
-                         * \brief Set callback functions.
-                         * Both TODO function and Default function required.
-                         * If ArgParser detect this option, the TODO function will be called.
-                         * Otherwise, the default callback function will be executed.
-                         * \param todo Callback function when triggered
-                         * \param otherwise Default function if this option not found
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set callback functions.
+			 * Both TODO function and Default function required.
+			 * If ArgParser detect this option, the TODO function will be called.
+			 * Otherwise, the default callback function will be executed.
+			 * \param todo Callback function when triggered
+			 * \param otherwise Default function if this option not found
+			 * \return Reference to this option
+			 */
 			ArgOption& call(std::function<void()> todo, std::function<void()> otherwise);
 
-                        /*!
-                         * \brief Set help info for this option.
-                         * Use this to add description for this option.
-                         * \param helpInfo
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set help info for this option.
+			 * Use this to add description for this option.
+			 * \param helpInfo
+			 * \return Reference to this option
+			 */
 			ArgOption& set_help(std::string helpInfo);
 
-                        /*!
-                         * \brief Set this option to required or not.
-                         * After parsing arguments, if this set to required but not found,
-                         * ArgParser will generate an error information.
-                         * \param require Require this option if set to true
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set this option to required or not.
+			 * After parsing arguments, if this set to required but not found,
+			 * ArgParser will generate an error information.
+			 * \param require Require this option if set to true
+			 * \return Reference to this option
+			 */
 			ArgOption& require(bool require = true);
 
-                        /*!
-                         * \brief Set this option to allow option be called only once.
-                         * This is set to disable accidentally set a variable multiply times.
-                         * \param onlyOnce Allow this option be used only once
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set this option to allow option be called only once.
+			 * This is set to disable accidentally set a variable multiply times.
+			 * \param onlyOnce Allow this option be used only once
+			 * \return Reference to this option
+			 */
 			ArgOption& set_once(bool onlyOnce = true);
 
-                        /*!
-                         * \brief Set option variable type.
-                         * Optional. Let user know what type this option take, INT, FLOAT, STRING...
-                         * \param type Type name in string, just a reminder.
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set option variable type.
+			 * Optional. Let user know what type this option take, INT, FLOAT, STRING...
+			 * \param type Type name in string, just a reminder.
+			 * \return Reference to this option
+			 */
 			ArgOption& set_type(std::string type);
 
-                        /*!
-                         * \brief Set minimum number of argument this option take.
-                         * If minimum number not satisfied, ArgParser will generate an error.
-                         * \param minCount
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set minimum number of argument this option take.
+			 * If minimum number not satisfied, ArgParser will generate an error.
+			 * \param minCount
+			 * \return Reference to this option
+			 */
 			ArgOption& set_min(int minCount);
 
-                        /*!
-                         * \brief Set maximum number of argument this option take.
-                         * If maximum number not satisfied, ArgParser will generate an error.
-                         * \param maxCount
-                         * \return Reference to this option
-                         */
+			/*!
+			 * \brief Set maximum number of argument this option take.
+			 * If maximum number not satisfied, ArgParser will generate an error.
+			 * \param maxCount
+			 * \return Reference to this option
+			 */
 			ArgOption& set_max(int maxCount);
 
 		private:
@@ -1682,191 +1689,191 @@ namespace zz
 			std::vector<std::function<void()>> othercall_;	//!< call these when option not found	
 		};
 
-                /*!
-                 * \brief The ArgParser class.
-                 * For parsing command line arguments.
-                 */
+		/*!
+		 * \brief The ArgParser class.
+		 * For parsing command line arguments.
+		 */
 		class ArgParser
 		{
 		public:
-                        /*!
-                         * \brief ArgParser default constructor
-                         */
+			/*!
+			 * \brief ArgParser default constructor
+			 */
 			ArgParser();
 
-                        /*!
-                         * \brief Add option with short key only.
-                         * \param shortKey A char
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \brief Add option with short key only.
+			 * \param shortKey A char
+			 * \return Reference to the added option
+			 */
 			ArgOption& add_opt(char shortKey);
 
-                        /*!
-                         * \brief Add option with long key only.
-                         * \param shortKey A std::string long key
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \brief Add option with long key only.
+			 * \param shortKey A std::string long key
+			 * \return Reference to the added option
+			 */
 			ArgOption& add_opt(std::string longKey);
 
-                        /*!
-                         * \brief Add option with short key only.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \brief Add option with short key only.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \return Reference to the added option
+			 */
 			ArgOption& add_opt(char shortKey, std::string longKey);
 
-                        /*!
-                         * \fn template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
-                                T& dst, T defaultValue, std::string help = "", std::string type = "");
-                         * \brief Template function for an option take a value.
-                         * This will store the value from argument to dst, otherwise dst = defaultValue.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \param dst Reference to the variable to be set
-                         * \param defaultValue Default value if this option not found
-                         * \param help Help description to this option
-                         * \param type Help describe the type of this option
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \fn template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
+			 T& dst, T defaultValue, std::string help = "", std::string type = "");
+			 * \brief Template function for an option take a value.
+			 * This will store the value from argument to dst, otherwise dst = defaultValue.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \param dst Reference to the variable to be set
+			 * \param defaultValue Default value if this option not found
+			 * \param help Help description to this option
+			 * \param type Help describe the type of this option
+			 * \return Reference to the added option
+			 */
 			template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
 				T& dst, T defaultValue, std::string help = "", std::string type = "");
 
-                        /*!
-                         * \fn template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
-                                T defaultValue, std::string help = "", std::string type = "");
-                         * \brief Template function for an option take a value. Overload with no short key
-                         * This will store the value from argument to dst, otherwise dst = defaultValue.
-                         * \param longKey A std::string
-                         * \param dst Reference to the variable to be set
-                         * \param defaultValue Default value if this option not found
-                         * \param help Help description to this option
-                         * \param type Help describe the type of this option
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \fn template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
+			 T defaultValue, std::string help = "", std::string type = "");
+			 * \brief Template function for an option take a value. Overload with no short key
+			 * This will store the value from argument to dst, otherwise dst = defaultValue.
+			 * \param longKey A std::string
+			 * \param dst Reference to the variable to be set
+			 * \param defaultValue Default value if this option not found
+			 * \param help Help description to this option
+			 * \param type Help describe the type of this option
+			 * \return Reference to the added option
+			 */
 			template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
 				T defaultValue, std::string help = "", std::string type = "");
 
-                        /*!
-                         * \brief Add an toggle option.
-                         * When this option found, dst = true, otherwise dst = false.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \param help Help description.
-                         * \param dst Pointer to a bool variable to be set accroding to this option.
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \brief Add an toggle option.
+			 * When this option found, dst = true, otherwise dst = false.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \param help Help description.
+			 * \param dst Pointer to a bool variable to be set accroding to this option.
+			 * \return Reference to the added option
+			 */
 			ArgOption& add_opt_flag(char shortKey, std::string longKey, std::string help = "", bool* dst = nullptr);
 
-                        /*!
-                         * \brief Add an toggle option. Overloaded with no short key.
-                         * When this option found, dst = true, otherwise dst = false.
-                         * \param longKey A std::string
-                         * \param help Help description.
-                         * \param dst Pointer to a bool variable to be set accroding to this option.
-                         * \return Reference to the added option
-                         */
+			/*!
+			 * \brief Add an toggle option. Overloaded with no short key.
+			 * When this option found, dst = true, otherwise dst = false.
+			 * \param longKey A std::string
+			 * \param help Help description.
+			 * \param dst Pointer to a bool variable to be set accroding to this option.
+			 * \return Reference to the added option
+			 */
 			ArgOption& add_opt_flag(std::string longKey, std::string help = "", bool* dst = nullptr);
 
-                        /*!
-                         * \brief Add a special option used to display help information for argument parser.
-                         * When triggered, program will print help info and exit.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \param help Option description
-                         */
+			/*!
+			 * \brief Add a special option used to display help information for argument parser.
+			 * When triggered, program will print help info and exit.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \param help Option description
+			 */
 			void add_opt_help(char shortKey, std::string longKey, std::string help = "print this help and exit");
 
-                        /*!
-                         * \brief Add a special option used to display help information for argument parser.
-                         * When triggered, program will print help info and exit.
-                         * Long key only.
-                         * \param longKey A std::string
-                         * \param help Option description
-                         */
+			/*!
+			 * \brief Add a special option used to display help information for argument parser.
+			 * When triggered, program will print help info and exit.
+			 * Long key only.
+			 * \param longKey A std::string
+			 * \param help Option description
+			 */
 			void add_opt_help(std::string longKey, std::string = "print this help and exit");
 
-                        /*!
-                         * \brief Add a special option used to display version information for argument parser.
-                         * When triggered, program will print version info and exit.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \param help Option description
-                         */
+			/*!
+			 * \brief Add a special option used to display version information for argument parser.
+			 * When triggered, program will print version info and exit.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \param help Option description
+			 */
 			void add_opt_version(char shortKey, std::string longKey, std::string version, std::string help = "print version and exit");
 
-                        /*!
-                         * \brief Add a special option used to display version information for argument parser.
-                         * When triggered, program will print version info and exit. Long key only.
-                         * \param shortKey A char
-                         * \param longKey A std::string
-                         * \param help Option description
-                         */
+			/*!
+			 * \brief Add a special option used to display version information for argument parser.
+			 * When triggered, program will print version info and exit. Long key only.
+			 * \param shortKey A char
+			 * \param longKey A std::string
+			 * \param help Option description
+			 */
 			void add_opt_version(std::string longKey, std::string version, std::string help = "print version and exit");
 
-                        /*!
-                         * \brief Return version info.
-                         * \return Version info in string
-                         */
+			/*!
+			 * \brief Return version info.
+			 * \return Version info in string
+			 */
 			std::string version() const { return info_[1]; }
 
-                        /*!
-                         * \brief Start parsing arguments
-                         * \param argc
-                         * \param argv
-                         * \param ignoreUnknown Whether or not ignore unknown option keys
-                         */
+			/*!
+			 * \brief Start parsing arguments
+			 * \param argc
+			 * \param argv
+			 * \param ignoreUnknown Whether or not ignore unknown option keys
+			 */
 			void parse(int argc, char** argv, bool ignoreUnknown = false);
 
-                        /*!
-                         * \brief Get error count generated during parsing
-                         * \return Number of errors generated.
-                         */
+			/*!
+			 * \brief Get error count generated during parsing
+			 * \return Number of errors generated.
+			 */
 			std::size_t count_error() { return errors_.size(); }
 
-                        /*!
-                         * \brief Count the occurance of the option by short key
-                         * \param shortKey
-                         * \return Occurance count
-                         */
+			/*!
+			 * \brief Count the occurance of the option by short key
+			 * \param shortKey
+			 * \return Occurance count
+			 */
 			int	count(char shortKey);
 
-                        /*!
-                         * \brief Count the occurance of the option by long key
-                         * \param longKey
-                         * \return Occurance count
-                         */
+			/*!
+			 * \brief Count the occurance of the option by long key
+			 * \param longKey
+			 * \return Occurance count
+			 */
 			int count(std::string longKey);
 
-                        /*!
-                         * \brief Get all errors generated during parsing.
-                         * \return Errors in string
-                         */
+			/*!
+			 * \brief Get all errors generated during parsing.
+			 * \return Errors in string
+			 */
 			std::string get_error();
 
-                        /*!
-                         * \brief Get help information of entire parser.
-                         * \return All help information
-                         */
+			/*!
+			 * \brief Get help information of entire parser.
+			 * \return All help information
+			 */
 			std::string get_help();
 
-                        /*!
-                         * \brief Overloaded operator [] to retrieve the value by long key
-                         * \param longKey
-                         * \return Value type where the argument was stored
-                         */
+			/*!
+			 * \brief Overloaded operator [] to retrieve the value by long key
+			 * \param longKey
+			 * \return Value type where the argument was stored
+			 */
 			Value operator[](const std::string& longKey);
 
-                        /*!
-                         * \brief Overloaded operator [] to retrieve the value by short key
-                         * \param shortKey
-                         * \return Value type where the argument was stored
-                         */
+			/*!
+			 * \brief Overloaded operator [] to retrieve the value by short key
+			 * \param shortKey
+			 * \return Value type where the argument was stored
+			 */
 			Value operator[](const char shortKey);
 
 		private:
 			//using ArgOptIter = std::vector<ArgOption>::iterator;
-			enum class Type {SHORT_KEY, LONG_KEY, ARGUMENT, INVALID};
+			enum class Type { SHORT_KEY, LONG_KEY, ARGUMENT, INVALID };
 			using ArgQueue = std::vector<std::pair<std::string, Type>>;
 
 			ArgOption& add_opt_internal(char shortKey, std::string longKey, bool active = true);
@@ -1887,7 +1894,7 @@ namespace zz
 
 
 		// implementations in cfg:: namespace
-		
+
 		template <typename T> inline std::string Value::store(T t)
 		{
 			std::ostringstream oss;
@@ -1941,7 +1948,7 @@ namespace zz
 			}
 			return t;
 		}
-		
+
 		template <typename T> inline ArgOption& ArgParser::add_opt_value(char shortKey, std::string longKey,
 			T& dst, T defaultValue, std::string help, std::string type)
 		{
@@ -1961,13 +1968,13 @@ namespace zz
 
 	} // namespace cfg
 
-        /*!
-         * \namespace zz::log
-         * \brief Namespace for logging and message stuffs
-         */
+	/*!
+	 * \namespace zz::log
+	 * \brief Namespace for logging and message stuffs
+	 */
 	namespace log
 	{
-                // \cond
+		// \cond
 		void zupply_internal_warn(std::string msg);
 		void zupply_internal_error(std::string msg);
 
@@ -2004,7 +2011,7 @@ namespace zz
 
 		typedef enum LogLevelEnum
 		{
-                        trace = 0,
+			trace = 0,
 			debug = 1,
 			info = 2,
 			warn = 3,
@@ -2067,94 +2074,94 @@ namespace zz
 
 		int level_mask_from_string(std::string levels);
 
-                // \endcond
+		// \endcond
 
-                /*!
-                 * \brief The LogConfig class.
-                 * For get/set logging configurations.
-                 */
+		/*!
+		 * \brief The LogConfig class.
+		 * For get/set logging configurations.
+		 */
 		class LogConfig
 		{
 		public:
-                        /*!
-                         * \brief Get instance of LogConfig class.
-                         * LogConfig is a singleton class, so use this to get the instance.
-                         * \return Reference to instance.
-                         */
+			/*!
+			 * \brief Get instance of LogConfig class.
+			 * LogConfig is a singleton class, so use this to get the instance.
+			 * \return Reference to instance.
+			 */
 			static LogConfig& instance();
 
-                        /*!
-                         * \brief Set default format for all future loggers.
-                         * \param format
-                         */
+			/*!
+			 * \brief Set default format for all future loggers.
+			 * \param format
+			 */
 			static void set_default_format(std::string format);
 
-                        /*!
-                         * \brief Set default datetime format for all future loggers.
-                         * \param dateFormat
-                         */
+			/*!
+			 * \brief Set default datetime format for all future loggers.
+			 * \param dateFormat
+			 */
 			static void set_default_datetime_format(std::string dateFormat);
 
-                        /*!
-                         * \brief Set default sink list for all future loggers.
-                         * \param list A vector of strings storing the name of sinks
-                         */
+			/*!
+			 * \brief Set default sink list for all future loggers.
+			 * \param list A vector of strings storing the name of sinks
+			 */
 			static void set_default_sink_list(std::vector<std::string> list);
 
-                        /*!
-                         * \brief Set default level mask for all future loggers.
-                         * Level mask is an int.
-                         * Each bit control if corresponding level should be logged or not.
-                         * \param levelMask A bit mask.
-                         */
+			/*!
+			 * \brief Set default level mask for all future loggers.
+			 * Level mask is an int.
+			 * Each bit control if corresponding level should be logged or not.
+			 * \param levelMask A bit mask.
+			 */
 			static void set_default_level_mask(int levelMask);
 
-                        /*!
-                         * \brief Get default sink list
-                         * \return std::vector of sink names
-                         */
+			/*!
+			 * \brief Get default sink list
+			 * \return std::vector of sink names
+			 */
 			std::vector<std::string> sink_list();
 
-                        /*!
-                         * \brief Set default sink list
-                         * \param list Vector of names of the sinks to be set
-                         */
+			/*!
+			 * \brief Set default sink list
+			 * \param list Vector of names of the sinks to be set
+			 */
 			void set_sink_list(std::vector<std::string> &list);
 
-                        /*!
-                         * \brief Get default log level mask
-                         * \return Integer representing levels using bit mask
-                         */
+			/*!
+			 * \brief Get default log level mask
+			 * \return Integer representing levels using bit mask
+			 */
 			int log_level_mask();
 
-                        /*!
-                         * \brief Set default log level mask
-                         * \param newMask
-                         */
+			/*!
+			 * \brief Set default log level mask
+			 * \param newMask
+			 */
 			void set_log_level_mask(int newMask);
 
-                        /*!
-                         * \brief Get default logger format
-                         * \return Default format
-                         */
+			/*!
+			 * \brief Get default logger format
+			 * \return Default format
+			 */
 			std::string format();
 
-                        /*!
-                         * \brief Set default logger format
-                         * \param newFormat
-                         */
+			/*!
+			 * \brief Set default logger format
+			 * \param newFormat
+			 */
 			void set_format(std::string newFormat);
 
-                        /*!
-                         * \brief Get default datetime format
-                         * \return Default datetime format
-                         */
+			/*!
+			 * \brief Get default datetime format
+			 * \return Default datetime format
+			 */
 			std::string datetime_format();
 
-                        /*!
-                         * \brief Set default datetime format
-                         * \param newDatetimeFormat
-                         */
+			/*!
+			 * \brief Set default datetime format
+			 * \param newDatetimeFormat
+			 */
 			void set_datetime_format(std::string newDatetimeFormat);
 
 		private:
@@ -2166,157 +2173,157 @@ namespace zz
 			cds::AtomicNonTrivial<std::string> datetimeFormat_;
 		};
 
-                /*!
-                 * \brief The Logger class
-                 * Logger is the object to be called to log some message.
-                 * Each logger may links to several Sinks as logging destinations.
-                 */
+		/*!
+		 * \brief The Logger class
+		 * Logger is the object to be called to log some message.
+		 * Each logger may links to several Sinks as logging destinations.
+		 */
 		class Logger : UnMovable
 		{
 		public:
-                        /*!
-                         * \brief Logger default constructor
-                         * \param name Logger's name, need a name to retrieve the logger
-                         */
+			/*!
+			 * \brief Logger default constructor
+			 * \param name Logger's name, need a name to retrieve the logger
+			 */
 			Logger(std::string name) : name_(name)
 			{
 				levelMask_ = LogConfig::instance().log_level_mask();
 			}
 
-                        /*!
-                         * \brief Logger constructor with name and mask
-                         * \param name
-                         * \param levelMask Specify which levels should be logged
-                         */
+			/*!
+			 * \brief Logger constructor with name and mask
+			 * \param name
+			 * \param levelMask Specify which levels should be logged
+			 */
 			Logger(std::string name, int levelMask) : name_(name)
 			{
 				levelMask_ = levelMask;
 			}
 
 			// logger.info(format string, arg1, arg2, arg3, ...) call style
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.trace(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.trace(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger trace(const char* fmt, const Args&... args);
 
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.debug(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.debug(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger debug(const char* fmt, const Args&... args);
 
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.info(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.info(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger info(const char* fmt, const Args&... args);
 
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.warn(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.warn(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger warn(const char* fmt, const Args&... args);
 
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.error(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.error(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger error(const char* fmt, const Args&... args);
 
-                        /*!
-                         * \fn template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args)
-                         * \brief Variadic argument style to log some message.
-                         * Logger.fatal(format string, arg1, arg2, arg3, ...) call style
-                         */
+			/*!
+			 * \fn template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args)
+			 * \brief Variadic argument style to log some message.
+			 * Logger.fatal(format string, arg1, arg2, arg3, ...) call style
+			 */
 			template <typename... Args> detail::LineLogger fatal(const char* fmt, const Args&... args);
 
 
 			// logger.info(msg) << ".." call style
-                        /*!
-                         * \fn template <typename T> detail::LineLogger trace(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.trace(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger trace(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.trace(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger trace(const T& msg);
 
-                        /*!
-                         * \fn template <typename T> detail::LineLogger debug(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.debug(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger debug(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.debug(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger debug(const T& msg);
 
-                        /*!
-                         * \fn template <typename T> detail::LineLogger info(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.info(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger info(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.info(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger info(const T& msg);
 
-                        /*!
-                         * \fn template <typename T> detail::LineLogger warn(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.warn(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger warn(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.warn(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger warn(const T& msg);
 
-                        /*!
-                         * \fn template <typename T> detail::LineLogger error(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.error(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger error(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.error(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger error(const T& msg);
 
-                        /*!
-                         * \fn template <typename T> detail::LineLogger fatal(const T& msg)
-                         * \brief Log message and overload with more stream style message.
-                         * Logger.fatal(msg) << ".." call style
-                         */
+			/*!
+			 * \fn template <typename T> detail::LineLogger fatal(const T& msg)
+			 * \brief Log message and overload with more stream style message.
+			 * Logger.fatal(msg) << ".." call style
+			 */
 			template <typename T> detail::LineLogger fatal(const T& msg);
 
 
 			// logger.info() << ".." call  style
 
-                        /*!
-                         * \brief Trace level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Trace level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger trace();
 
-                        /*!
-                         * \brief Debug level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Debug level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger debug();
 
-                        /*!
-                         * \brief Info level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Info level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger info();
 
-                        /*!
-                         * \brief Warn level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Warn level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger warn();
 
-                        /*!
-                         * \brief Error level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Error level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger error();
 
-                        /*!
-                         * \brief Fatal level overloaded with stream style message.
-                         * \return LineLogger
-                         */
+			/*!
+			 * \brief Fatal level overloaded with stream style message.
+			 * \return LineLogger
+			 */
 			detail::LineLogger fatal();
 
 			//const LogLevels level() const
@@ -2324,73 +2331,73 @@ namespace zz
 			//	return static_cast<LogLevels>(level_.load(std::memory_order_relaxed));
 			//}
 
-                        /*!
-                         * \brief Set level mask to this logger
-                         * \param levelMask
-                         */
+			/*!
+			 * \brief Set level mask to this logger
+			 * \param levelMask
+			 */
 			void set_level_mask(int levelMask)
 			{
 				levelMask_ = levelMask & LogLevels::sentinel;
 			}
 
-                        /*!
-                         * \brief Check if a specific level should be logged in this logger
-                         * \param msgLevel
-                         * \return True if the level should be logged
-                         */
+			/*!
+			 * \brief Check if a specific level should be logged in this logger
+			 * \param msgLevel
+			 * \return True if the level should be logged
+			 */
 			bool should_log(LogLevels msgLevel) const
 			{
 				return level_should_log(levelMask_, msgLevel);
 			}
 
-                        /*!
-                         * \brief Get name of the logger
-                         * \return Name of the logger
-                         */
+			/*!
+			 * \brief Get name of the logger
+			 * \return Name of the logger
+			 */
 			std::string name() const { return name_; };
 
-                        /*!
-                         * \brief Get user friendly information about this logger.
-                         * Get informations such as log levels, sink list, etc...
-                         * \return User friendly string info.
-                         */
+			/*!
+			 * \brief Get user friendly information about this logger.
+			 * Get informations such as log levels, sink list, etc...
+			 * \return User friendly string info.
+			 */
 			std::string to_string();
 
-                        /*!
-                         * \brief Get pointer to a sink by name.
-                         * \param name Name of the sink
-                         * \return Shared pointer to the sink, return nullptr if not found.
-                         */
+			/*!
+			 * \brief Get pointer to a sink by name.
+			 * \param name Name of the sink
+			 * \return Shared pointer to the sink, return nullptr if not found.
+			 */
 			SinkPtr get_sink(std::string name);
 
-                        /*!
-                         * \brief Attach a sink to this logger.
-                         * \param sink
-                         */
+			/*!
+			 * \brief Attach a sink to this logger.
+			 * \param sink
+			 */
 			void attach_sink(SinkPtr sink);
 
-                        /*!
-                         * \brief Detach a sink from this logger.
-                         * \param sink
-                         */
+			/*!
+			 * \brief Detach a sink from this logger.
+			 * \param sink
+			 */
 			void detach_sink(SinkPtr sink);
 
-                        /*!
-                         * \brief Attach the entire vector of sinks to the logger.
-                         * \param sinkList
-                         */
+			/*!
+			 * \brief Attach the entire vector of sinks to the logger.
+			 * \param sinkList
+			 */
 			void attach_sink_list(std::vector<std::string> &sinkList);
 
-                        /*!
-                         * \brief Attach stdout and stderr to the logger.
-                         * Special case of attach_sink()
-                         */
+			/*!
+			 * \brief Attach stdout and stderr to the logger.
+			 * Special case of attach_sink()
+			 */
 			void attach_console();
 
-                        /*!
-                         * \brief Detach stdout and stderr from the logger if exist.
-                         * Special case of detach_sink()
-                         */
+			/*!
+			 * \brief Detach stdout and stderr from the logger if exist.
+			 * Special case of detach_sink()
+			 */
 			void detach_console();
 
 		private:
@@ -2414,7 +2421,7 @@ namespace zz
 		typedef std::shared_ptr<Logger> LoggerPtr;
 
 
-                // \cond
+		// \cond
 		namespace detail
 		{
 			template<typename T>
@@ -2947,97 +2954,97 @@ namespace zz
 			return log_if_enabled(LogLevels::fatal, msg);
 		}
 
-                // \endcond
+		// \endcond
 
-                /*!
-                 * \brief Get logger by name
-                 * \param name
-                 * \param createIfNotExists Create new logger with the name provided if not exist.
-                 * \return Shared pointer to the logger.
-                 */
+		/*!
+		 * \brief Get logger by name
+		 * \param name
+		 * \param createIfNotExists Create new logger with the name provided if not exist.
+		 * \return Shared pointer to the logger.
+		 */
 		LoggerPtr get_logger(std::string name, bool createIfNotExists = true);
 
-                /*!
-                 * \brief Get the sink pointer to stdout
-                 * \return Shared pointer to stdout sink.
-                 */
+		/*!
+		 * \brief Get the sink pointer to stdout
+		 * \return Shared pointer to stdout sink.
+		 */
 		SinkPtr new_stdout_sink();
 
-                /*!
-                 * \brief Get the sink pointer to stderr
-                 * \return Shared pointer to stderr sink.
-                 */
+		/*!
+		 * \brief Get the sink pointer to stderr
+		 * \return Shared pointer to stderr sink.
+		 */
 		SinkPtr new_stderr_sink();
 
-                /*!
-                 * \brief Get the sink pointer from name provided.
-                 * Return nullptr if sink does not exist.
-                 * \return Shared pointer to sink.
-                 */
+		/*!
+		 * \brief Get the sink pointer from name provided.
+		 * Return nullptr if sink does not exist.
+		 * \return Shared pointer to sink.
+		 */
 		SinkPtr get_sink(std::string name);
 
-                /*!
-                 * \brief Dump all loggers info.
-                 * \param out The stream where you want the info direct to, default std::cout
-                 */
+		/*!
+		 * \brief Dump all loggers info.
+		 * \param out The stream where you want the info direct to, default std::cout
+		 */
 		void dump_loggers(std::ostream &out = std::cout);
 
-                /*!
-                 * \brief Create new ostream sink from existing ostream.
-                 * \param stream
-                 * \param name
-                 * \param forceFlush
-                 * \return Shared pointer to the new sink.
-                 */
+		/*!
+		 * \brief Create new ostream sink from existing ostream.
+		 * \param stream
+		 * \param name
+		 * \param forceFlush
+		 * \return Shared pointer to the new sink.
+		 */
 		SinkPtr new_ostream_sink(std::ostream &stream, std::string name, bool forceFlush = false);
 
-                /*!
-                 * \brief Create new simple file sink withe filename provided.
-                 * \param filename
-                 * \param truncate Open the file in truncate mode?
-                 * \return Shared pointer to the new sink.
-                 */
+		/*!
+		 * \brief Create new simple file sink withe filename provided.
+		 * \param filename
+		 * \param truncate Open the file in truncate mode?
+		 * \return Shared pointer to the new sink.
+		 */
 		SinkPtr new_simple_file_sink(std::string filename, bool truncate = false);
 
-                /*!
-                 * \brief Create new rotate file sink.
-                 * \param filename
-                 * \param maxSizeInByte Maximum size in byte, sink will truncate the file and rewrite new content if exceed this size.
-                 * \param backupOld Whether keep backups of the old files.
-                 * \return Shared pointer to the new sink
-                 */
+		/*!
+		 * \brief Create new rotate file sink.
+		 * \param filename
+		 * \param maxSizeInByte Maximum size in byte, sink will truncate the file and rewrite new content if exceed this size.
+		 * \param backupOld Whether keep backups of the old files.
+		 * \return Shared pointer to the new sink
+		 */
 		SinkPtr new_rotate_file_sink(std::string filename, std::size_t maxSizeInByte = 4194304, bool backupOld = false);
 
-                /*!
-                 * \brief Lock all loggers.
-                 * When locked, loggers cannot be modified.
-                 */
+		/*!
+		 * \brief Lock all loggers.
+		 * When locked, loggers cannot be modified.
+		 */
 		void lock_loggers();
 
-                /*!
-                 * \brief Unlock all loggers.
-                 * When locked, loggers cannot be modified.
-                 */
+		/*!
+		 * \brief Unlock all loggers.
+		 * When locked, loggers cannot be modified.
+		 */
 		void unlock_loggers();
 
-                /*!
-                 * \brief Delete a logger with the name given.
-                 * \param name
-                 */
+		/*!
+		 * \brief Delete a logger with the name given.
+		 * \param name
+		 */
 		void drop_logger(std::string name);
 
-                /*!
-                 * \brief Delete all loggers.
-                 */
+		/*!
+		 * \brief Delete all loggers.
+		 */
 		void drop_all_loggers();
 
-                /*!
-                 * \brief Delete the sink, detach it from every logger.
-                 * \param name
-                 */
+		/*!
+		 * \brief Delete the sink, detach it from every logger.
+		 * \param name
+		 */
 		void drop_sink(std::string name);
 
-                // \cond
+		// \cond
 		namespace detail
 		{
 			void sink_list_revise(std::vector<std::string> &list, std::map<std::string, std::string> &map);
@@ -3048,19 +3055,19 @@ namespace zz
 
 			std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section);
 		} // namespace detail
-                // \endcond
+		// \endcond
 
-                /*!
-                 * \brief Config loggers from a config file
-                 * \param cfgFilename
-                 */
+		/*!
+		 * \brief Config loggers from a config file
+		 * \param cfgFilename
+		 */
 		void config_from_file(std::string cfgFilename);
 
-                // \cond
+		// \cond
 		void zupply_internal_warn(std::string msg);
 
 		void zupply_internal_error(std::string msg);
-                // \endcond
+		// \endcond
 	} // namespace log
 } // namespace zz
 

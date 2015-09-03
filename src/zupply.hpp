@@ -2684,7 +2684,7 @@ namespace zz
 					fmt::replace_all_with_escape(ret, consts::kSinkLevelShortSpecifier, consts::kShortLevelNames[msg.level_]);
 					fmt::replace_all_with_escape(ret, consts::kSinkMessageSpecifier, msg.buffer_);
 					// make sure new line
-					if (!fmt::ends_with(ret, os::endl()))
+					if (!fmt::ends_with(ret, "\n"))
 					{
 						ret += os::endl();
 					}

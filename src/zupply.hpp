@@ -56,10 +56,12 @@
 
 #if _MSC_VER < 1900
 #define ZUPPLY_NOEXCEPT throw()
-#else // NON MSVC
-#define ZUPPLY_NOEXCEPT noexcept
 #endif
 
+#endif
+
+#ifndef ZUPPLY_NOEXCEPT
+#define ZUPPLY_NOEXCEPT noexcept
 #endif
 
 // Optional header only mode, not done.

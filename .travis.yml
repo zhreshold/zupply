@@ -38,6 +38,7 @@ script:
   - make
 
 after_script:
+  - ./zupply_sample
   # - ctest .
   # - make valgrind
 

@@ -1170,50 +1170,47 @@ namespace zz
 		 * \param str
 		 * \return Trimed string
 		 */
-		std::string& ltrim(std::string& str);
+		std::string ltrim(std::string str);
 
 		/*!
 		 * \brief Right trim whitespace
 		 * \param str
 		 * \return Trimed string
 		 */
-		std::string& rtrim(std::string& str);
+		std::string rtrim(std::string str);
 
 		/*!
 		 * \brief Left and right trim whitespace
 		 * \param str
 		 * \return Trimed string
 		 */
-		std::string& trim(std::string& str);
+		std::string trim(std::string str);
 
 		/*!
 		 * \brief Strip specified sub-string from left.
 		 * The strip will do strict check from left, even whitespace.
-		 * This function will change string in-place
 		 * \param str Original string
 		 * \param what What to be stripped
 		 * \return Stripped string
 		 */
-		std::string& lstrip(std::string& str, std::string what);
+		std::string lstrip(std::string str, std::string what);
 
 		/*!
 		 * \brief Strip specified sub-string from right.
 		 * The strip will do strict check from right, even whitespace.
-		 * This function will change string in-place
 		 * \param str Original string
 		 * \param what What to be stripped
 		 * \return Stripped string
 		 */
-		std::string& rstrip(std::string& str, std::string what);
+		std::string rstrip(std::string str, std::string what);
 
 		/*!
 		 * \brief Skip from right until delimiter string found.
-		 * This function modify string in-place.
 		 * \param str
 		 * \param delim
 		 * \return Skipped string
 		 */
-		std::string& rskip(std::string& str, std::string delim);
+		std::string rskip(std::string str, std::string delim);
 
 		/*!
 		 * \brief Split string into parts with specified single char delimiter
@@ -1269,7 +1266,7 @@ namespace zz
 		 * \param vec
 		 * \return Clean vector with no empty elements.
 		 */
-		std::vector<std::string>& erase_empty(std::vector<std::string> &vec);
+		std::vector<std::string>& erase_empty(std::vector<std::string>& vec);
 
 		/*!
 		 * \brief Replace first occurance of one string with specified another string.
@@ -1310,28 +1307,28 @@ namespace zz
 		 * \param u8str UTF-8 string
 		 * \return UTF-16 string
 		 */
-		//std::u16string utf8_to_utf16(std::string &u8str);
+		std::u16string utf8_to_utf16(std::string u8str);
 
 		/*!
 		 * \brief C++ 11 UTF-16 string to UTF-8 string
 		 * \param u16str UTF-16 string
 		 * \return UTF-8 string
 		 */
-		//std::string utf16_to_utf8(std::u16string &u16str);
+		std::string utf16_to_utf8(std::u16string u16str);
 
 		/*!
 		 * \brief C++ 11 UTF-8 string to UTF-32 string
 		 * \param u8str UTF-8 string
 		 * \return UTF-32 string
 		 */
-		//std::u32string utf8_to_utf32(std::string &u8str);
+		std::u32string utf8_to_utf32(std::string u8str);
 
 		/*!
 		 * \brief C++ 11 UTF-32 string to UTF-8 string
 		 * \param u32str UTF-32 string
 		 * \return UTF-8 string
 		 */
-		//std::string utf32_to_utf8(std::u32string &u32str);
+		std::string utf32_to_utf8(std::u32string u32str);
 
 		/*!
 		 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg &last)
@@ -1548,7 +1545,7 @@ namespace zz
 
 		private:
 			void parse(CfgLevel& lvl);
-			CfgLevel* parse_section(std::string& sline, CfgLevel *lvl);
+			CfgLevel* parse_section(std::string sline, CfgLevel *lvl);
 			CfgLevel* parse_key_section(std::string& vline, CfgLevel *lvl);
 			std::string split_key_value(std::string& line);
 			void error_handler(std::string msg);
@@ -1573,19 +1570,19 @@ namespace zz
 			 * \param shortKey A char, use 'a'
 			 * \param longKey A std::string "long"
 			 */
-			ArgOption::ArgOption(char shortKey, std::string longKey);
+			ArgOption(char shortKey, std::string longKey);
 
 			/*!
 			 * \brief ArgOption constructor with short key only
 			 * \param shortKey A char, use 'a'
 			 */
-			ArgOption::ArgOption(char shortKey);
+			ArgOption(char shortKey);
 
 			/*!
 			 * \brief ArgOption constructor with long key only
 			 * \param longKey A std::string "long"
 			 */
-			ArgOption::ArgOption(std::string longKey);
+			ArgOption(std::string longKey);
 
 			/*!
 			 * \brief Set callback function when this option is triggered.
@@ -3054,6 +3051,8 @@ namespace zz
 		void zupply_internal_error(std::string msg);
 		// \endcond
 	} // namespace log
+
+
 } // namespace zz
 
 #endif //END _ZUPPLY_ZUPPLY_HPP_

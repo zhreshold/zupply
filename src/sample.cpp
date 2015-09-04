@@ -54,6 +54,8 @@ void test_timer()
 void test_unicode_filename()
 {
 	zz::fs::FileEditor fh("\xe4\xb8\xad\xe6\x96\x87.txt", true);
+	fh << zz::fmt::utf16_to_utf8(std::u16string({ 0x4E2D, 0x6587})) << zz::os::endl();
+	fh << zz::fmt::utf32_to_utf8(std::u32string({ 0x00004E2D, 0x00006587 })) << zz::os::endl();
 }
 
 

@@ -2,10 +2,10 @@ language: cpp
 
 compiler:
   - clang
-  # - gcc
+  - gcc
 
 before_install:
-  # Always install g++4.9.1
+  # Always install g++4.8.1
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 
   # clang 3.4
@@ -18,23 +18,13 @@ install:
   - sudo apt-get install cmake
 
   # Always install g++4.8.1
-  - sudo apt-get install -qq g++-4.9
-  - sudo apt-get install -qq g++-4.9-multilib
-  - if [ "$CXX" = "g++" ]; then export CMAKE_CXX_COMPILER="g++-4.9"; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9"; fi
+  - sudo apt-get install -qq g++-4.8
+  - sudo apt-get install -qq g++-4.8-multilib
+  - if [ "$CXX" = "g++" ]; then export CMAKE_CXX_COMPILER="g++-4.8"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   
-  # clang 3.4
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
-  - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++11 -stdlib=libc++"; fi
-  - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx; fi
-
-  - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
-  - if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
-  - if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
-  - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
-  - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
-  - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
-
+  # clang 3.4 already installed
+  - if [ "$CXX" == "clang++" ]; then export CMAKE_CXX_COMPILER="clang++-3.4"; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
 
 script:

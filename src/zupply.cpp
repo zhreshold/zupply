@@ -56,6 +56,7 @@
 #include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <codecvt>
 #elif ZUPPLY_OS_UNIX
 #include <unistd.h>	/* POSIX flags */
 #include <sys/stat.h>
@@ -359,6 +360,34 @@ namespace zz
 			std::transform(mixed.begin(), mixed.end(), mixed.begin(), std::toupper);
 			return mixed;
 		}
+		
+		// std::u16string utf8_to_utf16(std::string &u8str)
+		// {
+// #if ZUPPLY_OS_WINDOWS
+			// std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
+			// return cvt.from_bytes(u8str);
+// #elif __linux__
+			// gcc clang??
+// #endif
+		// }
+
+		// std::string utf16_to_utf8(std::u16string &u16str)
+		// {
+			// std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16_t> cvt;
+			// return cvt.to_bytes(u16str);
+		// }
+
+		// std::u32string utf8_to_utf32(std::string &u8str)
+		// {
+			//std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
+			// return cvt.from_bytes(u8str);
+		// }
+
+		// std::string utf32_to_utf8(std::u32string &u32str)
+		// {
+			// std::wstring_convert<std::codecvt<char32_t, char, std::mbstate_t>, char32_t> cvt;
+			// return cvt.to_bytes(u32str);
+		// }
 
 	} // namespace fmt
 
@@ -688,15 +717,6 @@ namespace zz
 			return ret;
 		}
 
-		/**
-		* \fn	std::tm localtime(std::time_t t)
-		*
-		* \brief	Thread safe localtime
-		*
-		* \param	t	The std::time_t to process.
-		*
-		* \return	A std::tm.
-		*/
 		std::tm localtime(std::time_t t)
 		{
 			std::tm temp;
@@ -711,15 +731,6 @@ namespace zz
 #endif
 		}
 
-		/**
-		* \fn	std::tm gmtime(std::time_t t)
-		*
-		* \brief	Thread safe gmtime
-		*
-		* \param	t	The std::time_t to process.
-		*
-		* \return	A std::tm.
-		*/
 		std::tm gmtime(std::time_t t)
 		{
 			std::tm temp;
@@ -737,26 +748,50 @@ namespace zz
 		std::wstring utf8_to_wstring(std::string &u8str)
 		{
 #if ZUPPLY_OS_WINDOWS
-			// windows use 16 bit wstring 
-			std::u16string u16str = fmt::utf8_to_utf16(u8str);
-			return std::wstring(u16str.begin(), u16str.end());
+			// use c++11 standard function
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> cvt;
+			return cvt.from_bytes(u8str);
 #else
-			// otherwise use 32 bit wstring
-			std::u32string u32str = fmt::utf8_to_utf32(u8str);
-			return std::wstring(u32str.begin(), u32str.end());
+			// otherwise use mbstowcs, this may screw up, but shame on libstdc++
+			const char* cstr = u8str.c_str();
+			size_t len = u8str.length() + 1;
+			size_t reqsize = 0;
+			if(mbstowcs_s(&reqsize, NULL, 0, cstr, len) != 0)
+				throw RuntimeException("Cannot widen string - invalid character detected");
+
+			if(!reqsize)
+				throw RuntimeException("Failed to widen string");
+
+			std::vector<wchar_t> buffer(reqsize, 0);
+			if(mbstowcs_s(NULL, &buffer[0], len, cstr, len) != 0)
+				throw RuntimeException("Cannot widen string - invalid character detected");
+
+			return std::wstring(buffer.begin(), buffer.end() - 1);
 #endif
 		}
 
 		std::string wstring_to_utf8(std::wstring &wstr)
 		{
 #if ZUPPLY_OS_WINDOWS
-			// windows use 16 bit wstring 
-			std::u16string u16str(wstr.begin(), wstr.end());
-			return fmt::utf16_to_utf8(u16str);
+			// use c++11 standard function
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> cvt;
+			return cvt.to_bytes(wstr);
 #else
-			// otherwise use 32 bit wstring
-			std::u32string u32str(wstr.begin(), wstr.end());
-			return fmt::utf32_to_utf8(u32str);
+			// otherwise use mbstowcs, this may screw up, but shame on libstdc++
+			const wchar_t* cstr = str.c_str();
+			size_t len = str.length() + 1;
+			size_t reqsize = 0;
+			if(wcstombs_s(&reqsize, NULL, 0, cstr, len) != 0)
+				throw RuntimeException("Cannot narrow string - invalid character detected");
+
+			if(!reqsize)
+				throw RuntimeException("Failed to narrow string");
+
+			std::vector<char> buffer(reqsize, 0);
+			if(wcstombs_s(NULL, &buffer[0], len, cstr, len) != 0)
+				throw RuntimeException("Cannot narrow string - invalid character detected");
+
+			return std::string(buffer.begin(), buffer.end() - 1);
 #endif
 		}
 

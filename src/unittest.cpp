@@ -282,12 +282,12 @@ int main(int argc, char** argv)
 		test_arg_parser2(argc, argv);
 		//test_arg_parser(argc, argv);
 		test_logger::config_logger_from_file();
-		//test_time::test_timer();
-		//test_time::test_date();
+		test_time::test_timer();
+		test_time::test_date();
 		test_logger::test_logger();
 		//test_filesystem::test_filehandler();
 		//test_os::test_directory();
-		//test_os::test_console_size();
+		test_os::test_console_size();
 		//test_formatter::test_formatter();
 		//test_math::test_math();
 		//test_cfg::test_cfg_parser();

@@ -51,6 +51,11 @@ void test_timer()
 	std::cout << "After sleep for 2 sec: " << t.elapsed_sec_double() << std::endl;
 }
 
+void test_unicode_filename()
+{
+	zz::fs::FileEditor fh("\xe4\xb8\xad\xe6\x96\x87.txt", true);
+}
+
 
 int main(int argc, char** argv)
 {
@@ -62,6 +67,7 @@ int main(int argc, char** argv)
 	{
 		test_date();
 		test_timer();
+		test_unicode_filename();
 	}
 	catch (std::exception &e)
 	{

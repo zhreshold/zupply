@@ -78,7 +78,6 @@
 #include <iostream>
 #include <vector>
 #include <locale>
-//#include <codecvt>
 #include <ctime>
 #include <chrono>
 #include <thread>
@@ -1311,46 +1310,28 @@ namespace zz
 		 * \param u8str UTF-8 string
 		 * \return UTF-16 string
 		 */
-		inline std::u16string utf8_to_utf16(std::string &u8str)
-		{
-			std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16_t> cvt;
-			//std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
-			return cvt.from_bytes(u8str);
-		}
+		//std::u16string utf8_to_utf16(std::string &u8str);
 
 		/*!
 		 * \brief C++ 11 UTF-16 string to UTF-8 string
 		 * \param u16str UTF-16 string
 		 * \return UTF-8 string
 		 */
-		inline std::string utf16_to_utf8(std::u16string &u16str)
-		{
-			std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16_t> cvt;
-			return cvt.to_bytes(u16str);
-		}
+		//std::string utf16_to_utf8(std::u16string &u16str);
 
 		/*!
 		 * \brief C++ 11 UTF-8 string to UTF-32 string
 		 * \param u8str UTF-8 string
 		 * \return UTF-32 string
 		 */
-		inline std::u32string utf8_to_utf32(std::string &u8str)
-		{
-			std::wstring_convert<std::codecvt<char32_t, char, std::mbstate_t>, char32_t> cvt;
-			//std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cvt;
-			return cvt.from_bytes(u8str);
-		}
+		//std::u32string utf8_to_utf32(std::string &u8str);
 
 		/*!
 		 * \brief C++ 11 UTF-32 string to UTF-8 string
 		 * \param u32str UTF-32 string
 		 * \return UTF-8 string
 		 */
-		inline std::string utf32_to_utf8(std::u32string &u32str)
-		{
-			std::wstring_convert<std::codecvt<char32_t, char, std::mbstate_t>, char32_t> cvt;
-			return cvt.to_bytes(u32str);
-		}
+		//std::string utf32_to_utf8(std::u32string &u32str);
 
 		/*!
 		 * \fn template<typename Arg> inline void format_string(std::string &fmt, const Arg &last)

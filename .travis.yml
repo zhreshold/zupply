@@ -18,8 +18,8 @@ install:
   - sudo apt-get install cmake
 
   # Always install g++4.8.1
-  - if [ "$CXX" = "g++" ]; sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; sudo apt-get install -qq g++-4.8-multilib; fi
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8-multilib; fi
   - if [ "$CXX" = "g++" ]; then export CMAKE_CXX_COMPILER="g++-4.8"; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   

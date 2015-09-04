@@ -1461,7 +1461,7 @@ namespace zz
 			 * Support "1", "0", or alpha version of boolean value,
 			 * such as "True", "False", case-insensitive.
 			 */
-			template <> bool load(bool& b);
+			//template <> bool load(bool& b);
 
 			/*!
 			 * \fn template <typename T> T load() { T t; return load(t); }

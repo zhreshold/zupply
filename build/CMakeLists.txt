@@ -3,7 +3,7 @@ project(zupply)
 IF (WIN32)
     # FOR windows
 ELSE()
-    SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+    SET(CMAKE_CXX_FLAGS "-std=c++11")
 ENDIF()
 add_executable(zupply_sample
 				../src/sample.cpp

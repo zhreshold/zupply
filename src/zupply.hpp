@@ -91,6 +91,8 @@
 #include <iomanip>
 #include <algorithm>
 #include <functional>
+#include <climits>
+
 
 /*!
  * \namespace zz
@@ -407,8 +409,15 @@ namespace zz
 	 */
 	namespace cds
 	{
+		inline void nop_pause()
+		{
+#if (defined _MSC_VER) && (defined _M_IX86 || defined _M_X64) && 0
+			__asm volatile("pause" ::: "memory");
+#endif
+		}
+
 		/*!
-		* \struct	NullMutex
+		* \class	NullMutex
 		*
 		* \brief	A null mutex, no cost.
 		*/
@@ -420,121 +429,565 @@ namespace zz
 			bool try_lock() { return true; }
 		};
 
-
 		/*!
-		 * \brief AtomicUnorderedMap Template atomic unordered_map<>
-		 * AtomicUnorderedMap is lock-free, however, modification will create copies.
-		 * Thus this structure is good for read-many write-rare purposes.
-		 */
-		template <typename Key, typename Value> class AtomicUnorderedMap
-		{
-			using MapType = std::unordered_map<Key, Value>;
-			using MapPtr = std::shared_ptr<MapType>;
-		public:
-			AtomicUnorderedMap()
-			{
-				mapPtr_ = std::make_shared<MapType>();
-			}
-
-			/*!
-			 * \brief Get shared_ptr of unorderd_map instance
-			 * \return Shared_ptr of unordered_map
-			 */
-			MapPtr get()
-			{
-				return std::atomic_load(&mapPtr_);
-			}
-
-			/*!
-			 * \brief Insert key-value pair to the map
-			 * \param key
-			 * \param value
-			 * \return True on success
-			 */
-			bool insert(const Key& key, const Value& value)
-			{
-				MapPtr p = std::atomic_load(&mapPtr_);
-				MapPtr copy;
-				do
-				{
-					if ((*p).count(key) > 0) return false;
-					copy = std::make_shared<MapType>(*p);
-					(*copy).insert({ key, value });
-				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
-				return true;
-			}
-
-			/*!
-			 * \brief Erase according to key
-			 * \param key
-			 * \return True on success
-			 */
-			bool erase(const Key& key)
-			{
-				MapPtr p = std::atomic_load(&mapPtr_);
-				MapPtr copy;
-				do
-				{
-					if ((*p).count(key) <= 0) return false;
-					copy = std::make_shared<MapType>(*p);
-					(*copy).erase(key);
-				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
-				return true;
-			}
-
-			/*!
-			 * \brief Clear all
-			 */
-			void clear()
-			{
-				MapPtr p = atomic_load(&mapPtr_);
-				auto copy = std::make_shared<MapType>();
-				do
-				{
-					;	// do clear when possible does not require old status
-				} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
-			}
-
-		private:
-			std::shared_ptr<MapType>	mapPtr_;
-		};
-
-		/*!
-		 * \brief AtomicNonTrivial Template lock-free class
-		 * AtomicNonTrivial is lock-free, however, modification will create copies.
-		 * Thus this structure is good for read-many write-rare purposes.
-		 */
-		template <typename T> class AtomicNonTrivial
+		* \class	SpinLock
+		*
+		* \brief	A simple spin lock utilizing c++11 atomic_flag
+		*/
+		class SpinLock: UnMovable
 		{
 		public:
-			AtomicNonTrivial()
+			SpinLock(){ flag_.clear(); }
+			inline void lock()
 			{
-				ptr_ = std::make_shared<T>();
+				while (flag_.test_and_set(std::memory_order_acquire))
+				{
+					nop_pause();	// no op or use architecture pause
+				}
 			}
 
-			/*!
-			 * \brief Get shared_ptr to instance
-			 * \return Shared_ptr to instance
-			 */
-			std::shared_ptr<T> get()
+			inline void unlock()
 			{
-				return std::atomic_load(&ptr_);
+				flag_.clear(std::memory_order_release);
 			}
 
-			/*!
-			 * \brief Set to new value
-			 * \param val
-			 * This operation will make a copy which is only visible for future get()
-			 */
-			void set(const T& val)
+			inline bool try_lock()
 			{
-				std::shared_ptr<T> copy = std::make_shared<T>(val);
-				std::atomic_store(&ptr_, copy);
+				return !flag_.test_and_set(std::memory_order_acquire);
 			}
+		private:
+			std::atomic_flag flag_;
+		};
+
+		class RWLockable;
+
+		class RWLock {
+			friend class RWLockable;
+
+		public:
+			enum class LockType {
+				none,
+				read,
+				write
+			};
 
 		private:
-			std::shared_ptr<T>	ptr_;
+			RWLockable * lockable_;
+			LockType lockType_;
+
+			RWLock(RWLockable * const lockable, bool const exclusive);
+			RWLock();
+
+		public:
+			RWLock(RWLock&& rhs);
+			RWLock& operator =(RWLock&& rhs);
+			~RWLock();
+
+			void unlock();
+			LockType get_lock_type() const;
 		};
+
+		class RWLockable {
+			friend RWLock::~RWLock();
+
+		private:
+			class Counters {
+			private:
+				uint16_t read_;
+				uint8_t writeClaim_;
+				uint8_t writeDone_;
+			public:
+				bool is_waiting_for_write() const;
+				bool is_waiting_for_read() const;
+				bool is_my_turn_to_write(Counters const & claim) const;
+
+				bool want_to_read(Counters * buf) const;
+				bool want_to_write(Counters * buf) const;
+				Counters done_reading() const;
+				Counters done_writing() const;
+			};
+
+			std::atomic<Counters> counters_;
+
+			void unlock_read();
+			void unlock_write();
+
+		public:
+			RWLock lock_for_read();
+			RWLock lock_for_write();
+			bool is_lock_free() const;
+		};
+
+		namespace lockfree
+		{
+			template <typename Key, typename Value> class UnorderedMap: public UnMovable
+			{
+			public:
+				using MapType = std::unordered_map<Key, Value>;
+				using MapPairType = std::pair<Key, Value>;
+
+				UnorderedMap() {}
+
+				bool is_lock_free() const
+				{
+					return lockable_.is_lock_free();
+				}
+
+				bool contains(const Key& key)
+				{
+					auto lock = lockable_.lock_for_read();
+					return map_.count(key) > 0;
+				}
+
+				bool get(const Key& key, Value& dst)
+				{
+					auto lock = lockable_.lock_for_read();
+					if (map_.count(key) > 0)
+					{
+						dst = map_[key];
+						return true;
+					}
+					return false;
+				}
+
+				MapType snapshot()
+				{
+					auto lock = lockable_.lock_for_read();
+					return map_;
+				}
+
+				bool insert(const Key& key, const Value& value)
+				{
+					if (contains(key)) return false;
+					auto lock = lockable_.lock_for_write();
+					map_[key] = value;
+					return true;
+				}
+
+				bool insert(const MapPairType& pair)
+				{
+					return insert(pair.first, pair.second);
+				}
+
+				void replace(const Key& key, const Value& value)
+				{
+					auto lock = lockable_.lock_for_write();
+					map_[key] = value;
+				}
+
+				void replace(const MapPairType& pair)
+				{
+					replace(pair.first, pair.second);
+				}
+
+				void erase(const Key& key)
+				{
+					auto lock = lockable_.lock_for_write();
+					map_.erase(key);
+				}
+
+				void clear()
+				{
+					auto lock = lockable_.lock_for_write();
+					map_.clear();
+				}
+
+				//template <typename Function>
+				//void for_each(std::function<Function> functor)
+				//{
+				//	auto lock = lockable_.lock_for_read();
+				//	std::for_each(map_.begin(), map_.end(), functor);
+				//}
+
+			private:
+				
+				RWLockable	lockable_;
+				MapType	map_;
+			};
+
+			template <typename T> class NonTrivialContainer : public UnMovable
+			{
+			public:
+				NonTrivialContainer() {}
+
+				bool is_lock_free() const
+				{
+					return lockable_.is_lock_free();
+				}
+				
+				T get()
+				{
+					auto lock = lockable_.lock_for_read();
+					return obj_;
+				}
+
+				void set(const T& t)
+				{
+					//std::lock_guard<std::mutex> lock(mutex_);
+					auto lock = lockable_.lock_for_write();
+					obj_ = t;
+				}
+
+			private:
+				T	obj_;
+				RWLockable lockable_;
+
+			};
+		}
+
+		namespace lockbased
+		{
+			template <typename Key, typename Value> class UnorderedMap : public UnMovable
+			{
+			public:
+				using MapType = std::unordered_map<Key, Value>;
+				using MapPairType = std::pair<Key, Value>;
+
+				UnorderedMap() {}
+
+				bool is_lock_free() const
+				{
+					return false;
+				}
+
+				bool contains(const Key& key)
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					return map_.count(key) > 0;
+				}
+
+				bool get(const Key& key, Value& dst)
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					if (map_.count(key) > 0)
+					{
+						dst = map_[key];
+						return true;
+					}
+					return false;
+				}
+
+				MapType snapshot()
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					return map_;
+				}
+
+				bool insert(const Key& key, const Value& value)
+				{
+					if (contains(key)) return false;
+					std::lock_guard<std::mutex> lock(mutex_);
+					map_[key] = value;
+					return true;
+				}
+
+				bool insert(const MapPairType& pair)
+				{
+					return insert(pair.first, pair.second);
+				}
+
+				void replace(const Key& key, const Value& value)
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					map_[key] = value;
+				}
+
+				void replace(const MapPairType& pair)
+				{
+					replace(pair.first, pair.second);
+				}
+
+				void erase(const Key& key)
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					map_.erase(key);
+				}
+
+				void clear()
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					map_.clear();
+				}
+
+				//template <typename Function>
+				//void for_each(std::function<Function> functor)
+				//{
+				//	auto lock = lockable_.lock_for_read();
+				//	std::for_each(map_.begin(), map_.end(), functor);
+				//}
+
+			private:
+
+				std::mutex mutex_;
+				MapType	map_;
+			};
+
+			template <typename T> class NonTrivialContainer : public UnMovable
+			{
+			public:
+				NonTrivialContainer() {}
+
+				bool is_lock_free() const
+				{
+					return false;
+				}
+
+				T get()
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					return obj_;
+				}
+
+				void set(const T& t)
+				{
+					std::lock_guard<std::mutex> lock(mutex_);
+					obj_ = t;
+				}
+
+			private:
+				T	obj_;
+				std::mutex mutex_;
+
+			};
+		}
+
+		///*!
+		// * \brief AtomicUnorderedMap Template atomic unordered_map<>
+		// * AtomicUnorderedMap is lock-free, however, modification will create copies.
+		// * Thus this structure is good for read-many write-rare purposes.
+		// */
+		//template <typename Key, typename Value> class AtomicUnorderedMap
+		//{
+		//	using MapType = std::unordered_map<Key, Value>;
+		//	using MapPtr = std::shared_ptr<MapType>;
+		//public:
+		//	AtomicUnorderedMap()
+		//	{
+		//		mapPtr_ = std::make_shared<MapType>();
+		//	}
+
+		//	/*!
+		//	 * \brief Get shared_ptr of unorderd_map instance
+		//	 * \return Shared_ptr of unordered_map
+		//	 */
+		//	MapPtr get()
+		//	{
+		//		return std::atomic_load(&mapPtr_);
+		//	}
+
+		//	/*!
+		//	 * \brief Insert key-value pair to the map
+		//	 * \param key
+		//	 * \param value
+		//	 * \return True on success
+		//	 */
+		//	bool insert(const Key& key, const Value& value)
+		//	{
+		//		MapPtr p = std::atomic_load(&mapPtr_);
+		//		MapPtr copy;
+		//		do
+		//		{
+		//			if ((*p).count(key) > 0) return false;
+		//			copy = std::make_shared<MapType>(*p);
+		//			(*copy).insert({ key, value });
+		//		} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+		//		return true;
+		//	}
+
+		//	/*!
+		//	 * \brief Erase according to key
+		//	 * \param key
+		//	 * \return True on success
+		//	 */
+		//	bool erase(const Key& key)
+		//	{
+		//		MapPtr p = std::atomic_load(&mapPtr_);
+		//		MapPtr copy;
+		//		do
+		//		{
+		//			if ((*p).count(key) <= 0) return false;
+		//			copy = std::make_shared<MapType>(*p);
+		//			(*copy).erase(key);
+		//		} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+		//		return true;
+		//	}
+
+		//	/*!
+		//	 * \brief Clear all
+		//	 */
+		//	void clear()
+		//	{
+		//		MapPtr p = atomic_load(&mapPtr_);
+		//		auto copy = std::make_shared<MapType>();
+		//		do
+		//		{
+		//			;	// do clear when possible does not require old status
+		//		} while (!std::atomic_compare_exchange_weak(&mapPtr_, &p, std::move(copy)));
+		//	}
+
+		//private:
+		//	std::shared_ptr<MapType>	mapPtr_;
+		//};
+
+		///*!
+		// * \brief AtomicNonTrivial Template lock-free class
+		// * AtomicNonTrivial is lock-free, however, modification will create copies.
+		// * Thus this structure is good for read-many write-rare purposes.
+		// */
+		//template <typename T> class AtomicNonTrivial
+		//{
+		//public:
+		//	AtomicNonTrivial()
+		//	{
+		//		ptr_ = std::make_shared<T>();
+		//	}
+
+		//	/*!
+		//	 * \brief Get shared_ptr to instance
+		//	 * \return Shared_ptr to instance
+		//	 */
+		//	std::shared_ptr<T> get()
+		//	{
+		//		return std::atomic_load(&ptr_);
+		//	}
+
+		//	/*!
+		//	 * \brief Set to new value
+		//	 * \param val
+		//	 * This operation will make a copy which is only visible for future get()
+		//	 */
+		//	void set(const T& val)
+		//	{
+		//		std::shared_ptr<T> copy = std::make_shared<T>(val);
+		//		std::atomic_store(&ptr_, copy);
+		//	}
+
+		//private:
+		//	std::shared_ptr<T>	ptr_;
+		//};
+
+		
+//		namespace gc
+//		{
+//			class HPRecord
+//			{
+//			public:
+//				void*	pHazard_;	//!< can be used by the thread that acquire it
+//				HPRecord*			pNext_;
+//				static HPRecord* head() { return pHead_; }
+//
+//				static HPRecord* acquire()
+//				{
+//					// try to reuse a retired hp record
+//					HPRecord* p = pHead_;
+//					bool inactive(false);
+//
+//					for (; p; p = p->pNext_)
+//					{
+//						if (p->active_ || (!p->active_.compare_exchange_weak(inactive, true)))
+//						{
+//							continue;
+//						}
+//						return p; // got one!
+//					}
+//					// increment the list length by adding one
+//					int oldLen;
+//					do
+//					{
+//						oldLen = listLen_;
+//					} while (!listLen_.compare_exchange_weak(oldLen, oldLen + 1));
+//					// allocate a new one
+//					p = new HPRecord;
+//					p->active_.store(true);
+//					p->pHazard_ = nullptr;
+//					// push it to the front
+//					HPRecord* old = nullptr;
+//					do
+//					{
+//						old = pHead_;
+//						p->pNext_ = old;
+//					} while (!pHead_.compare_exchange_weak(old, p));
+//
+//					return p; // return acquired pointer
+//				}
+//
+//				static void release(HPRecord* p)
+//				{
+//					p->pHazard_ = nullptr;
+//					p->active_.store(false);
+//				}
+//
+//			private:
+//				std::atomic<bool>	active_;
+//				static std::atomic<HPRecord*>	pHead_;	//!< global header of the hazard pointer list
+//				static std::atomic<int>			listLen_; //!< length of the list
+//			};
+//
+//			template <typename T> void garbage_collection(std::vector<T*> rlist)
+//			{
+//				// stage 1: scan hazard ponter list
+//				// collecting all non-null pointers
+//				std::vector<void*> hp;
+//				HPRecord* head = HPRecord::head();
+//				while (head)
+//				{
+//					void *p = head->pHazard_;
+//					if (p) hp.push_back(p);
+//					head = head->pNext_;
+//				}
+//				// stage 2: sort the hazard pointers
+//				std::sort(hp.begin(), hp.end(), std::less<void*>());
+//				// stage 3: search for null
+//				std::vector<T*>::iterator iter = rlist.begin();
+//				while (iter != rlist.end())
+//				{
+//					if (!std::binary_search(hp.begin(), hp.end(), *iter))
+//					{
+//						delete *iter;	// safely reclaim this memory
+//						if (&*iter != rlist.back())
+//						{
+//							*iter = rlist.back();
+//						}
+//						rlist.pop_back();
+//					}
+//					else
+//					{
+//						++iter;
+//					}
+//				}
+//			}
+//
+//		} // namespace gc
+//
+//		namespace consts
+//		{
+//			static const unsigned kGarbageCollectionThreshold = 4;
+//		}
+//
+//		template <typename K, typename V> class WRRMUMap
+//		{
+//		public:
+//
+//		private:
+//			using MapType = std::unordered_map<K, V>;
+//
+//			static void retire(MapType* old)
+//			{
+//				// put old map into retire list
+//				rlist_.push_back(old);
+//				if (rlist_.size() >= consts::kGarbageCollectionThreshold)
+//				{
+//					gc::garbage_collection(rlist_);
+//				}
+//			}
+//#if _MSC_VER
+//			static __declspec(thread)  std::vector<MapType*> rlist_;
+//#else
+//			static thread_local std::vector<MapType*> rlist_;
+//#endif
+//			MapType* pMap_;
+//		};
+		
 
 	} // namespace cds
 
@@ -921,7 +1374,7 @@ namespace zz
 			*
 			* \param [in,out]	other	Source for the instance.
 			*/
-			FileEditor(FileEditor&& other);
+			//FileEditor(FileEditor&& other);
 
 			virtual ~FileEditor() { this->close(); }
 
@@ -1021,7 +1474,7 @@ namespace zz
 			 * \brief FileReader move constructor
 			 * \param other
 			 */
-			FileReader(FileReader&& other);
+			//FileReader(FileReader&& other);
 
 			/*!
 			 * \brief Return filename
@@ -2149,10 +2602,10 @@ namespace zz
 		private:
 			LogConfig();
 
-			cds::AtomicNonTrivial<std::vector<std::string>> sinkList_;
+			cds::lockbased::NonTrivialContainer<std::vector<std::string>> sinkList_;
 			std::atomic_int logLevelMask_;
-			cds::AtomicNonTrivial<std::string> format_;
-			cds::AtomicNonTrivial<std::string> datetimeFormat_;
+			cds::lockbased::NonTrivialContainer<std::string> format_;
+			cds::lockbased::NonTrivialContainer<std::string> datetimeFormat_;
 		};
 
 		/*!
@@ -2398,7 +2851,7 @@ namespace zz
 
 			std::string				name_;
 			std::atomic_int			levelMask_;
-			cds::AtomicUnorderedMap<std::string, SinkPtr> sinks_;
+			cds::lockbased::UnorderedMap<std::string, SinkPtr> sinks_;
 		};
 		typedef std::shared_ptr<Logger> LoggerPtr;
 
@@ -2657,7 +3110,7 @@ namespace zz
 			private:
 				std::string format_message(const LogMessage &msg)
 				{
-					std::string ret(*(format_.get()));
+					std::string ret(format_.get());
 					auto dt = msg.dateTime_;
 					fmt::replace_all_with_escape(ret, consts::kSinkDatetimeSpecifier, dt.to_string(LogConfig::instance().datetime_format().c_str()));
 					fmt::replace_all_with_escape(ret, consts::kSinkLoggerNameSpecifier, msg.loggerName_);
@@ -2674,7 +3127,7 @@ namespace zz
 				}
 
 				std::atomic_int							levelMask_;
-				cds::AtomicNonTrivial<std::string>		format_;
+				cds::lockbased::NonTrivialContainer<std::string>		format_;
 			};
 
 			class SimpleFileSink : public Sink
@@ -2840,11 +3293,11 @@ namespace zz
 				bool is_locked() const;
 
 			private:
-				LoggerRegistry(){ lock_ = false; }
+				LoggerRegistry(){lock_ = false; }
 
 				LoggerPtr new_registry(const std::string &name);
 
-				cds::AtomicUnorderedMap<std::string, LoggerPtr> loggers_;
+				cds::lockbased::UnorderedMap<std::string, LoggerPtr> loggers_;
 				std::atomic_bool	lock_;
 			};
 		} // namespace detail

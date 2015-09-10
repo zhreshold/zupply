@@ -1,8 +1,8 @@
 language: cpp
 
 compiler:
-  - clang
-  # - gcc
+  # - clang
+  - gcc
 
 before_install:
   # Always install g++4.8.1
@@ -18,17 +18,15 @@ install:
   - sudo apt-get install cmake
 
   # Always install g++4.8.1
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8-multilib; fi
+  sudo apt-get install -qq g++-4.8
+  sudo apt-get install -qq g++-4.8-multilib
   - if [ "$CXX" = "g++" ]; then export CMAKE_CXX_COMPILER="g++-4.8"; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   
   # clang 3.4 already installed
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install clang++3.4; fi
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get install libc++-dev; fi
   - if [ "$CXX" == "clang++" ]; then export CMAKE_CXX_COMPILER="clang++-3.4"; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
-  - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++11 -stdlib=libc++"; fi
 
 script:
   # - mkdir build 

@@ -1,11 +1,14 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-project(zupply)
-IF (WIN32)
-    # FOR windows
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+project(zupply)
+IF (WIN32)
+    # FOR windows
+ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
+    SET(CMAKE_EXE_LINKER_FLAGS "-lpthread")
 ELSE()
-    SET(CMAKE_CXX_FLAGS "-std=c++11")
-ENDIF()
-add_executable(zupply_sample
-				../src/sample.cpp
-				../src/zupply.hpp
-				../src/zupply.cpp)
+    SET(CMAKE_CXX_FLAGS "-std=c++11")
+ENDIF()
+add_executable(zupply_sample
+				../src/sample.cpp
+				../src/zupply.hpp
+				../src/zupply.cpp)

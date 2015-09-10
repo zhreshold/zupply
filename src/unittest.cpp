@@ -61,14 +61,14 @@ namespace test_filesystem
 			fh2 << "\xe4\xb8\xad\xe6\x96\x87.txt" << " good2, support UTF-8!" << os::endl();
 			fh2.flush();
 
-			FileEditor fh3 = std::move(fh2);
+			//FileEditor fh3 = std::move(fh2);
 
 			//FileEditor fh4("../../cache/\xe4\xb8\xad\xe6\x96\x87.txt", std::ios::out);
 			//fh4.flush();
-			cout << fh3.is_open() << endl;
+			//cout << fh3.is_open() << endl;
 			cout << fh2.is_open() << endl;
 			//cout << fh4.is_open() << endl;
-			fh3 << "\xe4\xb8\xad\xe6\x96\x87.txt" << " good3, support UTF-8" << os::endl();
+			//fh3 << "\xe4\xb8\xad\xe6\x96\x87.txt" << " good3, support UTF-8" << os::endl();
 			fh2 << "\xe4\xb8\xad\xe6\x96\x87.txt" << " good should not be shown, support UTF-8" << os::endl();
 			//fh4 << "\xe4\xb8\xad\xe6\x96\x87.txt" << " good from fh4, support UTF-8" << os::endl();
 		}

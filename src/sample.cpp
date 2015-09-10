@@ -6,6 +6,8 @@
 #include <crtdbg.h>
 #endif
 
+using namespace zz;
+
 void test_date()
 {
 	// show current date in local time zone
@@ -53,9 +55,57 @@ void test_timer()
 
 void test_unicode_filename()
 {
+	std::cout << "Testing unicode filename and text file writing..." << std::endl;
 	zz::fs::FileEditor fh("\xe4\xb8\xad\xe6\x96\x87.txt", true);
 	fh << zz::fmt::utf16_to_utf8(std::u16string({ 0x4E2D, 0x6587})) << zz::os::endl();
 	fh << zz::fmt::utf32_to_utf8(std::u32string({ 0x00004E2D, 0x00006587 })) << zz::os::endl();
+}
+
+void test_log_thread()
+{
+	for (auto i = 0; i < 1000; ++i)
+	{
+		log::get_logger("default")->info("Sequence increment {}", i);
+	}
+	log::get_logger("default")->info("thread finished. {}", os::thread_id());
+}
+
+
+void test_logger()
+{
+	auto logger = log::get_logger("default");
+	logger->attach_sink(log::new_rotate_file_sink("test1.log", 204800, true));
+	log::dump_loggers();
+
+	std::cout << "NEXT: TESTING LOGGERS IN MULTITHREAD!" << std::endl;
+	time::sleep(2000);
+	logger->info("test info {} {}", 1, 2.2);
+	logger->info() << "call method 2  " << 1;
+	logger->warn("method3") << " followed by this" << " " << os::endl();
+	logger->debug("Debug message") << "should shown in debug, not in release";
+	logger->trace("no trace");
+
+	//for (auto i = 0; i < 4000; ++i)
+	//{
+	//	log::get_logger("default")->info("Sequence increment {}", i);
+	//}
+
+	std::vector<std::thread> vt;
+	for (auto i = 0; i < 4; ++i)
+	{
+		vt.push_back(std::thread(&test_log_thread));
+	}
+
+	for (auto i = 0; i < 4; ++i)
+	{
+		vt[i].join();
+	}
+}
+
+void config_logger_from_file()
+{
+	std::string cfgname = "logconfig.txt";
+	log::config_from_file(cfgname);
 }
 
 
@@ -70,6 +120,7 @@ int main(int argc, char** argv)
 		test_date();
 		test_timer();
 		test_unicode_filename();
+		test_logger();
 	}
 	catch (std::exception &e)
 	{

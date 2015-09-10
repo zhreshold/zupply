@@ -55,8 +55,9 @@ int main(int argc, char** argv)
 - Build and run
 
 ##### Note: you will need a compiler which support C++11 features, the following compilers/libraries are tested
-- [MSVC 2013 with vc12] or newer
-- [Clang++ 3.4 with libc++] or newer
+- vc++12(Visual Studio 2013) or newer
+- g++ 4.8.1 or newer(link pthread because c++11 thread is based on it in stdlib)
+- Clang++ 3.3 or newer
 
 ## Documentation
 Full [documentation](http://zhreshold.github.io/zupply/) supplied.

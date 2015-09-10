@@ -84,6 +84,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cmath>
+#include <cstring>
 
 // UTF8CPP
 #include <stdexcept>
@@ -1132,13 +1133,13 @@ namespace zz
 			this->try_open(retryTimes, retryInterval, truncateOrNot);
 		};
 
-		FileEditor::FileEditor(FileEditor&& other) : filename_(std::move(other.filename_)),
-			stream_(std::move(other.stream_)),
-			readPos_(std::move(other.readPos_)),
-			writePos_(std::move(other.writePos_))
-		{
-			other.filename_ = std::string();
-		};
+		//FileEditor::FileEditor(FileEditor&& other) : filename_(std::move(other.filename_)),
+		//	stream_(std::move(other.stream_)),
+		//	readPos_(std::move(other.readPos_)),
+		//	writePos_(std::move(other.writePos_))
+		//{
+		//	other.filename_ = std::string();
+		//};
 
 		bool FileEditor::open(bool truncateOrNot)
 		{
@@ -1198,10 +1199,10 @@ namespace zz
 			this->try_open(retryTimes, retryInterval);
 		}
 
-		FileReader::FileReader(FileReader&& other) : filename_(std::move(other.filename_)), istream_(std::move(other.istream_))
-		{
-			other.filename_ = std::string();
-		};
+		//FileReader::FileReader(FileReader&& other) : filename_(std::move(other.filename_)), istream_(std::move(other.istream_))
+		//{
+		//	other.filename_ = std::string();
+		//};
 
 		bool FileReader::open()
 		{
@@ -1251,6 +1252,7 @@ namespace zz
 	{
 		namespace consts
 		{
+			static const unsigned		kMaxDateTimeLength = 2048;
 			static const char			*kDateFractionSpecifier = "%frac";
 			static const unsigned	    kDateFractionWidth = 3;
 			static const char			*kTimerPrecisionSecSpecifier = "%sec";
@@ -1284,9 +1286,18 @@ namespace zz
 		{
 			std::string fmt(format);
 			fmt::replace_all_with_escape(fmt, consts::kDateFractionSpecifier, fractionStr_);
-			std::ostringstream buf;
-			buf << std::put_time(&calendar_, fmt.c_str());
-			return buf.str();
+			std::vector<char> mbuf(fmt.length() + 100);
+			std::size_t size = strftime(mbuf.data(), mbuf.size(), fmt.c_str(), &calendar_);
+			while (size == 0)
+			{
+				if (mbuf.size() > consts::kMaxDateTimeLength)
+				{
+					return std::string("String size exceed limit!");
+				}
+				mbuf.resize(mbuf.size() * 2);
+				size = strftime(mbuf.data(), mbuf.size(), fmt.c_str(), &calendar_);
+			}
+			return std::string(mbuf.begin(), mbuf.begin() + size);
 		}
 
 		Date Date::local_time()
@@ -1614,7 +1625,7 @@ namespace zz
 #if ZUPPLY_OS_WINDOWS
 			return (!_wrename(utf8_to_wstring(oldName).c_str(), utf8_to_wstring(newName).c_str()));
 #else
-			return (!rename(oldName.c_str(), newName.c_str()));
+			return (!::rename(oldName.c_str(), newName.c_str()));
 #endif
 		}
 
@@ -1634,7 +1645,7 @@ namespace zz
 			if ((buffer = _wgetcwd(nullptr, 0)) == nullptr)
 			{
 				// failed
-				return std::string();
+				return std::string(".");
 			}
 			else
 			{
@@ -1647,7 +1658,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
-				return std::string();
+				return std::string(".");
 			}
 			else
 			{
@@ -1661,7 +1672,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
-				return std::string();
+				return std::string(".");
 			}
 			else
 			{
@@ -1698,7 +1709,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
-				return std::string();
+				return reletivePath;
 			}
 			else
 			{
@@ -1711,7 +1722,18 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
-				return std::string();
+				if (ENOENT == errno)
+				{
+					if (fmt::starts_with(reletivePath, current_working_directory()))
+					{
+						return reletivePath;
+					}
+					else
+					{
+						return path_join({ current_working_directory(), reletivePath });
+					}
+				}
+				return reletivePath;
 			}
 			else
 			{
@@ -1765,57 +1787,178 @@ namespace zz
 
 	}// namespace os
 
+	namespace cds
+	{
+		bool RWLockable::Counters::is_waiting_for_write() const {
+			return writeClaim_ != writeDone_;
+		}
+
+		bool RWLockable::Counters::is_waiting_for_read() const {
+			return read_ != 0;
+		}
+
+		bool RWLockable::Counters::is_my_turn_to_write(Counters const & claim) const {
+			return writeDone_ == claim.writeClaim_ - 1;
+		}
+
+		bool RWLockable::Counters::want_to_read(RWLockable::Counters * buf) const {
+			if (read_ == UINT16_MAX) {
+				return false;
+			}
+			*buf = *this;
+			buf->read_ += 1;
+			return true;
+		}
+
+		bool RWLockable::Counters::want_to_write(RWLockable::Counters * buf) const {
+			if (writeClaim_ == UINT8_MAX) {
+				return false;
+			}
+			*buf = *this;
+			buf->writeClaim_ += 1;
+			return true;
+		}
+
+		RWLockable::Counters RWLockable::Counters::done_reading() const {
+			Counters c = *this;
+			c.read_ -= 1;
+			return c;
+		}
+
+		RWLockable::Counters RWLockable::Counters::done_writing() const {
+			Counters c = *this;
+			c.writeDone_ += 1;
+			if (c.writeDone_ == UINT8_MAX) {
+				c.writeClaim_ = c.writeDone_ = 0;
+			}
+			return c;
+		}
+
+		RWLock RWLockable::lock_for_read() {
+			bool written = false;
+			do {
+				Counters exp = counters_.load(std::memory_order_acquire);
+				do {
+					if (exp.is_waiting_for_write()) {
+						break;
+					}
+					Counters claim;
+					if (!exp.want_to_read(&claim)) {
+						break;
+					}
+					written = counters_.compare_exchange_weak(
+						exp, claim,
+						std::memory_order_release,
+						std::memory_order_acquire
+						);
+				} while (!written);
+				// todo: if (!written) progressive backoff
+			} while (!written);
+			return RWLock(this, false);
+		}
+
+		RWLock RWLockable::lock_for_write() {
+			Counters exp = counters_.load(std::memory_order_acquire);
+			Counters claim;
+			do {
+				while (!exp.want_to_write(&claim)) {
+					// todo: progressive backoff
+					exp = counters_.load(std::memory_order_acquire);
+				}
+			} while (!counters_.compare_exchange_weak(
+				exp, claim,
+				std::memory_order_release,
+				std::memory_order_acquire
+				));
+			while (exp.is_waiting_for_read() || !exp.is_my_turn_to_write(claim)) {
+				// todo: progressive backoff
+				exp = counters_.load(std::memory_order_acquire);
+			}
+			return RWLock(this, true);
+		}
+
+		void RWLockable::unlock_read() {
+			Counters exp = counters_.load(std::memory_order_consume);
+			Counters des;
+			do {
+				des = exp.done_reading();
+			} while (!counters_.compare_exchange_weak(
+				exp, des,
+				std::memory_order_release,
+				std::memory_order_consume
+				));
+		}
+
+		void RWLockable::unlock_write() {
+			Counters exp = counters_.load(std::memory_order_consume);
+			Counters des;
+			do {
+				des = exp.done_writing();
+			} while (!counters_.compare_exchange_weak(
+				exp, des,
+				std::memory_order_release,
+				std::memory_order_consume
+				));
+		}
+
+		bool RWLockable::is_lock_free() const {
+			return counters_.is_lock_free();
+		}
+
+		RWLock::RWLock(RWLockable * const lockable, bool const exclusive)
+			: lockable_(lockable)
+			, lockType_(exclusive ? LockType::write : LockType::read)
+		{}
+
+		RWLock::RWLock()
+			: lockable_(nullptr)
+			, lockType_(LockType::none)
+		{}
+
+
+		RWLock::RWLock(RWLock&& rhs) {
+			lockable_ = rhs.lockable_;
+			lockType_ = rhs.lockType_;
+			rhs.lockable_ = nullptr;
+			rhs.lockType_ = LockType::none;
+		}
+
+		RWLock& RWLock::operator =(RWLock&& rhs) {
+			std::swap(lockable_, rhs.lockable_);
+			std::swap(lockType_, rhs.lockType_);
+			return *this;
+		}
+
+
+		RWLock::~RWLock() {
+			if (lockable_ == nullptr) {
+				return;
+			}
+			switch (lockType_) {
+			case LockType::read:
+				lockable_->unlock_read();
+				break;
+			case LockType::write:
+				lockable_->unlock_write();
+				break;
+			default:
+				// do nothing
+				break;
+			}
+		}
+
+		void RWLock::unlock() {
+			(*this) = RWLock();
+			// emptyLock's dtor will now activate
+		}
+
+		RWLock::LockType RWLock::get_lock_type() const {
+			return lockType_;
+		}
+	} // namespace cds
+
 	namespace cfg
 	{
-		//bool Value::booleanValue() const
-		//{
-		//	std::string lowered = fmt::to_lower_ascii(str_);
-		//	if ("true" == lowered) return true;
-		//	if ("false" == lowered) return false;
-		//	try
-		//	{
-		//		int iv = intValue();
-		//		if (1 == iv) return true;
-		//		if (0 == iv) return false;
-		//	}
-		//	catch (...)
-		//	{
-		//	}
-		//	throw ArgException("Invalid boolean value: " + str_);
-		//}
-
-		//std::vector<double> Value::doubleVector() const
-		//{
-		//	std::vector<double> vec;
-		//	std::string::size_type sz;
-		//	std::string str(str_);
-		//	double val;
-		//	while (1)
-		//	{
-		//		try
-		//		{
-		//			val = std::stod(str, &sz);
-		//		}
-		//		catch (...)
-		//		{
-		//			return vec;
-		//		}
-		//		vec.push_back(val);
-		//		str = str.substr(sz);
-		//		if (str.empty()) return vec;
-		//	}
-		//}
-
-		//std::vector<int> Value::intVector() const
-		//{
-		//	auto dvec = doubleVector();
-		//	std::vector<int> ivec;
-		//	for (auto d : dvec)
-		//	{
-		//		ivec.push_back(math::round(d));
-		//	}
-		//	return ivec;
-		//}
 
 		CfgParser::CfgParser(std::string filename) : ln_(0)
 		{
@@ -2417,32 +2560,32 @@ namespace zz
 
 			LoggerPtr LoggerRegistry::ensure_get(std::string &name)
 			{
-				auto map = loggers_.get();
-				LoggerPtr	ptr;
-				while (map->find(name) == map->end())
+				LoggerPtr ptr;
+				if (loggers_.get(name, ptr))
+				{
+					return ptr;
+				}
+				
+				do
 				{
 					ptr = new_registry(name);
-					map = loggers_.get();
-				}
-				return map->find(name)->second;
+				} while (ptr == nullptr);
+
+				return ptr;
 			}
 
 			LoggerPtr LoggerRegistry::get(std::string &name)
 			{
-				auto ptr = loggers_.get();
-				auto pos = ptr->find(name);
-				if (pos != ptr->end())
-				{
-					return pos->second;
-				}
+				LoggerPtr ptr;
+				if (loggers_.get(name, ptr)) return ptr;
 				return nullptr;
 			}
 
 			std::vector<LoggerPtr> LoggerRegistry::get_all()
 			{
 				std::vector<LoggerPtr> list;
-				auto loggers = loggers_.get();
-				for (auto logger : *loggers)
+				auto loggers = loggers_.snapshot();
+				for (auto logger : loggers)
 				{
 					list.push_back(logger.second);
 				}
@@ -2724,7 +2867,7 @@ namespace zz
 
 		std::vector<std::string> LogConfig::sink_list()
 		{
-			return *sinkList_.get();
+			return sinkList_.get();
 		}
 
 		void LogConfig::set_sink_list(std::vector<std::string> &list)
@@ -2744,7 +2887,7 @@ namespace zz
 
 		std::string LogConfig::format()
 		{
-			return *format_.get();
+			return format_.get();
 		}
 
 		void LogConfig::set_format(std::string newFormat)
@@ -2754,7 +2897,7 @@ namespace zz
 
 		std::string LogConfig::datetime_format()
 		{
-			return *datetimeFormat_.get();
+			return datetimeFormat_.get();
 		}
 
 		void LogConfig::set_datetime_format(std::string newDatetimeFormat)
@@ -2790,9 +2933,12 @@ namespace zz
 
 		SinkPtr Logger::get_sink(std::string name)
 		{
-			auto sinkmap = sinks_.get();
-			auto f = sinkmap->find(name);
-			return (f == sinkmap->end() ? nullptr : f->second);
+			SinkPtr ptr;
+			if (sinks_.get(name, ptr))
+			{
+				return ptr;
+			}
+			return nullptr;
 		}
 
 		void Logger::attach_sink(SinkPtr sink)
@@ -2810,10 +2956,10 @@ namespace zz
 
 		void Logger::log_msg(detail::LogMessage msg)
 		{
-			auto sinkmap = sinks_.get();
-			for (auto sink : *sinkmap)
+			auto sinks = sinks_.snapshot();
+			for (auto s : sinks)
 			{
-				sink.second->log(msg);
+				s.second->log(msg);
 			}
 		}
 
@@ -2821,8 +2967,8 @@ namespace zz
 		{
 			std::string str(name() + ": " + level_mask_to_string(levelMask_));
 			str += "\n{\n";
-			auto sinkmap = sinks_.get();
-			for (auto sink : *sinkmap)
+			auto sinkmap = sinks_.snapshot();
+			for (auto sink : sinkmap)
 			{
 				str += sink.second->to_string() + "\n";
 			}

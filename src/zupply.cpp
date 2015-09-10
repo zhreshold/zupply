@@ -1653,7 +1653,7 @@ namespace zz
 				free(buffer);
 				return wstring_to_utf8(ret);
 			}
-#elif __GNUC__
+#elif _GNU_SOURCE
 			char *buffer = get_current_dir_name();
 			if (buffer == nullptr)
 			{

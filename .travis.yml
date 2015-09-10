@@ -22,7 +22,7 @@ install:
   sudo apt-get install -qq g++-4.8-multilib
   - if [ "$CXX" = "g++" ]; then export CMAKE_CXX_COMPILER="g++-4.8"; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
-  
+
   # clang 3.4 already installed
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install clang++3.4; fi
   - if [ "$CXX" == "clang++" ]; then export CMAKE_CXX_COMPILER="clang++-3.4"; fi

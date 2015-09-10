@@ -3032,7 +3032,9 @@ namespace zz
 				{
 					if (enabled_)
 					{
-						msg_.buffer_ += (std::ostringstream() << std::dec << what).str();
+						std::ostringstream oss;
+						oss << std::dec << what;
+						msg_.buffer_ += oss.str();
 					}
 					return *this;
 				}

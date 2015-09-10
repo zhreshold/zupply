@@ -1,4 +1,4 @@
-# Zupply - A light-weight portable C++ 11 library for researches and demos
+# Zupply - A light-weight portable C++ 11 library for Researches and Demos
 
 ![Build Status](https://travis-ci.org/ZhreShold/zupply.svg)
 
@@ -9,7 +9,8 @@ for reaserches/small projects/demos.
 #### Why Zupply
 - Tired of repetitive coding on reading/writing files? Logging messages? Loading configurations?
 - Feel desperate transfering code to another platform because you hard-coded in platform specific ways?
-- Currently using Boost which is good, but want a small and portable one after all.
+- Reluctant to use Boost because it's not portable at all?
+- Hate setting up environments on a clean computer without any develop library which is required to be linked by many programs?
 - Just want to build a small demo, why bother libraries such as OpenCV just for reading/writing images?
 
 - ##### If you agree at least two of them, zupply will be the right tool.
@@ -31,6 +32,7 @@ for reaserches/small projects/demos.
 - A lot more
 
 #### What's under construction
+- Generate list of files/sub-directories with wildcard matching(simple but very useful)
 - Image IO functions: to read/write JPEG/PNG/BMP/TGA and GIF probably
 - Serializer/Deserializer: for dump/read objects to/from string directly, binary should also be supported
 - Progress bar class that is easy to use
@@ -41,8 +43,7 @@ for reaserches/small projects/demos.
 - Start writing code
 ```c++
 #include "zupply.hpp"
-// optional using namespace zz
-using namespace zz;
+using namespace zz; // optional using namespace zz for ease
 
 // write your own code
 int main(int argc, char** argv)
@@ -56,8 +57,27 @@ int main(int argc, char** argv)
 
 ##### Note: you will need a compiler which support C++11 features, the following compilers/libraries are tested
 - vc++12(Visual Studio 2013) or newer
-- g++ 4.8.1 or newer(link pthread because c++11 thread is based on it in stdlib)
+```
+# create visual studio project require cmake
+cd build & create_visual_studio_2013_project.bat
+```
+- g++ 4.8.1 or newer(link pthread because gcc require it!!)
+```
+# with cmake
+cd build
+cmake .
+make
+# manual build without cmake
+cd src
+g++ -std=c++11 -pthread sample.cpp zupply.cpp -lpthread -o sample
+```
 - Clang++ 3.3 or newer
+```
+# using cmake is identical to gcc
+# or manually build with clang++
+cd src
+clang++ -std=c++11 sample.cpp zupply.cpp -o sample
+```
 
 ## Documentation
 Full [documentation](http://zhreshold.github.io/zupply/) supplied.
@@ -66,4 +86,4 @@ Full [documentation](http://zhreshold.github.io/zupply/) supplied.
 For tutorials, please check Zupply [Wiki](https://github.com/ZhreShold/zupply/wiki)!
 
 ## License
-Zupply uses very permissive MIT license.
+Zupply uses very permissive [MIT](https://opensource.org/licenses/MIT) license.

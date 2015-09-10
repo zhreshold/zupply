@@ -3089,6 +3089,9 @@ namespace zz
 				{
 					if (!level_should_log(levelMask_, msg.level_)) return;
 					std::string finalMessage = format_message(msg);
+					// mutex for multi-thread race, actually vc++ and gnu++ are ok without lock
+					// but this behavior is not guanranteed, and libc++ will have corrupt output
+					std::lock_guard<std::mutex> lock(mutex_);
 					sink_it(finalMessage);
 				}
 
@@ -3121,14 +3124,12 @@ namespace zz
 					fmt::replace_all_with_escape(ret, consts::kSinkLevelShortSpecifier, consts::kShortLevelNames[msg.level_]);
 					fmt::replace_all_with_escape(ret, consts::kSinkMessageSpecifier, msg.buffer_);
 					// make sure new line
-					if (!fmt::ends_with(ret, "\n"))
-					{
-						ret += os::endl();
-					}
+					if (!fmt::ends_with(ret, "\n")) ret += os::endl();
 					return ret;
 				}
 
-				std::atomic_int							levelMask_;
+				std::atomic_int		levelMask_;
+				std::mutex			mutex_;
 				cds::lockbased::NonTrivialContainer<std::string>		format_;
 			};
 

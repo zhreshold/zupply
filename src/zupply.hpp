@@ -3032,7 +3032,7 @@ namespace zz
 				{
 					if (enabled_)
 					{
-						msg_.buffer_ += dynamic_cast<std::ostringstream &>(std::ostringstream() << std::dec << what).str();
+						msg_.buffer_ += (std::ostringstream() << std::dec << what).str();
 					}
 					return *this;
 				}

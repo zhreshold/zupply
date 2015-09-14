@@ -7,8 +7,14 @@ ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
     SET(CMAKE_EXE_LINKER_FLAGS "-lpthread")
 ELSE()
     SET(CMAKE_CXX_FLAGS "-std=c++11")
-ENDIF()
-add_executable(zupply_sample
-				../src/sample.cpp
+ENDIF()
+
+add_executable(unittest
+				../unittest/unittest.cpp
 				../src/zupply.hpp
 				../src/zupply.cpp)
+
+add_executable(quickstart
+				../src/quickstart.cpp
+				../src/zupply.hpp
+				../src/zupply.cpp)

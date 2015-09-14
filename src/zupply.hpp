@@ -268,9 +268,14 @@ namespace zz
 		int height;
 
 		Size(int x, int y) : width(x), height(y) {}
-		bool operator==(Size& other)
+		bool operator==(const Size& other)
 		{
 			return (width == other.width) && (height == other.height);
+		}
+
+		bool operator!=(const Size& other)
+		{
+			return (width != other.width) || (height != other.height);
 		}
 	};
 
@@ -302,7 +307,8 @@ namespace zz
 		}
 
 		/*!
-		 * \brief Template meta programming for pow(a, b) where b must be natural number
+		 * \brief Template meta programming for pow(a, b) where a, b must be natural numbers
+		 * Use Pow<a, b>::result = a^b, which is computed in compilation rather than runtime.
 		 */
 		template <unsigned long B, unsigned long E>
 		struct Pow
@@ -434,7 +440,7 @@ namespace zz
 		*
 		* \brief	A simple spin lock utilizing c++11 atomic_flag
 		*/
-		class SpinLock: UnMovable
+		class SpinLock : UnMovable
 		{
 		public:
 			SpinLock(){ flag_.clear(); }
@@ -520,7 +526,7 @@ namespace zz
 
 		namespace lockfree
 		{
-			template <typename Key, typename Value> class UnorderedMap: public UnMovable
+			template <typename Key, typename Value> class UnorderedMap : public UnMovable
 			{
 			public:
 				using MapType = std::unordered_map<Key, Value>;
@@ -600,7 +606,7 @@ namespace zz
 				//}
 
 			private:
-				
+
 				RWLockable	lockable_;
 				MapType	map_;
 			};
@@ -614,7 +620,7 @@ namespace zz
 				{
 					return lockable_.is_lock_free();
 				}
-				
+
 				T get()
 				{
 					auto lock = lockable_.lock_for_read();
@@ -866,128 +872,128 @@ namespace zz
 		//	std::shared_ptr<T>	ptr_;
 		//};
 
-		
-//		namespace gc
-//		{
-//			class HPRecord
-//			{
-//			public:
-//				void*	pHazard_;	//!< can be used by the thread that acquire it
-//				HPRecord*			pNext_;
-//				static HPRecord* head() { return pHead_; }
-//
-//				static HPRecord* acquire()
-//				{
-//					// try to reuse a retired hp record
-//					HPRecord* p = pHead_;
-//					bool inactive(false);
-//
-//					for (; p; p = p->pNext_)
-//					{
-//						if (p->active_ || (!p->active_.compare_exchange_weak(inactive, true)))
-//						{
-//							continue;
-//						}
-//						return p; // got one!
-//					}
-//					// increment the list length by adding one
-//					int oldLen;
-//					do
-//					{
-//						oldLen = listLen_;
-//					} while (!listLen_.compare_exchange_weak(oldLen, oldLen + 1));
-//					// allocate a new one
-//					p = new HPRecord;
-//					p->active_.store(true);
-//					p->pHazard_ = nullptr;
-//					// push it to the front
-//					HPRecord* old = nullptr;
-//					do
-//					{
-//						old = pHead_;
-//						p->pNext_ = old;
-//					} while (!pHead_.compare_exchange_weak(old, p));
-//
-//					return p; // return acquired pointer
-//				}
-//
-//				static void release(HPRecord* p)
-//				{
-//					p->pHazard_ = nullptr;
-//					p->active_.store(false);
-//				}
-//
-//			private:
-//				std::atomic<bool>	active_;
-//				static std::atomic<HPRecord*>	pHead_;	//!< global header of the hazard pointer list
-//				static std::atomic<int>			listLen_; //!< length of the list
-//			};
-//
-//			template <typename T> void garbage_collection(std::vector<T*> rlist)
-//			{
-//				// stage 1: scan hazard ponter list
-//				// collecting all non-null pointers
-//				std::vector<void*> hp;
-//				HPRecord* head = HPRecord::head();
-//				while (head)
-//				{
-//					void *p = head->pHazard_;
-//					if (p) hp.push_back(p);
-//					head = head->pNext_;
-//				}
-//				// stage 2: sort the hazard pointers
-//				std::sort(hp.begin(), hp.end(), std::less<void*>());
-//				// stage 3: search for null
-//				std::vector<T*>::iterator iter = rlist.begin();
-//				while (iter != rlist.end())
-//				{
-//					if (!std::binary_search(hp.begin(), hp.end(), *iter))
-//					{
-//						delete *iter;	// safely reclaim this memory
-//						if (&*iter != rlist.back())
-//						{
-//							*iter = rlist.back();
-//						}
-//						rlist.pop_back();
-//					}
-//					else
-//					{
-//						++iter;
-//					}
-//				}
-//			}
-//
-//		} // namespace gc
-//
-//		namespace consts
-//		{
-//			static const unsigned kGarbageCollectionThreshold = 4;
-//		}
-//
-//		template <typename K, typename V> class WRRMUMap
-//		{
-//		public:
-//
-//		private:
-//			using MapType = std::unordered_map<K, V>;
-//
-//			static void retire(MapType* old)
-//			{
-//				// put old map into retire list
-//				rlist_.push_back(old);
-//				if (rlist_.size() >= consts::kGarbageCollectionThreshold)
-//				{
-//					gc::garbage_collection(rlist_);
-//				}
-//			}
-//#if _MSC_VER
-//			static __declspec(thread)  std::vector<MapType*> rlist_;
-//#else
-//			static thread_local std::vector<MapType*> rlist_;
-//#endif
-//			MapType* pMap_;
-//		};
-		
+
+		//		namespace gc
+		//		{
+		//			class HPRecord
+		//			{
+		//			public:
+		//				void*	pHazard_;	//!< can be used by the thread that acquire it
+		//				HPRecord*			pNext_;
+		//				static HPRecord* head() { return pHead_; }
+		//
+		//				static HPRecord* acquire()
+		//				{
+		//					// try to reuse a retired hp record
+		//					HPRecord* p = pHead_;
+		//					bool inactive(false);
+		//
+		//					for (; p; p = p->pNext_)
+		//					{
+		//						if (p->active_ || (!p->active_.compare_exchange_weak(inactive, true)))
+		//						{
+		//							continue;
+		//						}
+		//						return p; // got one!
+		//					}
+		//					// increment the list length by adding one
+		//					int oldLen;
+		//					do
+		//					{
+		//						oldLen = listLen_;
+		//					} while (!listLen_.compare_exchange_weak(oldLen, oldLen + 1));
+		//					// allocate a new one
+		//					p = new HPRecord;
+		//					p->active_.store(true);
+		//					p->pHazard_ = nullptr;
+		//					// push it to the front
+		//					HPRecord* old = nullptr;
+		//					do
+		//					{
+		//						old = pHead_;
+		//						p->pNext_ = old;
+		//					} while (!pHead_.compare_exchange_weak(old, p));
+		//
+		//					return p; // return acquired pointer
+		//				}
+		//
+		//				static void release(HPRecord* p)
+		//				{
+		//					p->pHazard_ = nullptr;
+		//					p->active_.store(false);
+		//				}
+		//
+		//			private:
+		//				std::atomic<bool>	active_;
+		//				static std::atomic<HPRecord*>	pHead_;	//!< global header of the hazard pointer list
+		//				static std::atomic<int>			listLen_; //!< length of the list
+		//			};
+		//
+		//			template <typename T> void garbage_collection(std::vector<T*> rlist)
+		//			{
+		//				// stage 1: scan hazard ponter list
+		//				// collecting all non-null pointers
+		//				std::vector<void*> hp;
+		//				HPRecord* head = HPRecord::head();
+		//				while (head)
+		//				{
+		//					void *p = head->pHazard_;
+		//					if (p) hp.push_back(p);
+		//					head = head->pNext_;
+		//				}
+		//				// stage 2: sort the hazard pointers
+		//				std::sort(hp.begin(), hp.end(), std::less<void*>());
+		//				// stage 3: search for null
+		//				std::vector<T*>::iterator iter = rlist.begin();
+		//				while (iter != rlist.end())
+		//				{
+		//					if (!std::binary_search(hp.begin(), hp.end(), *iter))
+		//					{
+		//						delete *iter;	// safely reclaim this memory
+		//						if (&*iter != rlist.back())
+		//						{
+		//							*iter = rlist.back();
+		//						}
+		//						rlist.pop_back();
+		//					}
+		//					else
+		//					{
+		//						++iter;
+		//					}
+		//				}
+		//			}
+		//
+		//		} // namespace gc
+		//
+		//		namespace consts
+		//		{
+		//			static const unsigned kGarbageCollectionThreshold = 4;
+		//		}
+		//
+		//		template <typename K, typename V> class WRRMUMap
+		//		{
+		//		public:
+		//
+		//		private:
+		//			using MapType = std::unordered_map<K, V>;
+		//
+		//			static void retire(MapType* old)
+		//			{
+		//				// put old map into retire list
+		//				rlist_.push_back(old);
+		//				if (rlist_.size() >= consts::kGarbageCollectionThreshold)
+		//				{
+		//					gc::garbage_collection(rlist_);
+		//				}
+		//			}
+		//#if _MSC_VER
+		//			static __declspec(thread)  std::vector<MapType*> rlist_;
+		//#else
+		//			static thread_local std::vector<MapType*> rlist_;
+		//#endif
+		//			MapType* pMap_;
+		//		};
+
 
 	} // namespace cds
 
@@ -1050,7 +1056,21 @@ namespace zz
 		 * \param considerFile Consider file as well?
 		 * \return true if path exists
 		 */
-		bool path_exists(std::string &path, bool considerFile = false);
+		bool path_exists(std::string path, bool considerFile = false);
+
+		/*!
+		 * \brief Check if path is file and exists
+		 * \param path
+		 * \return true if file exists, not directory
+		 */
+		bool is_file(std::string path);
+
+		/*!
+		 * \brief Check if path is directory and exists
+		 * \param path
+		 * \return true if directory exists, not file
+		 */
+		bool is_directory(std::string path);
 
 		/*!
 		 * \brief Open fstream using UTF-8 string
@@ -1059,7 +1079,7 @@ namespace zz
 		 * \param filename
 		 * \param openmode
 		 */
-		void fstream_open(std::fstream &stream, std::string &filename, std::ios::openmode openmode);
+		void fstream_open(std::fstream &stream, std::string filename, std::ios::openmode openmode);
 
 		/*!
 		 * \brief Open ifstream using UTF-8 string
@@ -1068,10 +1088,10 @@ namespace zz
 		 * \param filename
 		 * \param openmode
 		 */
-		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode);
+		void ifstream_open(std::ifstream &stream, std::string filename, std::ios::openmode openmode);
 
 		/*!
-		 * \brief rename Rename file, support unicode filename/path.
+		 * \brief Rename file, support unicode filename/path.
 		 * \param oldName
 		 * \param newName
 		 * \return true on success
@@ -1079,12 +1099,59 @@ namespace zz
 		bool rename(std::string oldName, std::string newName);
 
 		/*!
-				 * \fn	std::string endl();
-				 *
-				 * \brief	Gets the OS dependent line end characters.
-				 *
-				 * \return	A std::string.
-				 */
+		 * \brief Copy file, support unicode filename/path.
+		 * \param oldName
+		 * \param newName
+		 * \param replaceDst If true, existing dst file will be replaced
+		 * \return true on success
+		 */
+		bool copyfile(std::string src, std::string dst, bool replaceDst = false);
+
+		/*!
+		 * \brief Move file, support unicode filename/path.
+		 * \param oldName
+		 * \param newName
+		 * \param replaceDst If true, existing dst file will be replaced
+		 * \return true on success
+		*/
+		bool movefile(std::string src, std::string dst, bool replaceDst = false);
+
+		/*!
+		 * \brief Remove path, whatever file or directory.
+		 * Dangerous! Cannot revert.
+		 * \param path
+		 * \return true as long as path does not exists anymore
+		 */
+		bool remove_all(std::string path);
+
+		/*!
+		 * \brief Remove directory and all sub-directories and files if set recursive to true.
+		 * If recursive set to false, will try to delete an empty one only. Dangerous! Cannot revert.
+		 * \param root
+		 * \param recursive Delete all contents inside of it.
+		 * \return true as long as directory does not exists anymore(file with same name may exist)
+		 */
+		bool remove_dir(std::string root, bool recursive = true);
+
+		/*!
+		 * \brief Remove file.
+		 * Dangerous! Cannot revert.
+		 * \param path
+		 * \return true as long as file does not exists anymore
+		 */
+		bool remove_file(std::string path);
+
+		/*!
+		 * \brief Retrieve the last error in errno
+		 * \return Human readable error string
+		 */
+		std::string last_error();
+
+		/*!
+		* \fn	std::string endl();
+		* \brief	Gets the OS dependent line end characters.
+		* \return	A std::string.
+		*/
 		std::string endl();
 
 		/*!
@@ -1099,6 +1166,14 @@ namespace zz
 		 * \return Absolute path
 		 */
 		std::string absolute_path(std::string reletivePath);
+
+		/*!
+		 * \brief Normalize path.
+		 * Clean path messed up with sth like: /tmp/a/.././b/./c
+		 * \param dirtyPath
+		 * \return Normalized path(also absolute)
+		 */
+		std::string normalize_path(std::string dirtyPath);
 
 		/*!
 		 * \brief Split path into hierachical sub-folders
@@ -1189,15 +1264,15 @@ namespace zz
 	namespace time
 	{
 		/*!
-		* \class	Date
+		* \class	DateTime
 		*
 		* \brief	A calendar date class.
 		*/
-		class Date
+		class DateTime
 		{
 		public:
-			Date();
-			virtual ~Date() = default;
+			DateTime();
+			virtual ~DateTime() = default;
 
 			/*!
 			 * \brief Convert to local time zone
@@ -1219,15 +1294,15 @@ namespace zz
 
 			/*!
 			 * \brief Static function to return in local_time
-			 * \return Date instance
+			 * \return DateTime instance
 			 */
-			static Date local_time();
+			static DateTime local_time();
 
 			/*!
 			 * \brief Static function to return in utc_time
-			 * \return Date instance
+			 * \return DateTime instance
 			 */
-			static Date utc_time();
+			static DateTime utc_time();
 
 		private:
 			std::time_t		timeStamp_;
@@ -1250,6 +1325,16 @@ namespace zz
 			 * \brief Reset timer to record new process
 			 */
 			void reset();
+
+			/*!
+			* \brief Pause recording timelapse
+			*/
+			void pause();
+
+			/*!
+			* \brief Resume timer
+			*/
+			void resume();
 
 			/*!
 			 * \brief Return elapsed time quantized in nanosecond
@@ -1315,6 +1400,8 @@ namespace zz
 
 		private:
 			std::chrono::steady_clock::time_point timeStamp_;
+			std::size_t	elapsed_;
+			bool		paused_;
 		};
 
 		/*!
@@ -1345,6 +1432,11 @@ namespace zz
 			static const int kDefaultFileOpenRetryTimes = 5;
 			static const int kDefaultFileOpenRetryInterval = 10;
 		}
+
+		class Directory
+		{
+
+		};
 
 		/*!
 		 * \brief The FileEditor class to modify file
@@ -1610,7 +1702,7 @@ namespace zz
 
 		/*!
 		 * \brief Compare c style raw string
-		 * Will take care of string not ends with '\0',
+		 * Will take care of string not ends with '\0'(ignore it),
 		 * which is unsafe using strcmp().
 		 * \param s1
 		 * \param s2
@@ -1656,6 +1748,14 @@ namespace zz
 		 * \return Stripped string
 		 */
 		std::string rstrip(std::string str, std::string what);
+
+		/*!
+		* \brief Skip from left until delimiter string found.
+		* \param str
+		* \param delim
+		* \return Skipped string
+		*/
+		std::string lskip(std::string str, std::string delim);
 
 		/*!
 		 * \brief Skip from right until delimiter string found.
@@ -1738,6 +1838,15 @@ namespace zz
 		 * \param replaceWith What string to replace.
 		 */
 		void replace_all_with_escape(std::string &str, const std::string &replaceWhat, const std::string &replaceWith);
+
+		/*!
+		* \brief Replace every occurance of one string with specified list of strings sequentially.
+		* Replace in-place.
+		* \param str
+		* \param replaceWhat What substring to be replaced.
+		* \param replaceWith Vector of what strings to replace one by one.
+		*/
+		void replace_sequential_with_escape(std::string &str, const std::string &replaceWhat, const std::vector<std::string> &replaceWith);
 
 		/*!
 		 * \brief Convert string to lower case.
@@ -2258,7 +2367,7 @@ namespace zz
 			 * \param argv
 			 * \param ignoreUnknown Whether or not ignore unknown option keys
 			 */
-			void parse(int argc, char** argv, bool ignoreUnknown = false);
+			void parse(int argc, const char** argv, bool ignoreUnknown = false);
 
 			/*!
 			 * \brief Get error count generated during parsing
@@ -2306,6 +2415,12 @@ namespace zz
 			 */
 			Value operator[](const char shortKey);
 
+			/*!
+			* \brief Return all input arguments that does not belong to any option.
+			* \return Arguments in vector
+			*/
+			std::vector<Value> arguments() const;
+
 		private:
 			//using ArgOptIter = std::vector<ArgOption>::iterator;
 			enum class Type { SHORT_KEY, LONG_KEY, ARGUMENT, INVALID };
@@ -2314,7 +2429,7 @@ namespace zz
 			ArgOption& add_opt_internal(char shortKey, std::string longKey, bool active = true);
 			void register_keys(char shortKey, std::string longKey, std::size_t pos);
 			Type check_type(std::string str);
-			ArgQueue pretty_arguments(int argc, char** argv);
+			ArgQueue pretty_arguments(int argc, const char** argv);
 			void error_option(std::string opt, std::string msg = "");
 			void parse_option(ArgOption* ptr);
 			void parse_value(ArgOption* ptr, const std::string& value);
@@ -2390,7 +2505,7 @@ namespace zz
 			dst = defaultValue;
 			Value dfltValue;
 			dfltValue.store(defaultValue);
-			auto& opt = add_opt(shortKey, longKey).call([shortKey, &dst, this] {(*this)[shortKey].load(dst); });
+			auto& opt = add_opt(shortKey, longKey).call([longKey, &dst, this] {(*this)[longKey].load(dst); });
 			opt.default_ = dfltValue.str();
 			return opt.set_help(help).set_type(type);
 		}
@@ -2410,11 +2525,12 @@ namespace zz
 	namespace log
 	{
 		// \cond
-		void zupply_internal_warn(std::string msg);
-		void zupply_internal_error(std::string msg);
 
 		namespace detail
 		{
+			void zupply_internal_warn(std::string msg);
+			void zupply_internal_error(std::string msg);
+
 			class ScopedRedirect
 			{
 			public:
@@ -2965,7 +3081,7 @@ namespace zz
 			{
 				std::string			loggerName_;
 				LogLevels			level_;
-				time::Date			dateTime_;
+				time::DateTime			dateTime_;
 				size_t				threadId_;
 				std::string			buffer_;
 			};
@@ -2991,7 +3107,7 @@ namespace zz
 					if (enabled_)
 					{
 						msg_.loggerName_ = callbackLogger_->name();
-						msg_.dateTime_ = time::Date::local_time();
+						msg_.dateTime_ = time::DateTime::local_time();
 						msg_.threadId_ = os::thread_id();
 						callbackLogger_->log_msg(msg_);
 					}
@@ -3296,7 +3412,7 @@ namespace zz
 				bool is_locked() const;
 
 			private:
-				LoggerRegistry(){lock_ = false; }
+				LoggerRegistry(){ lock_ = false; }
 
 				LoggerPtr new_registry(const std::string &name);
 
@@ -3492,6 +3608,13 @@ namespace zz
 			LoggerPtr get_hidden_logger();
 
 			std::map<std::string, std::string> config_sinks_from_section(cfg::CfgLevel::section_map_t &section);
+
+
+			void zupply_internal_warn(std::string msg);
+
+			void zupply_internal_error(std::string msg);
+
+			void config_from_parser(cfg::CfgParser& parser);
 		} // namespace detail
 		// \endcond
 
@@ -3501,11 +3624,11 @@ namespace zz
 		 */
 		void config_from_file(std::string cfgFilename);
 
-		// \cond
-		void zupply_internal_warn(std::string msg);
-
-		void zupply_internal_error(std::string msg);
-		// \endcond
+		/*!
+		* \brief Config loggers from a stringstream
+		* \param ss Stringstream where configs stored
+		*/
+		void config_from_stringstream(std::stringstream& ss);
 	} // namespace log
 
 

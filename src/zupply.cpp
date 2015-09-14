@@ -8,7 +8,7 @@
  *
  *
  *   Author: Joshua Zhang
- *   Date since: June-2015
+ *   DateTime since: June-2015
  *
  *   Copyright (c) <2015> <JOSHUA Z. ZHANG>
  *
@@ -56,15 +56,18 @@
 #include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <conio.h>
 #elif ZUPPLY_OS_UNIX
 #include <unistd.h>	/* POSIX flags */
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <ftw.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
 #endif
@@ -864,6 +867,20 @@ namespace zz
 			return str;
 		}
 
+		std::string lskip(std::string str, std::string delim)
+		{
+			auto pos = str.find(delim);
+			if (pos == std::string::npos)
+			{
+				str = std::string();
+			}
+			else
+			{
+				str = str.substr(pos+1);
+			}
+			return str;
+		}
+
 		std::string rskip(std::string str, std::string delim)
 		{
 			auto pos = str.rfind(delim);
@@ -873,7 +890,7 @@ namespace zz
 			}
 			else if (std::string::npos != pos)
 			{
-				str = str.substr(0, pos - 1);
+				str = str.substr(0, pos);
 			}
 			return str;
 		}
@@ -1029,6 +1046,26 @@ namespace zz
 				{
 					str.replace(foundAt, replaceWhat.length(), replaceWith);
 					foundAt += replaceWith.length();
+				}
+			}
+		}
+
+		void replace_sequential_with_escape(std::string &str, const std::string &replaceWhat, const std::vector<std::string> &replaceWith)
+		{
+			std::size_t foundAt = std::string::npos;
+			std::size_t candidatePos = 0;
+			while ((foundAt = str.find(replaceWhat, foundAt + 1)) != std::string::npos && replaceWith.size() > candidatePos)
+			{
+				if (foundAt > 0 && str[foundAt - 1] == consts::kFormatSpecifierEscapeChar)
+				{
+					str.erase(foundAt > 0 ? foundAt - 1 : 0, 1);
+					++foundAt;
+				}
+				else
+				{
+					str.replace(foundAt, replaceWhat.length(), replaceWith[candidatePos]);
+					foundAt += replaceWith[candidatePos].length();
+					++candidatePos;
 				}
 			}
 		}
@@ -1262,7 +1299,7 @@ namespace zz
 			static const char			*kDateTimeSpecifier = "%datetime";
 		}
 
-		Date::Date()
+		DateTime::DateTime()
 		{
 			auto now = std::chrono::system_clock::now();
 			timeStamp_ = std::chrono::system_clock::to_time_t(now);
@@ -1272,17 +1309,17 @@ namespace zz
 			fractionStr_ = fmt::int_to_zero_pad_str(fraction_, consts::kDateFractionWidth);
 		}
 
-		void Date::to_local_time()
+		void DateTime::to_local_time()
 		{
 			calendar_ = os::localtime(timeStamp_);
 		}
 
-		void Date::to_utc_time()
+		void DateTime::to_utc_time()
 		{
 			calendar_ = os::gmtime(timeStamp_);
 		}
 
-		std::string Date::to_string(const char *format)
+		std::string DateTime::to_string(const char *format)
 		{
 			std::string fmt(format);
 			fmt::replace_all_with_escape(fmt, consts::kDateFractionSpecifier, fractionStr_);
@@ -1300,15 +1337,15 @@ namespace zz
 			return std::string(mbuf.begin(), mbuf.begin() + size);
 		}
 
-		Date Date::local_time()
+		DateTime DateTime::local_time()
 		{
-			Date date;
+			DateTime date;
 			return date;
 		}
 
-		Date Date::utc_time()
+		DateTime DateTime::utc_time()
 		{
-			Date date;
+			DateTime date;
 			date.to_utc_time();
 			return date;
 		}
@@ -1321,12 +1358,30 @@ namespace zz
 		void Timer::reset()
 		{
 			timeStamp_ = std::chrono::steady_clock::now();
+			elapsed_ = 0;
+			paused_ = false;
+		}
+
+		void Timer::pause()
+		{
+			if (paused_) return;
+			elapsed_ += elapsed_ns();
+			
+			paused_ = true;
+		}
+
+		void Timer::resume()
+		{
+			if (!paused_) return;
+			timeStamp_ = std::chrono::steady_clock::now();
+			paused_ = false;
 		}
 
 		std::size_t	Timer::elapsed_ns()
 		{
+			if (paused_) return elapsed_;
 			return static_cast<std::size_t>(std::chrono::duration_cast<std::chrono::nanoseconds>
-				(std::chrono::steady_clock::now() - timeStamp_).count());
+				(std::chrono::steady_clock::now() - timeStamp_).count()) + elapsed_;
 		}
 
 		std::string Timer::elapsed_ns_str()
@@ -1437,7 +1492,16 @@ namespace zz
 #elif __linux__
 			return  static_cast<size_t>(syscall(SYS_gettid));
 #else //Default to standard C++11 (OSX and other Unix)
-			return static_cast<size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
+			static std::mutex threadIdMutex;
+			static std::map<std::thread::id, std::size_t> threadIdHashmap;
+			std::lock_guard<std::mutex> lock(threadIdMutex);
+			auto id = std::this_thread::get_id();
+			if (threadIdHashmap.count(id) < 1)
+			{
+				threadIdHashmap[id] = threadIdHashmap.size() + 1;
+			}
+			return threadIdHashmap[id];
+			//return static_cast<size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 #endif
 
 		}
@@ -1600,7 +1664,7 @@ namespace zz
 		}
 
 
-		void fstream_open(std::fstream &stream, std::string &filename, std::ios::openmode openmode)
+		void fstream_open(std::fstream &stream, std::string filename, std::ios::openmode openmode)
 		{
 			// make sure directory exists for the target file
 			create_directory_recursive(path_split_directory(filename));
@@ -1611,7 +1675,7 @@ namespace zz
 #endif
 		}
 
-		void ifstream_open(std::ifstream &stream, std::string &filename, std::ios::openmode openmode)
+		void ifstream_open(std::ifstream &stream, std::string filename, std::ios::openmode openmode)
 		{
 #if ZUPPLY_OS_WINDOWS
 			stream.open(utf8_to_wstring(filename), openmode);
@@ -1627,6 +1691,173 @@ namespace zz
 #else
 			return (!::rename(oldName.c_str(), newName.c_str()));
 #endif
+		}
+
+		bool copyfile(std::string src, std::string dst, bool replaceDst)
+		{
+			if (!replaceDst)
+			{
+				if (path_exists(dst, true)) return false;
+			}
+			remove_all(dst);
+			std::ifstream  srcf;
+			std::fstream  dstf;
+			ifstream_open(srcf, src, std::ios::binary);
+			fstream_open(dstf, dst, std::ios::binary|std::ios::trunc);
+			dstf << srcf.rdbuf();
+			return true;
+		}
+
+		bool movefile(std::string src, std::string dst, bool replaceDst)
+		{
+			if (!replaceDst)
+			{
+				if (path_exists(dst, true)) return false;
+			}
+			return os::rename(src, dst);
+		}
+
+		bool remove_all(std::string path)
+		{
+			if (!os::path_exists(path, true)) return true;
+			if (os::path_exists(path, false))
+			{
+				return remove_dir(path);
+			}
+			return remove_file(path);
+		}
+
+#if ZUPPLY_OS_UNIX 
+		// for nftw tree walk directory operations, so for unix only
+		int nftw_remove(const char *path, const struct stat *sb, int flag, struct FTW *ftwbuf)
+		{
+			misc::unused(sb);
+			misc::unused(flag);
+			misc::unused(ftwbuf);
+			return ::remove(path);
+		}
+#endif
+
+		bool remove_dir(std::string path, bool recursive)
+		{
+			// as long as dir does not exist, return true
+			if (!path_exists(path, false)) return true;
+#if ZUPPLY_OS_WINDOWS
+			std::wstring root = utf8_to_wstring(path);
+			bool            bSubdirectory = false;       // Flag, indicating whether subdirectories have been found
+			HANDLE          hFile;                       // Handle to directory
+			std::wstring     strFilePath;                 // Filepath
+			std::wstring     strPattern;                  // Pattern
+			WIN32_FIND_DATAW FileInformation;             // File information
+
+
+			strPattern = root + L"\\*.*";
+			hFile = ::FindFirstFileW(strPattern.c_str(), &FileInformation);
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				do
+				{
+					if (FileInformation.cFileName[0] != '.')
+					{
+						strFilePath.erase();
+						strFilePath = root + L"\\" + FileInformation.cFileName;
+
+						if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+						{
+							if (recursive)
+							{
+								// Delete subdirectory
+								bool iRC = remove_dir(wstring_to_utf8(strFilePath), recursive);
+								if (!iRC) return false;
+							}
+							else
+								bSubdirectory = true;
+						}
+						else
+						{
+							// Set file attributes
+							if (::SetFileAttributesW(strFilePath.c_str(),
+								FILE_ATTRIBUTE_NORMAL) == FALSE)
+								return false;
+
+							// Delete file
+							if (::DeleteFileW(strFilePath.c_str()) == FALSE)
+								return false;
+						}
+					}
+				} while (::FindNextFileW(hFile, &FileInformation) == TRUE);
+
+				// Close handle
+				::FindClose(hFile);
+
+				DWORD dwError = ::GetLastError();
+				if (dwError != ERROR_NO_MORE_FILES)
+					return false;
+				else
+				{
+					if (!bSubdirectory)
+					{
+						// Set directory attributes
+						if (::SetFileAttributesW(root.c_str(),
+							FILE_ATTRIBUTE_NORMAL) == FALSE)
+							return false;
+
+						// Delete directory
+						if (::RemoveDirectoryW(root.c_str()) == FALSE)
+							return false;
+					}
+				}
+			}
+
+			return true;
+#else
+			if (recursive) ::nftw(path.c_str(), nftw_remove, 20, FTW_DEPTH);
+			else ::remove(path.c_str());
+			return (path_exists(path, false) == false);
+#endif
+		}
+
+		bool remove_file(std::string path)
+		{
+#if ZUPPLY_OS_WINDOWS
+			_wremove(utf8_to_wstring(path).c_str());
+#else
+			unlink(path.c_str());
+#endif
+			return (os::path_exists(path, true) == false);
+		}
+
+		std::string last_error()
+		{
+#if ZUPPLY_OS_WINDOWS
+			DWORD error = GetLastError();
+			if (error)
+			{
+				LPVOID lpMsgBuf;
+				DWORD bufLen = FormatMessage(
+					FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					error,
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR)&lpMsgBuf,
+					0, NULL);
+				if (bufLen)
+				{
+					LPCSTR lpMsgStr = (LPCSTR)lpMsgBuf;
+					std::string result(lpMsgStr, lpMsgStr + bufLen);
+
+					LocalFree(lpMsgBuf);
+
+					return result;
+				}
+			}
+#else
+			char* errStr = strerror(errno);
+			if (errStr) return std::string(errStr);
+#endif
+			return std::string();
 		}
 
 		std::string endl()
@@ -1684,7 +1915,7 @@ namespace zz
 #endif
 		}
 
-		bool path_exists(std::string &path, bool considerFile)
+		bool path_exists(std::string path, bool considerFile)
 		{
 #if ZUPPLY_OS_WINDOWS
 			DWORD fileType = GetFileAttributesW(utf8_to_wstring(path).c_str());
@@ -1693,10 +1924,44 @@ namespace zz
 			}
 			return considerFile ? true : ((fileType & FILE_ATTRIBUTE_DIRECTORY) == 0 ? false : true);
 #elif ZUPPLY_OS_UNIX
-			misc::unused(considerFile);
 			struct stat st;
-			return (stat(path.c_str(), &st) == 0);
-#endif  
+			int ret = stat(path.c_str(), &st);
+			return considerFile ? (ret == 0) : S_ISDIR(st.st_mode);			
+#endif
+			return false;
+		}
+
+		bool is_file(std::string path)
+		{
+#if ZUPPLY_OS_WINDOWS
+			DWORD fileType = GetFileAttributesW(utf8_to_wstring(path).c_str());
+			if (fileType == INVALID_FILE_ATTRIBUTES || ((fileType & FILE_ATTRIBUTE_DIRECTORY) != 0)) 
+			{
+				return false;
+			}
+			return true;
+#elif ZUPPLY_OS_UNIX
+			struct stat st;
+			if (stat(path.c_str(), &st) != 0) return false;
+			if (S_ISDIR(st.st_mode)) return false;
+			return true;
+#endif
+			return false;
+		}
+
+		bool is_directory(std::string path)
+		{
+#if ZUPPLY_OS_WINDOWS
+			DWORD fileType = GetFileAttributesW(utf8_to_wstring(path).c_str());
+			if (fileType == INVALID_FILE_ATTRIBUTES) return false;
+			if ((fileType & FILE_ATTRIBUTE_DIRECTORY) != 0) return true;
+			return false;
+#elif ZUPPLY_OS_UNIX
+			struct stat st;
+			if (stat(path.c_str(), &st) != 0) return false;
+			if (S_ISDIR(st.st_mode)) return true;
+			return false;
+#endif
 			return false;
 		}
 
@@ -1745,6 +2010,31 @@ namespace zz
 			return std::string();
 		}
 
+		std::string normalize_path(std::string dirtyPath)
+		{
+			std::string absPath = absolute_path(dirtyPath);
+#if ZUPPLY_OS_WINDOWS
+			return absPath;
+#else
+			std::vector<std::string> parts = path_split(dirtyPath);
+			std::vector<std::string> ret;
+			for (auto i = parts.begin(); i != parts.end(); ++i)
+			{
+				if (*i == ".") continue;
+				if (*i == "..")
+				{
+					if (ret.size() < 1) throw RuntimeException("Invalid path: " + dirtyPath);
+					ret.pop_back();
+				}
+				else
+				{
+					ret.push_back(*i);
+				}
+			}
+			return "/" + path_join(ret);
+#endif
+		}
+
 		bool create_directory(std::string path)
 		{
 #if ZUPPLY_OS_WINDOWS
@@ -1766,13 +2056,13 @@ namespace zz
 
 		bool create_directory_recursive(std::string path)
 		{
-			std::string tmp = absolute_path(path);
+			std::string tmp = normalize_path(path);
 			std::string target = tmp;
 
 			while (!path_exists(tmp))
 			{
 				if (tmp.empty()) return false;	// invalid path
-				tmp = absolute_path(tmp + "/../");
+				tmp = normalize_path(tmp + "/../");
 			}
 
 			// tmp is the root from where to build
@@ -2035,7 +2325,7 @@ namespace zz
 				++ln_;
 				line_ = fmt::rskip(line_, "#");
 				line_ = fmt::rskip(line_, ";");
-				fmt::trim(line_);
+				line_ = fmt::trim(line_);
 				if (line_.empty()) continue;
 				if (line_[0] == '[')
 				{
@@ -2174,6 +2464,11 @@ namespace zz
 			add_opt_internal(-1, "", false);	// reserve for version
 		}
 
+		std::vector<Value> ArgParser::arguments() const
+		{
+			return args_;
+		}
+
 		void ArgParser::register_keys(char shortKey, std::string longKey, std::size_t pos)
 		{
 			if (shortKey != -1)
@@ -2298,7 +2593,7 @@ namespace zz
 			}
 		}
 
-		ArgParser::ArgQueue ArgParser::pretty_arguments(int argc, char** argv)
+		ArgParser::ArgQueue ArgParser::pretty_arguments(int argc, const char** argv)
 		{
 			ArgQueue queue;
 			for (int p = 1; p < argc; ++p)
@@ -2379,7 +2674,7 @@ namespace zz
 			}
 		}
 
-		void ArgParser::parse(int argc, char** argv, bool ignoreUnknown)
+		void ArgParser::parse(int argc, const char** argv, bool ignoreUnknown)
 		{
 			if (argc < 1)
 			{
@@ -2659,7 +2954,7 @@ namespace zz
 			void RotateFileSink::back_up(std::string oldFile)
 			{
 				std::string backupName = os::path_append_basename(oldFile,
-					time::Date::local_time().to_string("_%y-%m-%d_%H-%M-%S-%frac"));
+					time::DateTime::local_time().to_string("_%y-%m-%d_%H-%M-%S-%frac"));
 				os::rename(oldFile, backupName);
 			}
 
@@ -2824,6 +3119,18 @@ namespace zz
 				}
 				return sinkMap;
 			}
+
+			void zupply_internal_warn(std::string msg)
+			{
+				auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
+				zlog->warn() << msg;
+			}
+
+			void zupply_internal_error(std::string msg)
+			{
+				auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
+				zlog->error() << msg;
+			}
 		} // namespace log::detail
 
 		LogConfig::LogConfig()
@@ -2834,9 +3141,9 @@ namespace zz
 			logLevelMask_ = 0x3C;	//!< 0x3C->b111100: no debug, no trace
 #else
 			logLevelMask_ = 0x3E;	//!< 0x3E->b111110: debug, no trace
+#endif
 			format_.set(std::string(consts::kDefaultLoggerFormat));
 			datetimeFormat_.set(std::string(consts::kDefaultLoggerDatetimeFormat));
-#endif
 		}
 
 		LogConfig& LogConfig::instance()
@@ -3157,10 +3464,8 @@ namespace zz
 			}
 		}
 
-		void config_from_file(std::string cfgFilename)
+		void detail::config_from_parser(cfg::CfgParser& parser)
 		{
-			cfg::CfgParser parser(cfgFilename);
-
 			// config for specific sinks
 			auto sinkSection = parser(consts::KConfigSinkSectionSpecifier).sections;
 			auto sinkMap = detail::config_sinks_from_section(sinkSection);
@@ -3188,16 +3493,16 @@ namespace zz
 			detail::config_loggers_from_section(loggerSection, sinkMap);
 		}
 
-		void zupply_internal_warn(std::string msg)
+		void config_from_file(std::string cfgFilename)
 		{
-			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
-			zlog->warn() << msg;
+			cfg::CfgParser parser(cfgFilename);
+			detail::config_from_parser(parser);
 		}
 
-		void zupply_internal_error(std::string msg)
+		void config_from_stringstream(std::stringstream& ss)
 		{
-			auto zlog = get_logger(consts::kZupplyInternalLoggerName, true);
-			zlog->error() << msg;
+			cfg::CfgParser parser(ss);
+			detail::config_from_parser(parser);
 		}
 
 	} // namespace log

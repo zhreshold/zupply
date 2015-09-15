@@ -2606,7 +2606,7 @@ namespace zz
 			}
 		}
 
-		ArgParser::ArgQueue ArgParser::pretty_arguments(int argc, const char** argv)
+		ArgParser::ArgQueue ArgParser::pretty_arguments(int argc, char** argv)
 		{
 			ArgQueue queue;
 			for (int p = 1; p < argc; ++p)
@@ -2687,7 +2687,7 @@ namespace zz
 			}
 		}
 
-		void ArgParser::parse(int argc, const char** argv, bool ignoreUnknown)
+		void ArgParser::parse(int argc, char** argv, bool ignoreUnknown)
 		{
 			if (argc < 1)
 			{

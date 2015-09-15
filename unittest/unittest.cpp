@@ -529,7 +529,12 @@ TEST_CASE("arg-argParser", "arg-parser")
 
 	// write a test case for argc and argv
 	int argc = 14;
-	const char* argv[] = { "unittest", "-b", "--brief", "-i", "999", "--values", "9", "8", "7", "6", "5", "--float=1.1", "'-1.2'", "--unknown" };
+	char* argv[] = { 
+		(char*)"unittest", (char*)"-b", (char*)"--brief", 
+		(char*)"-i", (char*)"999", (char*)"--values", 
+		(char*)"9", (char*)"8", (char*)"7", (char*)"6", 
+		(char*)"5", (char*)"--float=1.1", (char*)"'-1.2'", 
+		(char*)"--unknown" };
 
 	p.parse(argc, argv, false);
 	REQUIRE(p.count_error() == 1);

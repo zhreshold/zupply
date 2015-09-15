@@ -2379,7 +2379,7 @@ namespace zz
 			 * \param argv
 			 * \param ignoreUnknown Whether or not ignore unknown option keys
 			 */
-			void parse(int argc, const char** argv, bool ignoreUnknown = false);
+			void parse(int argc, char** argv, bool ignoreUnknown = false);
 
 			/*!
 			 * \brief Get error count generated during parsing
@@ -2441,7 +2441,7 @@ namespace zz
 			ArgOption& add_opt_internal(char shortKey, std::string longKey, bool active = true);
 			void register_keys(char shortKey, std::string longKey, std::size_t pos);
 			Type check_type(std::string str);
-			ArgQueue pretty_arguments(int argc, const char** argv);
+			ArgQueue pretty_arguments(int argc, char** argv);
 			void error_option(std::string opt, std::string msg = "");
 			void parse_option(ArgOption* ptr);
 			void parse_value(ArgOption* ptr, const std::string& value);

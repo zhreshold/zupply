@@ -12,9 +12,9 @@ ENDIF()
 add_executable(unittest
 				../unittest/unittest.cpp
 				../src/zupply.hpp
-				../src/zupply.cpp)
+				../src/zupply.cpp)
 
 add_executable(quickstart
-				../src/quickstart.cpp
+				../src/quickstart.cpp
 				../src/zupply.hpp
 				../src/zupply.cpp)

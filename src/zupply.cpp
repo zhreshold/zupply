@@ -895,6 +895,19 @@ namespace zz
 			return str;
 		}
 
+		std::string rskip_all(std::string str, std::string delim)
+		{
+			auto pos = str.find(delim);
+			if (pos == std::string::npos)
+			{
+				return str;
+			}
+			else
+			{
+				return str.substr(0, pos);
+			}
+		}
+
 		std::vector<std::string> split(const std::string s, char delim)
 		{
 			std::vector<std::string> elems;
@@ -1813,7 +1826,7 @@ namespace zz
 #else
 			if (recursive) ::nftw(path.c_str(), nftw_remove, 20, FTW_DEPTH);
 			else ::remove(path.c_str());
-			return (path_exists(path, false) == false);
+			return (is_directory(path) == false);
 #endif
 		}
 
@@ -1824,7 +1837,7 @@ namespace zz
 #else
 			unlink(path.c_str());
 #endif
-			return (os::path_exists(path, true) == false);
+			return (is_file(path) == false);
 		}
 
 		std::string last_error()
@@ -2323,8 +2336,8 @@ namespace zz
 			while (std::getline(*pstream_, line_))
 			{
 				++ln_;
-				line_ = fmt::rskip(line_, "#");
-				line_ = fmt::rskip(line_, ";");
+				line_ = fmt::rskip_all(line_, "#");
+				line_ = fmt::rskip_all(line_, ";");
 				line_ = fmt::trim(line_);
 				if (line_.empty()) continue;
 				if (line_[0] == '[')
@@ -3013,6 +3026,7 @@ namespace zz
 							if (list.empty()) continue;
 							sink_list_revise(list, map);
 							if (!logger) logger = get_logger(loggerSec.first, true);
+							logger->detach_all_sinks();
 							logger->attach_sink_list(list);
 						}
 						else
@@ -3261,6 +3275,11 @@ namespace zz
 			sinks_.erase(sink->name());
 		}
 
+		void Logger::detach_all_sinks()
+		{
+			sinks_.clear();
+		}
+
 		void Logger::log_msg(detail::LogMessage msg)
 		{
 			auto sinks = sinks_.snapshot();
@@ -3427,7 +3446,7 @@ namespace zz
 				}
 				else
 				{
-					psink = get_sink(sinkname);
+					psink = log::get_sink(sinkname);
 				}
 				if (psink && (!this->get_sink(psink->name()))) attach_sink(psink);
 			}

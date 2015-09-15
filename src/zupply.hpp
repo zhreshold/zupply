@@ -1766,6 +1766,14 @@ namespace zz
 		std::string rskip(std::string str, std::string delim);
 
 		/*!
+		 * \brief Skip from right, remove all stuff right to left-most delim
+		 * \param str
+		 * \param delim
+		 * \return Skipped string
+		 */
+		std::string rskip_all(std::string str, std::string delim);
+
+		/*!
 		 * \brief Split string into parts with specified single char delimiter
 		 * \param s
 		 * \param delim
@@ -1901,7 +1909,9 @@ namespace zz
 		template<typename Arg>
 		inline void format_string(std::string &fmt, const Arg &last)
 		{
-			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(last));
+			std::stringstream ss;
+			ss << last;
+			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, ss.str());
 		}
 
 		/*!
@@ -1914,7 +1924,9 @@ namespace zz
 		template<typename Arg, typename... Args>
 		inline void format_string(std::string &fmt, const Arg& current, const Args&... more)
 		{
-			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, std::to_string(current));
+			std::stringstream ss;
+			ss << current;
+			replace_first_with_escape(fmt, consts::kFormatSpecifierPlaceHolder, ss.str());
 			format_string(fmt, more...);
 		}
 
@@ -2932,6 +2944,11 @@ namespace zz
 			 * \param sink
 			 */
 			void detach_sink(SinkPtr sink);
+
+			/*!
+			* \brief Detach all sinks from this logger.
+			*/
+			void detach_all_sinks();
 
 			/*!
 			 * \brief Attach the entire vector of sinks to the logger.

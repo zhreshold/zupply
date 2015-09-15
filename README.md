@@ -19,12 +19,12 @@ for reaserches/small projects/demos.
 - Zero dependency, only C++ 11 standard
 - Designed to be easily included in projects, no need to link
 - Pure and clean, everything wrapped in namespace zz, almost no pollution if you don't expose the namespace
-- Targeting linux/windows/Mac OS X, meanwhile providing unified experience coding on each platform
+- Targeting Linux/Windows/Mac OS X/Partial Unix based OSes, meanwhile providing unified experience coding on each platform
 
 #### What's included
 - Command line argument parser
 - INI/CFG configuration file parser
-- Easy to use Timer/Date class to measure time and date
+- Easy to use Timer/DateTime class to measure time and date
 - Fast sync/async logger with rich information and highly configurable
 - Cross-platform functions to handle file-systems, such as create directory, check file existance, etc...
 - Various formatting functions to trim/split/replace strings
@@ -56,7 +56,6 @@ int main(int argc, char** argv)
 - Build and run
 
 ##### Note: you will need a compiler which support C++11 features, the following compilers/libraries are tested
-##### Pre-requisite: cmake 2.6 or above
 - vc++12(Visual Studio 2013) or newer
 ```
 # create visual studio project require cmake
@@ -68,7 +67,7 @@ cd build & create_visual_studio_2013_project.bat
 cd build
 cmake .
 make
-# manual build without cmake
+# or manual build without cmake
 cd build
 g++ -std=c++11 -pthread ../unittest/unittest.cpp ../src/zupply.cpp -lpthread -o unittest
 ```

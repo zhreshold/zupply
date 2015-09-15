@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -112,9 +133,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab2d36d058a38e849f7e2e9c91d402d06"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#ab2d36d058a38e849f7e2e9c91d402d06">version</a> () const </td></tr>
 <tr class="memdesc:ab2d36d058a38e849f7e2e9c91d402d06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return version info.  <a href="#ab2d36d058a38e849f7e2e9c91d402d06">More...</a><br /></td></tr>
 <tr class="separator:ab2d36d058a38e849f7e2e9c91d402d06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13f6fcbf8602597c24baa594c3a14656"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a13f6fcbf8602597c24baa594c3a14656">parse</a> (int argc, char **argv, bool ignoreUnknown=false)</td></tr>
-<tr class="memdesc:a13f6fcbf8602597c24baa594c3a14656"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start parsing arguments.  <a href="#a13f6fcbf8602597c24baa594c3a14656">More...</a><br /></td></tr>
-<tr class="separator:a13f6fcbf8602597c24baa594c3a14656"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abeb579f718b529e70d16b3257a9d8c3c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#abeb579f718b529e70d16b3257a9d8c3c">parse</a> (int argc, const char **argv, bool ignoreUnknown=false)</td></tr>
+<tr class="memdesc:abeb579f718b529e70d16b3257a9d8c3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start parsing arguments.  <a href="#abeb579f718b529e70d16b3257a9d8c3c">More...</a><br /></td></tr>
+<tr class="separator:abeb579f718b529e70d16b3257a9d8c3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a326175ea6cf1e950532dee18b76b545c"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a326175ea6cf1e950532dee18b76b545c">count_error</a> ()</td></tr>
 <tr class="memdesc:a326175ea6cf1e950532dee18b76b545c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get error count generated during parsing.  <a href="#a326175ea6cf1e950532dee18b76b545c">More...</a><br /></td></tr>
 <tr class="separator:a326175ea6cf1e950532dee18b76b545c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,6 +157,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adca3f74df00e17acc8a5973a4f5378d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1cfg_1_1_value.html">Value</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#adca3f74df00e17acc8a5973a4f5378d0">operator[]</a> (const char shortKey)</td></tr>
 <tr class="memdesc:adca3f74df00e17acc8a5973a4f5378d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overloaded operator [] to retrieve the value by short key.  <a href="#adca3f74df00e17acc8a5973a4f5378d0">More...</a><br /></td></tr>
 <tr class="separator:adca3f74df00e17acc8a5973a4f5378d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a295add46b55b01e3a9b6cc2d0230e4b7"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classzz_1_1cfg_1_1_value.html">Value</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a295add46b55b01e3a9b6cc2d0230e4b7">arguments</a> () const </td></tr>
+<tr class="memdesc:a295add46b55b01e3a9b6cc2d0230e4b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return all input arguments that does not belong to any option.  <a href="#a295add46b55b01e3a9b6cc2d0230e4b7">More...</a><br /></td></tr>
+<tr class="separator:a295add46b55b01e3a9b6cc2d0230e4b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html" title="The ArgParser class. For parsing command line arguments. ">ArgParser</a> class. For parsing command line arguments. </p>
@@ -627,6 +651,24 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a295add46b55b01e3a9b6cc2d0230e4b7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classzz_1_1cfg_1_1_value.html">Value</a> &gt; zz::cfg::ArgParser::arguments </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return all input arguments that does not belong to any option. </p>
+<dl class="section return"><dt>Returns</dt><dd>Arguments in vector </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a503f5c08abdd5e800df3a522127e1c73"></a>
 <div class="memitem">
 <div class="memproto">
@@ -789,7 +831,7 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a13f6fcbf8602597c24baa594c3a14656"></a>
+<a class="anchor" id="abeb579f718b529e70d16b3257a9d8c3c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -802,7 +844,7 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char **&#160;</td>
+          <td class="paramtype">const char **&#160;</td>
           <td class="paramname"><em>argv</em>, </td>
         </tr>
         <tr>
@@ -870,7 +912,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

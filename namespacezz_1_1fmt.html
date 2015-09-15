@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -71,24 +92,30 @@ Functions</h2></td></tr>
 <tr class="memitem:aab07c998af4c831b46d9e03ec42c2246"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#aab07c998af4c831b46d9e03ec42c2246">wild_card_match</a> (const char *str, const char *pattern)</td></tr>
 <tr class="memdesc:aab07c998af4c831b46d9e03ec42c2246"><td class="mdescLeft">&#160;</td><td class="mdescRight">Match string with wildcard. Match string with wildcard pattern, '*' and '?' supported.  <a href="#aab07c998af4c831b46d9e03ec42c2246">More...</a><br /></td></tr>
 <tr class="separator:aab07c998af4c831b46d9e03ec42c2246"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a696df5aa35802e7321ddcb761e3560"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a6a696df5aa35802e7321ddcb761e3560">ltrim</a> (std::string &amp;str)</td></tr>
-<tr class="memdesc:a6a696df5aa35802e7321ddcb761e3560"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left trim whitespace.  <a href="#a6a696df5aa35802e7321ddcb761e3560">More...</a><br /></td></tr>
-<tr class="separator:a6a696df5aa35802e7321ddcb761e3560"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae323b1e59582ff9f34b0a0955485ca0c"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ae323b1e59582ff9f34b0a0955485ca0c">rtrim</a> (std::string &amp;str)</td></tr>
-<tr class="memdesc:ae323b1e59582ff9f34b0a0955485ca0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Right trim whitespace.  <a href="#ae323b1e59582ff9f34b0a0955485ca0c">More...</a><br /></td></tr>
-<tr class="separator:ae323b1e59582ff9f34b0a0955485ca0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70703afea548a515f88a317cc7314d96"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a70703afea548a515f88a317cc7314d96">trim</a> (std::string &amp;str)</td></tr>
-<tr class="memdesc:a70703afea548a515f88a317cc7314d96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left and right trim whitespace.  <a href="#a70703afea548a515f88a317cc7314d96">More...</a><br /></td></tr>
-<tr class="separator:a70703afea548a515f88a317cc7314d96"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fb86ee84554c702edf61300c4d5b5a7"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a7fb86ee84554c702edf61300c4d5b5a7">lstrip</a> (std::string &amp;str, std::string what)</td></tr>
-<tr class="memdesc:a7fb86ee84554c702edf61300c4d5b5a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip specified sub-string from left. The strip will do strict check from left, even whitespace. This function will change string in-place.  <a href="#a7fb86ee84554c702edf61300c4d5b5a7">More...</a><br /></td></tr>
-<tr class="separator:a7fb86ee84554c702edf61300c4d5b5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafbb773fd96d50116b6f5a13276ce38a"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#aafbb773fd96d50116b6f5a13276ce38a">rstrip</a> (std::string &amp;str, std::string what)</td></tr>
-<tr class="memdesc:aafbb773fd96d50116b6f5a13276ce38a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip specified sub-string from right. The strip will do strict check from right, even whitespace. This function will change string in-place.  <a href="#aafbb773fd96d50116b6f5a13276ce38a">More...</a><br /></td></tr>
-<tr class="separator:aafbb773fd96d50116b6f5a13276ce38a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c107a8b39587f93473ccb87bb081ed8"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a6c107a8b39587f93473ccb87bb081ed8">rskip</a> (std::string &amp;str, std::string delim)</td></tr>
-<tr class="memdesc:a6c107a8b39587f93473ccb87bb081ed8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip from right until delimiter string found. This function modify string in-place.  <a href="#a6c107a8b39587f93473ccb87bb081ed8">More...</a><br /></td></tr>
-<tr class="separator:a6c107a8b39587f93473ccb87bb081ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32eec30503d4a03c413872922e6960b6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a32eec30503d4a03c413872922e6960b6">ltrim</a> (std::string str)</td></tr>
+<tr class="memdesc:a32eec30503d4a03c413872922e6960b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left trim whitespace.  <a href="#a32eec30503d4a03c413872922e6960b6">More...</a><br /></td></tr>
+<tr class="separator:a32eec30503d4a03c413872922e6960b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31a40c66d7998435b8cffe38e540258b"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a31a40c66d7998435b8cffe38e540258b">rtrim</a> (std::string str)</td></tr>
+<tr class="memdesc:a31a40c66d7998435b8cffe38e540258b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Right trim whitespace.  <a href="#a31a40c66d7998435b8cffe38e540258b">More...</a><br /></td></tr>
+<tr class="separator:a31a40c66d7998435b8cffe38e540258b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f754b2823f45b0a306f8478a350bc19"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a4f754b2823f45b0a306f8478a350bc19">trim</a> (std::string str)</td></tr>
+<tr class="memdesc:a4f754b2823f45b0a306f8478a350bc19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left and right trim whitespace.  <a href="#a4f754b2823f45b0a306f8478a350bc19">More...</a><br /></td></tr>
+<tr class="separator:a4f754b2823f45b0a306f8478a350bc19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59f1aaebacc3f747cae1c9baa5b9a823"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a59f1aaebacc3f747cae1c9baa5b9a823">lstrip</a> (std::string str, std::string what)</td></tr>
+<tr class="memdesc:a59f1aaebacc3f747cae1c9baa5b9a823"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip specified sub-string from left. The strip will do strict check from left, even whitespace.  <a href="#a59f1aaebacc3f747cae1c9baa5b9a823">More...</a><br /></td></tr>
+<tr class="separator:a59f1aaebacc3f747cae1c9baa5b9a823"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab33b3a1a10d7e509bddf9161a25e91b8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ab33b3a1a10d7e509bddf9161a25e91b8">rstrip</a> (std::string str, std::string what)</td></tr>
+<tr class="memdesc:ab33b3a1a10d7e509bddf9161a25e91b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strip specified sub-string from right. The strip will do strict check from right, even whitespace.  <a href="#ab33b3a1a10d7e509bddf9161a25e91b8">More...</a><br /></td></tr>
+<tr class="separator:ab33b3a1a10d7e509bddf9161a25e91b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77f02dd60865750528c9ef541d1b383c"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a77f02dd60865750528c9ef541d1b383c">lskip</a> (std::string str, std::string delim)</td></tr>
+<tr class="memdesc:a77f02dd60865750528c9ef541d1b383c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip from left until delimiter string found.  <a href="#a77f02dd60865750528c9ef541d1b383c">More...</a><br /></td></tr>
+<tr class="separator:a77f02dd60865750528c9ef541d1b383c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2cafe7ab20443d75dd33571fa9d19be"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ac2cafe7ab20443d75dd33571fa9d19be">rskip</a> (std::string str, std::string delim)</td></tr>
+<tr class="memdesc:ac2cafe7ab20443d75dd33571fa9d19be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip from right until delimiter string found.  <a href="#ac2cafe7ab20443d75dd33571fa9d19be">More...</a><br /></td></tr>
+<tr class="separator:ac2cafe7ab20443d75dd33571fa9d19be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad32523e1aab45b122820cb47cc960b17"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ad32523e1aab45b122820cb47cc960b17">rskip_all</a> (std::string str, std::string delim)</td></tr>
+<tr class="memdesc:ad32523e1aab45b122820cb47cc960b17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip from right, remove all stuff right to left-most delim.  <a href="#ad32523e1aab45b122820cb47cc960b17">More...</a><br /></td></tr>
+<tr class="separator:ad32523e1aab45b122820cb47cc960b17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e6ff0b49b454b309e42be51e7aca772"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a9e6ff0b49b454b309e42be51e7aca772">split</a> (const std::string s, char delim= ' ')</td></tr>
 <tr class="memdesc:a9e6ff0b49b454b309e42be51e7aca772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split string into parts with specified single char delimiter.  <a href="#a9e6ff0b49b454b309e42be51e7aca772">More...</a><br /></td></tr>
 <tr class="separator:a9e6ff0b49b454b309e42be51e7aca772"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,8 +155,11 @@ Functions</h2></td></tr>
 <tr class="memitem:a3d73194973d3de063be8656feec92828"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a3d73194973d3de063be8656feec92828">replace_all_with_escape</a> (std::string &amp;str, const std::string &amp;replaceWhat, const std::string &amp;replaceWith)</td></tr>
 <tr class="memdesc:a3d73194973d3de063be8656feec92828"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace every occurance of one string with specified another string. Replace in-place.  <a href="#a3d73194973d3de063be8656feec92828">More...</a><br /></td></tr>
 <tr class="separator:a3d73194973d3de063be8656feec92828"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd886ce37a495370fa884160e725d9fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#abd886ce37a495370fa884160e725d9fc">replace_sequential_with_escape</a> (std::string &amp;str, const std::string &amp;replaceWhat, const std::vector&lt; std::string &gt; &amp;replaceWith)</td></tr>
+<tr class="memdesc:abd886ce37a495370fa884160e725d9fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace every occurance of one string with specified list of strings sequentially. Replace in-place.  <a href="#abd886ce37a495370fa884160e725d9fc">More...</a><br /></td></tr>
+<tr class="separator:abd886ce37a495370fa884160e725d9fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5e74fec90695ac896a641a3c7d511af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ad5e74fec90695ac896a641a3c7d511af">str_equals</a> (const char *s1, const char *s2)</td></tr>
-<tr class="memdesc:ad5e74fec90695ac896a641a3c7d511af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare c style raw string Will take care of string not ends with '\0', which is unsafe using strcmp().  <a href="#ad5e74fec90695ac896a641a3c7d511af">More...</a><br /></td></tr>
+<tr class="memdesc:ad5e74fec90695ac896a641a3c7d511af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare c style raw string Will take care of string not ends with '\0'(ignore it), which is unsafe using strcmp().  <a href="#ad5e74fec90695ac896a641a3c7d511af">More...</a><br /></td></tr>
 <tr class="separator:ad5e74fec90695ac896a641a3c7d511af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5382877380a1e94628e20c9f2bcb7e35"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a5382877380a1e94628e20c9f2bcb7e35">to_lower_ascii</a> (std::string mixed)</td></tr>
 <tr class="memdesc:a5382877380a1e94628e20c9f2bcb7e35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert string to lower case. Support ASCII characters only. Unicode string will trigger undefined behavior.  <a href="#a5382877380a1e94628e20c9f2bcb7e35">More...</a><br /></td></tr>
@@ -137,21 +167,21 @@ Functions</h2></td></tr>
 <tr class="memitem:a045944b579192928454fca6fe6759a79"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a045944b579192928454fca6fe6759a79">to_upper_ascii</a> (std::string mixed)</td></tr>
 <tr class="memdesc:a045944b579192928454fca6fe6759a79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert string to upper case. Support ASCII characters only. Unicode string will trigger undefined behavior.  <a href="#a045944b579192928454fca6fe6759a79">More...</a><br /></td></tr>
 <tr class="separator:a045944b579192928454fca6fe6759a79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a735a7b6a36db4d1a7f6cee3bc00579da"><td class="memItemLeft" align="right" valign="top">std::u16string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a735a7b6a36db4d1a7f6cee3bc00579da">utf8_to_utf16</a> (std::string u8str)</td></tr>
+<tr class="memdesc:a735a7b6a36db4d1a7f6cee3bc00579da"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-8 string to UTF-16 string.  <a href="#a735a7b6a36db4d1a7f6cee3bc00579da">More...</a><br /></td></tr>
+<tr class="separator:a735a7b6a36db4d1a7f6cee3bc00579da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe7f581dd7e9b624bb7da8d2781f0882"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#abe7f581dd7e9b624bb7da8d2781f0882">utf16_to_utf8</a> (std::u16string u16str)</td></tr>
+<tr class="memdesc:abe7f581dd7e9b624bb7da8d2781f0882"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-16 string to UTF-8 string.  <a href="#abe7f581dd7e9b624bb7da8d2781f0882">More...</a><br /></td></tr>
+<tr class="separator:abe7f581dd7e9b624bb7da8d2781f0882"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae870c7a952a191b435a4c43cecefa90f"><td class="memItemLeft" align="right" valign="top">std::u32string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ae870c7a952a191b435a4c43cecefa90f">utf8_to_utf32</a> (std::string u8str)</td></tr>
+<tr class="memdesc:ae870c7a952a191b435a4c43cecefa90f"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-8 string to UTF-32 string.  <a href="#ae870c7a952a191b435a4c43cecefa90f">More...</a><br /></td></tr>
+<tr class="separator:ae870c7a952a191b435a4c43cecefa90f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae76e65db1661ec694326001ce824ba85"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#ae76e65db1661ec694326001ce824ba85">utf32_to_utf8</a> (std::u32string u32str)</td></tr>
+<tr class="memdesc:ae76e65db1661ec694326001ce824ba85"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-32 string to UTF-8 string.  <a href="#ae76e65db1661ec694326001ce824ba85">More...</a><br /></td></tr>
+<tr class="separator:ae76e65db1661ec694326001ce824ba85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0bfa8aea7b6901dc83b93dc286cc9918"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a0bfa8aea7b6901dc83b93dc286cc9918">int_to_zero_pad_str</a> (int num, int length)</td></tr>
 <tr class="memdesc:a0bfa8aea7b6901dc83b93dc286cc9918"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert int to left zero padded string.  <a href="#a0bfa8aea7b6901dc83b93dc286cc9918">More...</a><br /></td></tr>
 <tr class="separator:a0bfa8aea7b6901dc83b93dc286cc9918"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa50192d21d60a83af5d0afa7a1189a6f"><td class="memItemLeft" align="right" valign="top">std::u16string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#aa50192d21d60a83af5d0afa7a1189a6f">utf8_to_utf16</a> (std::string &amp;u8str)</td></tr>
-<tr class="memdesc:aa50192d21d60a83af5d0afa7a1189a6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-8 string to UTF-16 string.  <a href="#aa50192d21d60a83af5d0afa7a1189a6f">More...</a><br /></td></tr>
-<tr class="separator:aa50192d21d60a83af5d0afa7a1189a6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ef8462ec2c52c4be9e9a9667629ad89"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a1ef8462ec2c52c4be9e9a9667629ad89">utf16_to_utf8</a> (std::u16string &amp;u16str)</td></tr>
-<tr class="memdesc:a1ef8462ec2c52c4be9e9a9667629ad89"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-16 string to UTF-8 string.  <a href="#a1ef8462ec2c52c4be9e9a9667629ad89">More...</a><br /></td></tr>
-<tr class="separator:a1ef8462ec2c52c4be9e9a9667629ad89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78ff395869423c2fe98644d4f249c89c"><td class="memItemLeft" align="right" valign="top">std::u32string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#a78ff395869423c2fe98644d4f249c89c">utf8_to_utf32</a> (std::string &amp;u8str)</td></tr>
-<tr class="memdesc:a78ff395869423c2fe98644d4f249c89c"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-8 string to UTF-32 string.  <a href="#a78ff395869423c2fe98644d4f249c89c">More...</a><br /></td></tr>
-<tr class="separator:a78ff395869423c2fe98644d4f249c89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa875daf41e52961d02b4826ba56fb5d3"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#aa875daf41e52961d02b4826ba56fb5d3">utf32_to_utf8</a> (std::u32string &amp;u32str)</td></tr>
-<tr class="memdesc:aa875daf41e52961d02b4826ba56fb5d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ 11 UTF-32 string to UTF-8 string.  <a href="#aa875daf41e52961d02b4826ba56fb5d3">More...</a><br /></td></tr>
-<tr class="separator:aa875daf41e52961d02b4826ba56fb5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5943c7e37c3676facf74b8393009059"><td class="memTemplParams" colspan="2">template&lt;typename Arg &gt; </td></tr>
 <tr class="memitem:af5943c7e37c3676facf74b8393009059"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacezz_1_1fmt.html#af5943c7e37c3676facf74b8393009059">format_string</a> (std::string &amp;fmt, const Arg &amp;last)</td></tr>
 <tr class="memdesc:af5943c7e37c3676facf74b8393009059"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format function to replace each {} with templated type variable.  <a href="#af5943c7e37c3676facf74b8393009059">More...</a><br /></td></tr>
@@ -427,14 +457,50 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a7fb86ee84554c702edf61300c4d5b5a7"></a>
+<a class="anchor" id="a77f02dd60865750528c9ef541d1b383c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::lstrip </td>
+          <td class="memname">std::string zz::fmt::lskip </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>delim</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Skip from left until delimiter string found. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">delim</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Skipped string </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a59f1aaebacc3f747cae1c9baa5b9a823"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::fmt::lstrip </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em>, </td>
         </tr>
         <tr>
@@ -451,7 +517,7 @@ template&lt;typename Arg , typename... Args&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Strip specified sub-string from left. The strip will do strict check from left, even whitespace. This function will change string in-place. </p>
+<p>Strip specified sub-string from left. The strip will do strict check from left, even whitespace. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">str</td><td>Original string </td></tr>
@@ -463,14 +529,14 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a6a696df5aa35802e7321ddcb761e3560"></a>
+<a class="anchor" id="a32eec30503d4a03c413872922e6960b6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::ltrim </td>
+          <td class="memname">std::string zz::fmt::ltrim </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em></td><td>)</td>
           <td></td>
         </tr>
@@ -658,14 +724,56 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a6c107a8b39587f93473ccb87bb081ed8"></a>
+<a class="anchor" id="abd886ce37a495370fa884160e725d9fc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::rskip </td>
+          <td class="memname">void zz::fmt::replace_sequential_with_escape </td>
           <td>(</td>
           <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>replaceWhat</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>replaceWith</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Replace every occurance of one string with specified list of strings sequentially. Replace in-place. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">replaceWhat</td><td>What substring to be replaced. </td></tr>
+    <tr><td class="paramname">replaceWith</td><td>Vector of what strings to replace one by one. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ac2cafe7ab20443d75dd33571fa9d19be"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::fmt::rskip </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em>, </td>
         </tr>
         <tr>
@@ -682,7 +790,7 @@ template&lt;typename Arg , typename... Args&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Skip from right until delimiter string found. This function modify string in-place. </p>
+<p>Skip from right until delimiter string found. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">str</td><td></td></tr>
@@ -694,14 +802,50 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aafbb773fd96d50116b6f5a13276ce38a"></a>
+<a class="anchor" id="ad32523e1aab45b122820cb47cc960b17"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::rstrip </td>
+          <td class="memname">std::string zz::fmt::rskip_all </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>delim</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Skip from right, remove all stuff right to left-most delim. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">delim</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Skipped string </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab33b3a1a10d7e509bddf9161a25e91b8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::fmt::rstrip </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em>, </td>
         </tr>
         <tr>
@@ -718,7 +862,7 @@ template&lt;typename Arg , typename... Args&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Strip specified sub-string from right. The strip will do strict check from right, even whitespace. This function will change string in-place. </p>
+<p>Strip specified sub-string from right. The strip will do strict check from right, even whitespace. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">str</td><td>Original string </td></tr>
@@ -730,14 +874,14 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ae323b1e59582ff9f34b0a0955485ca0c"></a>
+<a class="anchor" id="a31a40c66d7998435b8cffe38e540258b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::rtrim </td>
+          <td class="memname">std::string zz::fmt::rtrim </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em></td><td>)</td>
           <td></td>
         </tr>
@@ -985,7 +1129,7 @@ template&lt;typename Arg , typename... Args&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Compare c style raw string Will take care of string not ends with '\0', which is unsafe using strcmp(). </p>
+<p>Compare c style raw string Will take care of string not ends with '\0'(ignore it), which is unsafe using strcmp(). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s1</td><td></td></tr>
@@ -1047,14 +1191,14 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a70703afea548a515f88a317cc7314d96"></a>
+<a class="anchor" id="a4f754b2823f45b0a306f8478a350bc19"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::string &amp; zz::fmt::trim </td>
+          <td class="memname">std::string zz::fmt::trim </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>str</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1072,26 +1216,18 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a1ef8462ec2c52c4be9e9a9667629ad89"></a>
+<a class="anchor" id="abe7f581dd7e9b624bb7da8d2781f0882"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::string zz::fmt::utf16_to_utf8 </td>
           <td>(</td>
-          <td class="paramtype">std::u16string &amp;&#160;</td>
+          <td class="paramtype">std::u16string&#160;</td>
           <td class="paramname"><em>u16str</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>C++ 11 UTF-16 string to UTF-8 string. </p>
@@ -1105,26 +1241,18 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aa875daf41e52961d02b4826ba56fb5d3"></a>
+<a class="anchor" id="ae76e65db1661ec694326001ce824ba85"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::string zz::fmt::utf32_to_utf8 </td>
           <td>(</td>
-          <td class="paramtype">std::u32string &amp;&#160;</td>
+          <td class="paramtype">std::u32string&#160;</td>
           <td class="paramname"><em>u32str</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>C++ 11 UTF-32 string to UTF-8 string. </p>
@@ -1138,26 +1266,18 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aa50192d21d60a83af5d0afa7a1189a6f"></a>
+<a class="anchor" id="a735a7b6a36db4d1a7f6cee3bc00579da"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::u16string zz::fmt::utf8_to_utf16 </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>u8str</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>C++ 11 UTF-8 string to UTF-16 string. </p>
@@ -1171,26 +1291,18 @@ template&lt;typename Arg , typename... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a78ff395869423c2fe98644d4f249c89c"></a>
+<a class="anchor" id="ae870c7a952a191b435a4c43cecefa90f"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::u32string zz::fmt::utf8_to_utf32 </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>u8str</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>C++ 11 UTF-8 string to UTF-32 string. </p>
@@ -1249,7 +1361,7 @@ template&lt;typename Arg , typename... Args&gt; </div>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

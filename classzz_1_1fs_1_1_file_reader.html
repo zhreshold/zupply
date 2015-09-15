@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -82,11 +103,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aaba56ad7bb489aabc59a2229e5291dd6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#aaba56ad7bb489aabc59a2229e5291dd6">FileReader</a> (std::string <a class="el" href="classzz_1_1fs_1_1_file_reader.html#a33fe52eeaa475dbf12b2ec0169fb5fc3">filename</a>, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td></tr>
 <tr class="memdesc:aaba56ad7bb489aabc59a2229e5291dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> constructor.  <a href="#aaba56ad7bb489aabc59a2229e5291dd6">More...</a><br /></td></tr>
 <tr class="separator:aaba56ad7bb489aabc59a2229e5291dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7630c8edd1dcf3f25cbbfbfdef34ae49"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#a7630c8edd1dcf3f25cbbfbfdef34ae49">FileReader</a> (<a class="el" href="classzz_1_1fs_1_1_file_reader.html">FileReader</a> &amp;&amp;other)</td></tr>
-<tr class="memdesc:a7630c8edd1dcf3f25cbbfbfdef34ae49"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> move constructor.  <a href="#a7630c8edd1dcf3f25cbbfbfdef34ae49">More...</a><br /></td></tr>
-<tr class="separator:a7630c8edd1dcf3f25cbbfbfdef34ae49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33fe52eeaa475dbf12b2ec0169fb5fc3"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#a33fe52eeaa475dbf12b2ec0169fb5fc3">filename</a> () const </td></tr>
-<tr class="memdesc:a33fe52eeaa475dbf12b2ec0169fb5fc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return filename.  <a href="#a33fe52eeaa475dbf12b2ec0169fb5fc3">More...</a><br /></td></tr>
+<tr class="memdesc:a33fe52eeaa475dbf12b2ec0169fb5fc3"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> move constructor.  <a href="#a33fe52eeaa475dbf12b2ec0169fb5fc3">More...</a><br /></td></tr>
 <tr class="separator:a33fe52eeaa475dbf12b2ec0169fb5fc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41d8817f922924ecec18caf1f229f989"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#a41d8817f922924ecec18caf1f229f989">is_open</a> () const </td></tr>
 <tr class="memdesc:a41d8817f922924ecec18caf1f229f989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if is opened.  <a href="#a41d8817f922924ecec18caf1f229f989">More...</a><br /></td></tr>
@@ -147,30 +165,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
-<a class="anchor" id="a7630c8edd1dcf3f25cbbfbfdef34ae49"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">zz::fs::FileReader::FileReader </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classzz_1_1fs_1_1_file_reader.html">FileReader</a> &amp;&amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p><a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> move constructor. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">other</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ac0685e56c4402546e6b0d44dc873d160"></a>
 <div class="memitem">
@@ -211,8 +205,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </table>
 </div><div class="memdoc">
 
-<p>Return filename. </p>
-<dl class="section return"><dt>Returns</dt><dd>Filename </dd></dl>
+<p><a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> move constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">other</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Return filename </p><dl class="section return"><dt>Returns</dt><dd>Filename </dd></dl>
 
 </div>
 </div>
@@ -281,7 +281,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

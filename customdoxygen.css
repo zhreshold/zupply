@@ -17,6 +17,36 @@ h1.groupheader {
 	margin: 10px 2px;
 }
 
+.navbar
+{
+	border-radius: 1px;
+}
+
+.navbar-custom
+{
+	background-color: #222;
+	border-color: #080808;
+}
+
+.navbar-custom a:hover
+{
+	background-color: rgba(255,255,255,.3);
+}
+
+.navbar-custom a {
+    color: #fff;
+}
+
+.navbar-header a:hover
+{
+	color: #fff;
+}
+
+ul.nav.navbar-nav
+{
+	float: right;
+}
+
 h2.groupheader {
 	border-bottom: 1px solid #879ECB;
 	color: #354C7B;

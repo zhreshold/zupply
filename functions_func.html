@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -94,13 +115,16 @@
 : <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a8c9244ce18221ef2716402a9270bdd47">zz::cfg::ArgParser</a>
 </li>
 <li>add_opt_version()
-: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#ae77499c32cdaab78bb07adc55c5cf99f">zz::cfg::ArgParser</a>
+: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#ac99de37877a985a36369de7c139a3023">zz::cfg::ArgParser</a>
 </li>
-<li>ArgOption::ArgOption()
-: <a class="el" href="classzz_1_1cfg_1_1_arg_option.html#af835f103d5fdaeffcc400d5a77501949">zz::cfg::ArgOption</a>
+<li>ArgOption()
+: <a class="el" href="classzz_1_1cfg_1_1_arg_option.html#ab5f81a5646644c28753fc1cda3d9e5ba">zz::cfg::ArgOption</a>
 </li>
 <li>ArgParser()
 : <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#ade841c07f4205a7d603c851a0fc22104">zz::cfg::ArgParser</a>
+</li>
+<li>arguments()
+: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a295add46b55b01e3a9b6cc2d0230e4b7">zz::cfg::ArgParser</a>
 </li>
 <li>attach_console()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#ab8bba067f4cca3f0bd4555d13cd15dad">zz::log::Logger</a>
@@ -122,15 +146,14 @@
 : <a class="el" href="classzz_1_1cfg_1_1_cfg_parser.html#a5caaae3b741d309aba064d510cf3f50d">zz::cfg::CfgParser</a>
 </li>
 <li>clear()
-: <a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html#af977bc4c134190423db34e3592b649a1">zz::cds::AtomicUnorderedMap&lt; Key, Value &gt;</a>
-, <a class="el" href="classzz_1_1cfg_1_1_value.html#a186068af28a29551133cc927ac6f7467">zz::cfg::Value</a>
+: <a class="el" href="classzz_1_1cfg_1_1_value.html#a186068af28a29551133cc927ac6f7467">zz::cfg::Value</a>
 </li>
 <li>close()
 : <a class="el" href="classzz_1_1fs_1_1_file_editor.html#af9df7e44ab5c20883841b6805b15b0b4">zz::fs::FileEditor</a>
 , <a class="el" href="classzz_1_1fs_1_1_file_reader.html#a5f4c6bb2c9e7ba3d4d63794ba5cbc825">zz::fs::FileReader</a>
 </li>
 <li>count()
-: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#ad11c58abebf476691ddb689d89736e7f">zz::cfg::ArgParser</a>
+: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a503f5c08abdd5e800df3a522127e1c73">zz::cfg::ArgParser</a>
 </li>
 <li>count_error()
 : <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a326175ea6cf1e950532dee18b76b545c">zz::cfg::ArgParser</a>
@@ -144,6 +167,9 @@
 </li>
 <li>debug()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#a4dbd3f793393922fec5e94a7012f56a4">zz::log::Logger</a>
+</li>
+<li>detach_all_sinks()
+: <a class="el" href="classzz_1_1log_1_1_logger.html#a90f5ffc677de5393de33f5d3c73cb9dd">zz::log::Logger</a>
 </li>
 <li>detach_console()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#a126500f08e4499579c905f057a2480d0">zz::log::Logger</a>
@@ -185,11 +211,8 @@
 <li>empty()
 : <a class="el" href="classzz_1_1cfg_1_1_value.html#a687f48b40992867146314aa10dab25a3">zz::cfg::Value</a>
 </li>
-<li>erase()
-: <a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html#a47c10d71277c798593b88266988dbb32">zz::cds::AtomicUnorderedMap&lt; Key, Value &gt;</a>
-</li>
 <li>error()
-: <a class="el" href="classzz_1_1log_1_1_logger.html#a8fd1e71a25545a50fe2530d5f7dbb506">zz::log::Logger</a>
+: <a class="el" href="classzz_1_1log_1_1_logger.html#a04e05948f3e3299efabafe54802e6d7c">zz::log::Logger</a>
 </li>
 </ul>
 
@@ -209,7 +232,7 @@
 , <a class="el" href="classzz_1_1fs_1_1_file_reader.html#a33fe52eeaa475dbf12b2ec0169fb5fc3">zz::fs::FileReader</a>
 </li>
 <li>FileReader()
-: <a class="el" href="classzz_1_1fs_1_1_file_reader.html#a7630c8edd1dcf3f25cbbfbfdef34ae49">zz::fs::FileReader</a>
+: <a class="el" href="classzz_1_1fs_1_1_file_reader.html#aaba56ad7bb489aabc59a2229e5291dd6">zz::fs::FileReader</a>
 </li>
 <li>flush()
 : <a class="el" href="classzz_1_1fs_1_1_file_editor.html#aeae0a4321c6bf3e668cc33c24b287996">zz::fs::FileEditor</a>
@@ -221,10 +244,6 @@
 
 
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
-<li>get()
-: <a class="el" href="classzz_1_1cds_1_1_atomic_non_trivial.html#aa2ca838c746cfd57464a214d2f94f376">zz::cds::AtomicNonTrivial&lt; T &gt;</a>
-, <a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html#a3974f0680decac7ae1578e565b27c79f">zz::cds::AtomicUnorderedMap&lt; Key, Value &gt;</a>
-</li>
 <li>get_error()
 : <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a20c430c2c2d2504f073f07aed79ab582">zz::cfg::ArgParser</a>
 </li>
@@ -240,9 +259,6 @@
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
 <li>info()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#a0a2c2c5921257bb6139e780873a51e48">zz::log::Logger</a>
-</li>
-<li>insert()
-: <a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html#a07acd4ee70295837a8038ef78ea53f27">zz::cds::AtomicUnorderedMap&lt; Key, Value &gt;</a>
 </li>
 <li>instance()
 : <a class="el" href="classzz_1_1log_1_1_log_config.html#a39f8da7962bca80b1049c2050bffc70e">zz::log::LogConfig</a>
@@ -263,7 +279,7 @@
 : <a class="el" href="classzz_1_1cfg_1_1_value.html#a95f5a055722ce17b7b65eb2da8f2fdeb">zz::cfg::Value</a>
 </li>
 <li>local_time()
-: <a class="el" href="classzz_1_1time_1_1_date.html#ae42f36064cd285b4c676fb7a3cff4e8e">zz::time::Date</a>
+: <a class="el" href="classzz_1_1time_1_1_date_time.html#af084731bbd78b777a8b6a82f40378bd8">zz::time::DateTime</a>
 </li>
 <li>log_level_mask()
 : <a class="el" href="classzz_1_1log_1_1_log_config.html#a62a6b9a98d48a2b34ca65fef95a8c9b2">zz::log::LogConfig</a>
@@ -306,7 +322,10 @@
 
 <h3><a class="anchor" id="index_p"></a>- p -</h3><ul>
 <li>parse()
-: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#a13f6fcbf8602597c24baa594c3a14656">zz::cfg::ArgParser</a>
+: <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html#abeb579f718b529e70d16b3257a9d8c3c">zz::cfg::ArgParser</a>
+</li>
+<li>pause()
+: <a class="el" href="classzz_1_1time_1_1_timer.html#ae7a540cda9f55952dd0d1bad169e7130">zz::time::Timer</a>
 </li>
 </ul>
 
@@ -321,6 +340,9 @@
 <li>reset()
 : <a class="el" href="classzz_1_1time_1_1_timer.html#a66b7013250e1ec509e7c83cae230fb8f">zz::time::Timer</a>
 </li>
+<li>resume()
+: <a class="el" href="classzz_1_1time_1_1_timer.html#a2ca64c4d4c28b216d790a6ccdb681e13">zz::time::Timer</a>
+</li>
 <li>root()
 : <a class="el" href="classzz_1_1cfg_1_1_cfg_parser.html#a2ffb3015a793eda03e080eee9f56ae03">zz::cfg::CfgParser</a>
 </li>
@@ -328,9 +350,6 @@
 
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
-<li>set()
-: <a class="el" href="classzz_1_1cds_1_1_atomic_non_trivial.html#a1ec7e92ec05035398a40063aab37cc7f">zz::cds::AtomicNonTrivial&lt; T &gt;</a>
-</li>
 <li>set_datetime_format()
 : <a class="el" href="classzz_1_1log_1_1_log_config.html#aa6257d49481798c3b41900067d20d483">zz::log::LogConfig</a>
 </li>
@@ -380,7 +399,7 @@
 : <a class="el" href="classzz_1_1log_1_1_log_config.html#a1a688d608bc6e47ece72e181af5c7a40">zz::log::LogConfig</a>
 </li>
 <li>store()
-: <a class="el" href="classzz_1_1cfg_1_1_value.html#a642ef68494f814c54770feebd8a281c0">zz::cfg::Value</a>
+: <a class="el" href="classzz_1_1cfg_1_1_value.html#af55040c56f7a251d06dae33df94a69f5">zz::cfg::Value</a>
 </li>
 <li>str()
 : <a class="el" href="classzz_1_1cfg_1_1_value.html#adbe6509aa43a955f3e330d91911ca99c">zz::cfg::Value</a>
@@ -390,15 +409,15 @@
 
 <h3><a class="anchor" id="index_t"></a>- t -</h3><ul>
 <li>to_local_time()
-: <a class="el" href="classzz_1_1time_1_1_date.html#aef4459a6a261a7ac2c7fb960c12d7417">zz::time::Date</a>
+: <a class="el" href="classzz_1_1time_1_1_date_time.html#ad3b592556f9066de1266bb45ca89a554">zz::time::DateTime</a>
 </li>
 <li>to_string()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#a459bfc6f27696e194865b7c2ecb5633f">zz::log::Logger</a>
-, <a class="el" href="classzz_1_1time_1_1_date.html#af44e75a8be53c3b6b693f826b9714844">zz::time::Date</a>
+, <a class="el" href="classzz_1_1time_1_1_date_time.html#ae54d589dcd18524838e08c89a8deaeff">zz::time::DateTime</a>
 , <a class="el" href="classzz_1_1time_1_1_timer.html#ab688ef779e7b2562be5f66542fef4744">zz::time::Timer</a>
 </li>
 <li>to_utc_time()
-: <a class="el" href="classzz_1_1time_1_1_date.html#af65b10e6b8c3cdb7caa2c2c627bb8e74">zz::time::Date</a>
+: <a class="el" href="classzz_1_1time_1_1_date_time.html#a327f71e5b8b558a08c7a671ae45fb895">zz::time::DateTime</a>
 </li>
 <li>trace()
 : <a class="el" href="classzz_1_1log_1_1_logger.html#adc8e2e94c9fdd1b5dc556c429eee2127">zz::log::Logger</a>
@@ -408,7 +427,7 @@
 
 <h3><a class="anchor" id="index_u"></a>- u -</h3><ul>
 <li>utc_time()
-: <a class="el" href="classzz_1_1time_1_1_date.html#a48dd2f6f1ba4875b10e258e2ee41ce69">zz::time::Date</a>
+: <a class="el" href="classzz_1_1time_1_1_date_time.html#a12bc514af5b4482e2d333c32740ec518">zz::time::DateTime</a>
 </li>
 </ul>
 
@@ -437,7 +456,7 @@
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

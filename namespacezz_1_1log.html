@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -136,12 +157,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="name
 <tr class="memitem:a7aca82c6107628139b3ec04d910ff095"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a7aca82c6107628139b3ec04d910ff095">config_from_file</a> (std::string cfgFilename)</td></tr>
 <tr class="memdesc:a7aca82c6107628139b3ec04d910ff095"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config loggers from a config file.  <a href="#a7aca82c6107628139b3ec04d910ff095">More...</a><br /></td></tr>
 <tr class="separator:a7aca82c6107628139b3ec04d910ff095"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c1e5d66d18db4059d7339e3f2d3c440"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c1e5d66d18db4059d7339e3f2d3c440"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_warn</b> (std::string msg)</td></tr>
-<tr class="separator:a7c1e5d66d18db4059d7339e3f2d3c440"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a902774b26ca9d84356879a1b144f55c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a902774b26ca9d84356879a1b144f55c3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_error</b> (std::string msg)</td></tr>
-<tr class="separator:a902774b26ca9d84356879a1b144f55c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44fe4aa983ac091478d0eeb298b7502c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1log.html#a44fe4aa983ac091478d0eeb298b7502c">config_from_stringstream</a> (std::stringstream &amp;ss)</td></tr>
+<tr class="memdesc:a44fe4aa983ac091478d0eeb298b7502c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config loggers from a stringstream.  <a href="#a44fe4aa983ac091478d0eeb298b7502c">More...</a><br /></td></tr>
+<tr class="separator:a44fe4aa983ac091478d0eeb298b7502c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Namespace for logging and message stuffs. </p>
@@ -164,6 +182,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_error
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cfgFilename</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a44fe4aa983ac091478d0eeb298b7502c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::log::config_from_stringstream </td>
+          <td>(</td>
+          <td class="paramtype">std::stringstream &amp;&#160;</td>
+          <td class="paramname"><em>ss</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Config loggers from a stringstream. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ss</td><td>Stringstream where configs stored </td></tr>
   </table>
   </dd>
 </dl>
@@ -464,7 +506,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>zupply_internal_error
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

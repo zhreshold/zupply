@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -64,6 +85,7 @@
       <li><a href="#index_i"><span>i</span></a></li>
       <li><a href="#index_j"><span>j</span></a></li>
       <li><a href="#index_l"><span>l</span></a></li>
+      <li><a href="#index_m"><span>m</span></a></li>
       <li><a href="#index_n"><span>n</span></a></li>
       <li><a href="#index_p"><span>p</span></a></li>
       <li><a href="#index_r"><span>r</span></a></li>
@@ -91,8 +113,14 @@
 <li>config_from_file()
 : <a class="el" href="namespacezz_1_1log.html#a7aca82c6107628139b3ec04d910ff095">zz::log</a>
 </li>
+<li>config_from_stringstream()
+: <a class="el" href="namespacezz_1_1log.html#a44fe4aa983ac091478d0eeb298b7502c">zz::log</a>
+</li>
 <li>console_size()
 : <a class="el" href="namespacezz_1_1os.html#ab134a2f056f33ea14cfb669baaf58685">zz::os</a>
+</li>
+<li>copyfile()
+: <a class="el" href="namespacezz_1_1os.html#aecb662e69082b1166da904883d4948b5">zz::os</a>
 </li>
 <li>create_directory()
 : <a class="el" href="namespacezz_1_1os.html#abf68a062316550753721d87b66e0e4e6">zz::os</a>
@@ -140,7 +168,7 @@
 : <a class="el" href="namespacezz_1_1fmt.html#af5943c7e37c3676facf74b8393009059">zz::fmt</a>
 </li>
 <li>fstream_open()
-: <a class="el" href="namespacezz_1_1os.html#af1ce7de3255706910cb18efecb79b7af">zz::os</a>
+: <a class="el" href="namespacezz_1_1os.html#ab09bde6931f619989c9bff773a739090">zz::os</a>
 </li>
 </ul>
 
@@ -163,13 +191,19 @@
 
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
 <li>ifstream_open()
-: <a class="el" href="namespacezz_1_1os.html#ae825c6a6de3dbd17ce5be694e7b89c17">zz::os</a>
+: <a class="el" href="namespacezz_1_1os.html#a0313ff99d481f065186bec1fcee7901e">zz::os</a>
 </li>
 <li>int_to_zero_pad_str()
 : <a class="el" href="namespacezz_1_1fmt.html#a0bfa8aea7b6901dc83b93dc286cc9918">zz::fmt</a>
 </li>
 <li>is_digit()
 : <a class="el" href="namespacezz_1_1fmt.html#a1b04b032108b815ad47f7d08a27f86f7">zz::fmt</a>
+</li>
+<li>is_directory()
+: <a class="el" href="namespacezz_1_1os.html#a722c918569ba7682c7231b5f8fddcb56">zz::os</a>
+</li>
+<li>is_file()
+: <a class="el" href="namespacezz_1_1os.html#aaf1955d8033ca2cdbf36486897318001">zz::os</a>
 </li>
 </ul>
 
@@ -182,17 +216,30 @@
 
 
 <h3><a class="anchor" id="index_l"></a>- l -</h3><ul>
+<li>last_error()
+: <a class="el" href="namespacezz_1_1os.html#a4faace6b4df596bc2565692f315acad5">zz::os</a>
+</li>
 <li>localtime()
 : <a class="el" href="namespacezz_1_1os.html#ac2f17e7f3d17d9695f0fc349b3f24513">zz::os</a>
 </li>
 <li>lock_loggers()
 : <a class="el" href="namespacezz_1_1log.html#ad47ccde6d3ddd643fcaead620605dfc5">zz::log</a>
 </li>
+<li>lskip()
+: <a class="el" href="namespacezz_1_1fmt.html#a77f02dd60865750528c9ef541d1b383c">zz::fmt</a>
+</li>
 <li>lstrip()
-: <a class="el" href="namespacezz_1_1fmt.html#a7fb86ee84554c702edf61300c4d5b5a7">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#a59f1aaebacc3f747cae1c9baa5b9a823">zz::fmt</a>
 </li>
 <li>ltrim()
-: <a class="el" href="namespacezz_1_1fmt.html#a6a696df5aa35802e7321ddcb761e3560">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#a32eec30503d4a03c413872922e6960b6">zz::fmt</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_m"></a>- m -</h3><ul>
+<li>movefile()
+: <a class="el" href="namespacezz_1_1os.html#a036af5a7e392aa9ebd06befd3cf0245c">zz::os</a>
 </li>
 </ul>
 
@@ -213,6 +260,9 @@
 <li>new_stdout_sink()
 : <a class="el" href="namespacezz_1_1log.html#a2e879022da883342c7834740a19a4b4b">zz::log</a>
 </li>
+<li>normalize_path()
+: <a class="el" href="namespacezz_1_1os.html#a3a5d3b392f7c5a6f3463730c1a6104a7">zz::os</a>
+</li>
 </ul>
 
 
@@ -221,7 +271,7 @@
 : <a class="el" href="namespacezz_1_1os.html#a26b7781b6899940e6bd9aa8b41de8267">zz::os</a>
 </li>
 <li>path_exists()
-: <a class="el" href="namespacezz_1_1os.html#a06d0e9873bcaa1a08cf615ea9711d333">zz::os</a>
+: <a class="el" href="namespacezz_1_1os.html#ab929a153d303fe07f98738317791f528">zz::os</a>
 </li>
 <li>path_join()
 : <a class="el" href="namespacezz_1_1os.html#a8369d5fc091b7d8c5de4312f054c5515">zz::os</a>
@@ -245,6 +295,15 @@
 
 
 <h3><a class="anchor" id="index_r"></a>- r -</h3><ul>
+<li>remove_all()
+: <a class="el" href="namespacezz_1_1os.html#ac00490f04feabb6df98f9bab2f58a7df">zz::os</a>
+</li>
+<li>remove_dir()
+: <a class="el" href="namespacezz_1_1os.html#acc68e8b1090e41e5ce2e453c7fc34af2">zz::os</a>
+</li>
+<li>remove_file()
+: <a class="el" href="namespacezz_1_1os.html#a71d06d577983fd5f1d9783af8f62693a">zz::os</a>
+</li>
 <li>rename()
 : <a class="el" href="namespacezz_1_1os.html#a1312dc26d8eb34e65b54a6b44083c6a7">zz::os</a>
 </li>
@@ -257,17 +316,23 @@
 <li>replace_first_with_escape()
 : <a class="el" href="namespacezz_1_1fmt.html#ab1df6536572e970e65df9983703c69aa">zz::fmt</a>
 </li>
+<li>replace_sequential_with_escape()
+: <a class="el" href="namespacezz_1_1fmt.html#abd886ce37a495370fa884160e725d9fc">zz::fmt</a>
+</li>
 <li>round()
 : <a class="el" href="namespacezz_1_1math.html#ad621688df2123494c01111513e6475db">zz::math</a>
 </li>
 <li>rskip()
-: <a class="el" href="namespacezz_1_1fmt.html#a6c107a8b39587f93473ccb87bb081ed8">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#ac2cafe7ab20443d75dd33571fa9d19be">zz::fmt</a>
+</li>
+<li>rskip_all()
+: <a class="el" href="namespacezz_1_1fmt.html#ad32523e1aab45b122820cb47cc960b17">zz::fmt</a>
 </li>
 <li>rstrip()
-: <a class="el" href="namespacezz_1_1fmt.html#aafbb773fd96d50116b6f5a13276ce38a">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#ab33b3a1a10d7e509bddf9161a25e91b8">zz::fmt</a>
 </li>
 <li>rtrim()
-: <a class="el" href="namespacezz_1_1fmt.html#ae323b1e59582ff9f34b0a0955485ca0c">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#a31a40c66d7998435b8cffe38e540258b">zz::fmt</a>
 </li>
 </ul>
 
@@ -311,7 +376,7 @@
 : <a class="el" href="namespacezz_1_1fmt.html#a045944b579192928454fca6fe6759a79">zz::fmt</a>
 </li>
 <li>trim()
-: <a class="el" href="namespacezz_1_1fmt.html#a70703afea548a515f88a317cc7314d96">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#a4f754b2823f45b0a306f8478a350bc19">zz::fmt</a>
 </li>
 </ul>
 
@@ -324,16 +389,16 @@
 : <a class="el" href="namespacezz_1_1misc.html#a61e811d8a17bda37390f1c3a93ec5b90">zz::misc</a>
 </li>
 <li>utf16_to_utf8()
-: <a class="el" href="namespacezz_1_1fmt.html#a1ef8462ec2c52c4be9e9a9667629ad89">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#abe7f581dd7e9b624bb7da8d2781f0882">zz::fmt</a>
 </li>
 <li>utf32_to_utf8()
-: <a class="el" href="namespacezz_1_1fmt.html#aa875daf41e52961d02b4826ba56fb5d3">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#ae76e65db1661ec694326001ce824ba85">zz::fmt</a>
 </li>
 <li>utf8_to_utf16()
-: <a class="el" href="namespacezz_1_1fmt.html#aa50192d21d60a83af5d0afa7a1189a6f">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#a735a7b6a36db4d1a7f6cee3bc00579da">zz::fmt</a>
 </li>
 <li>utf8_to_utf32()
-: <a class="el" href="namespacezz_1_1fmt.html#a78ff395869423c2fe98644d4f249c89c">zz::fmt</a>
+: <a class="el" href="namespacezz_1_1fmt.html#ae870c7a952a191b435a4c43cecefa90f">zz::fmt</a>
 </li>
 <li>utf8_to_wstring()
 : <a class="el" href="namespacezz_1_1os.html#ab4c69b9cef34235a0c8c64e2a019f54e">zz::os</a>
@@ -358,7 +423,7 @@
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

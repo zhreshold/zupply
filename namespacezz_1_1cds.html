@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -54,7 +75,8 @@
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">zz::cds Namespace Reference</div>  </div>
 </div><!--header-->
@@ -65,15 +87,22 @@
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_atomic_non_trivial.html">AtomicNonTrivial</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1cds_1_1_atomic_non_trivial.html" title="AtomicNonTrivial Template lock-free class AtomicNonTrivial is lock-free, however, modification will c...">AtomicNonTrivial</a> Template lock-free class <a class="el" href="classzz_1_1cds_1_1_atomic_non_trivial.html" title="AtomicNonTrivial Template lock-free class AtomicNonTrivial is lock-free, however, modification will c...">AtomicNonTrivial</a> is lock-free, however, modification will create copies. Thus this structure is good for read-many write-rare purposes.  <a href="classzz_1_1cds_1_1_atomic_non_trivial.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html">AtomicUnorderedMap</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html" title="AtomicUnorderedMap Template atomic unordered_map<> AtomicUnorderedMap is lock-free, however, modification will create copies. Thus this structure is good for read-many write-rare purposes. ">AtomicUnorderedMap</a> Template atomic unordered_map&lt;&gt; <a class="el" href="classzz_1_1cds_1_1_atomic_unordered_map.html" title="AtomicUnorderedMap Template atomic unordered_map<> AtomicUnorderedMap is lock-free, however, modification will create copies. Thus this structure is good for read-many write-rare purposes. ">AtomicUnorderedMap</a> is lock-free, however, modification will create copies. Thus this structure is good for read-many write-rare purposes.  <a href="classzz_1_1cds_1_1_atomic_unordered_map.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_null_mutex.html">NullMutex</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_null_mutex.html">NullMutex</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A null mutex, no cost.  <a href="classzz_1_1cds_1_1_null_mutex.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_r_w_lock.html">RWLock</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_r_w_lockable.html">RWLockable</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cds_1_1_spin_lock.html">SpinLock</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple spin lock utilizing c++11 atomic_flag.  <a href="classzz_1_1cds_1_1_spin_lock.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a816b482ee7c30525e17129aebde51f15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a816b482ee7c30525e17129aebde51f15"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>nop_pause</b> ()</td></tr>
+<tr class="separator:a816b482ee7c30525e17129aebde51f15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Namespace for concurrent data structures. </p>
@@ -86,7 +115,7 @@ Classes</h2></td></tr>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

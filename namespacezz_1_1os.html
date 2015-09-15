@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -75,10 +96,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:ab134a2f056f33ea14cfb669baaf58685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the <a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a> of console window.  <a href="#ab134a2f056f33ea14cfb669baaf58685">More...</a><br /></td></tr>
 <tr class="separator:ab134a2f056f33ea14cfb669baaf58685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="memItemLeft" align="right" valign="top">std::tm&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ac2f17e7f3d17d9695f0fc349b3f24513">localtime</a> (std::time_t t)</td></tr>
-<tr class="memdesc:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread safe localtime.  <a href="#ac2f17e7f3d17d9695f0fc349b3f24513">More...</a><br /></td></tr>
+<tr class="memdesc:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread-safe version of localtime.  <a href="#ac2f17e7f3d17d9695f0fc349b3f24513">More...</a><br /></td></tr>
 <tr class="separator:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22d97f46007dc91e0ed7f96faa7b738d"><td class="memItemLeft" align="right" valign="top">std::tm&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a22d97f46007dc91e0ed7f96faa7b738d">gmtime</a> (std::time_t t)</td></tr>
-<tr class="memdesc:a22d97f46007dc91e0ed7f96faa7b738d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread safe gmtime.  <a href="#a22d97f46007dc91e0ed7f96faa7b738d">More...</a><br /></td></tr>
+<tr class="memdesc:a22d97f46007dc91e0ed7f96faa7b738d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread-safe version of gmtime.  <a href="#a22d97f46007dc91e0ed7f96faa7b738d">More...</a><br /></td></tr>
 <tr class="separator:a22d97f46007dc91e0ed7f96faa7b738d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4c69b9cef34235a0c8c64e2a019f54e"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab4c69b9cef34235a0c8c64e2a019f54e">utf8_to_wstring</a> (std::string &amp;u8str)</td></tr>
 <tr class="memdesc:ab4c69b9cef34235a0c8c64e2a019f54e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert UTF-8 string to wstring.  <a href="#ab4c69b9cef34235a0c8c64e2a019f54e">More...</a><br /></td></tr>
@@ -107,27 +128,54 @@ Functions</h2></td></tr>
 <tr class="memitem:a26b7781b6899940e6bd9aa8b41de8267"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a26b7781b6899940e6bd9aa8b41de8267">path_append_basename</a> (std::string origPath, std::string whatToAppend)</td></tr>
 <tr class="memdesc:a26b7781b6899940e6bd9aa8b41de8267"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append string to basename directly, rather than append to extension This is more practically useful because nobody want to change extension in most situations. Appending string to basename in order to change filename happens.  <a href="#a26b7781b6899940e6bd9aa8b41de8267">More...</a><br /></td></tr>
 <tr class="separator:a26b7781b6899940e6bd9aa8b41de8267"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1ce7de3255706910cb18efecb79b7af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#af1ce7de3255706910cb18efecb79b7af">fstream_open</a> (std::fstream &amp;stream, std::string &amp;filename, std::ios::openmode openmode)</td></tr>
-<tr class="memdesc:af1ce7de3255706910cb18efecb79b7af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open fstream using UTF-8 string This is a wrapper function because Windows will require wstring to process unicode filename/path.  <a href="#af1ce7de3255706910cb18efecb79b7af">More...</a><br /></td></tr>
-<tr class="separator:af1ce7de3255706910cb18efecb79b7af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae825c6a6de3dbd17ce5be694e7b89c17"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ae825c6a6de3dbd17ce5be694e7b89c17">ifstream_open</a> (std::ifstream &amp;stream, std::string &amp;filename, std::ios::openmode openmode)</td></tr>
-<tr class="memdesc:ae825c6a6de3dbd17ce5be694e7b89c17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open ifstream using UTF-8 string This is a wrapper function because Windows will require wstring to process unicode filename/path.  <a href="#ae825c6a6de3dbd17ce5be694e7b89c17">More...</a><br /></td></tr>
-<tr class="separator:ae825c6a6de3dbd17ce5be694e7b89c17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab09bde6931f619989c9bff773a739090"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab09bde6931f619989c9bff773a739090">fstream_open</a> (std::fstream &amp;stream, std::string filename, std::ios::openmode openmode)</td></tr>
+<tr class="memdesc:ab09bde6931f619989c9bff773a739090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open fstream using UTF-8 string This is a wrapper function because Windows will require wstring to process unicode filename/path.  <a href="#ab09bde6931f619989c9bff773a739090">More...</a><br /></td></tr>
+<tr class="separator:ab09bde6931f619989c9bff773a739090"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0313ff99d481f065186bec1fcee7901e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a0313ff99d481f065186bec1fcee7901e">ifstream_open</a> (std::ifstream &amp;stream, std::string filename, std::ios::openmode openmode)</td></tr>
+<tr class="memdesc:a0313ff99d481f065186bec1fcee7901e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open ifstream using UTF-8 string This is a wrapper function because Windows will require wstring to process unicode filename/path.  <a href="#a0313ff99d481f065186bec1fcee7901e">More...</a><br /></td></tr>
+<tr class="separator:a0313ff99d481f065186bec1fcee7901e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1312dc26d8eb34e65b54a6b44083c6a7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a1312dc26d8eb34e65b54a6b44083c6a7">rename</a> (std::string oldName, std::string newName)</td></tr>
-<tr class="memdesc:a1312dc26d8eb34e65b54a6b44083c6a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">rename Rename file, support unicode filename/path.  <a href="#a1312dc26d8eb34e65b54a6b44083c6a7">More...</a><br /></td></tr>
+<tr class="memdesc:a1312dc26d8eb34e65b54a6b44083c6a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rename file, support unicode filename/path.  <a href="#a1312dc26d8eb34e65b54a6b44083c6a7">More...</a><br /></td></tr>
 <tr class="separator:a1312dc26d8eb34e65b54a6b44083c6a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecb662e69082b1166da904883d4948b5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#aecb662e69082b1166da904883d4948b5">copyfile</a> (std::string src, std::string dst, bool replaceDst=false)</td></tr>
+<tr class="memdesc:aecb662e69082b1166da904883d4948b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy file, support unicode filename/path.  <a href="#aecb662e69082b1166da904883d4948b5">More...</a><br /></td></tr>
+<tr class="separator:aecb662e69082b1166da904883d4948b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a036af5a7e392aa9ebd06befd3cf0245c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a036af5a7e392aa9ebd06befd3cf0245c">movefile</a> (std::string src, std::string dst, bool replaceDst=false)</td></tr>
+<tr class="memdesc:a036af5a7e392aa9ebd06befd3cf0245c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move file, support unicode filename/path.  <a href="#a036af5a7e392aa9ebd06befd3cf0245c">More...</a><br /></td></tr>
+<tr class="separator:a036af5a7e392aa9ebd06befd3cf0245c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac00490f04feabb6df98f9bab2f58a7df"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ac00490f04feabb6df98f9bab2f58a7df">remove_all</a> (std::string path)</td></tr>
+<tr class="memdesc:ac00490f04feabb6df98f9bab2f58a7df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove path, whatever file or directory. Dangerous! Cannot revert.  <a href="#ac00490f04feabb6df98f9bab2f58a7df">More...</a><br /></td></tr>
+<tr class="separator:ac00490f04feabb6df98f9bab2f58a7df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc68e8b1090e41e5ce2e453c7fc34af2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#acc68e8b1090e41e5ce2e453c7fc34af2">remove_dir</a> (std::string root, bool recursive=true)</td></tr>
+<tr class="memdesc:acc68e8b1090e41e5ce2e453c7fc34af2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove directory and all sub-directories and files if set recursive to true. If recursive set to false, will try to delete an empty one only. Dangerous! Cannot revert.  <a href="#acc68e8b1090e41e5ce2e453c7fc34af2">More...</a><br /></td></tr>
+<tr class="separator:acc68e8b1090e41e5ce2e453c7fc34af2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71d06d577983fd5f1d9783af8f62693a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a71d06d577983fd5f1d9783af8f62693a">remove_file</a> (std::string path)</td></tr>
+<tr class="memdesc:a71d06d577983fd5f1d9783af8f62693a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove file. Dangerous! Cannot revert.  <a href="#a71d06d577983fd5f1d9783af8f62693a">More...</a><br /></td></tr>
+<tr class="separator:a71d06d577983fd5f1d9783af8f62693a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4faace6b4df596bc2565692f315acad5"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a4faace6b4df596bc2565692f315acad5">last_error</a> ()</td></tr>
+<tr class="memdesc:a4faace6b4df596bc2565692f315acad5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the last error in errno.  <a href="#a4faace6b4df596bc2565692f315acad5">More...</a><br /></td></tr>
+<tr class="separator:a4faace6b4df596bc2565692f315acad5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a496c4c7378d923c4d131d9f77e90e79f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a496c4c7378d923c4d131d9f77e90e79f">endl</a> ()</td></tr>
 <tr class="memdesc:a496c4c7378d923c4d131d9f77e90e79f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the OS dependent line end characters.  <a href="#a496c4c7378d923c4d131d9f77e90e79f">More...</a><br /></td></tr>
 <tr class="separator:a496c4c7378d923c4d131d9f77e90e79f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6029e4e1b24e2778ddeff7f89be51563"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a6029e4e1b24e2778ddeff7f89be51563">current_working_directory</a> ()</td></tr>
 <tr class="memdesc:a6029e4e1b24e2778ddeff7f89be51563"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current working directory.  <a href="#a6029e4e1b24e2778ddeff7f89be51563">More...</a><br /></td></tr>
 <tr class="separator:a6029e4e1b24e2778ddeff7f89be51563"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06d0e9873bcaa1a08cf615ea9711d333"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a06d0e9873bcaa1a08cf615ea9711d333">path_exists</a> (std::string &amp;path, bool considerFile=false)</td></tr>
-<tr class="memdesc:a06d0e9873bcaa1a08cf615ea9711d333"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path exist in filesystem.  <a href="#a06d0e9873bcaa1a08cf615ea9711d333">More...</a><br /></td></tr>
-<tr class="separator:a06d0e9873bcaa1a08cf615ea9711d333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab929a153d303fe07f98738317791f528"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab929a153d303fe07f98738317791f528">path_exists</a> (std::string path, bool considerFile=false)</td></tr>
+<tr class="memdesc:ab929a153d303fe07f98738317791f528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path exist in filesystem.  <a href="#ab929a153d303fe07f98738317791f528">More...</a><br /></td></tr>
+<tr class="separator:ab929a153d303fe07f98738317791f528"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf1955d8033ca2cdbf36486897318001"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#aaf1955d8033ca2cdbf36486897318001">is_file</a> (std::string path)</td></tr>
+<tr class="memdesc:aaf1955d8033ca2cdbf36486897318001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path is file and exists.  <a href="#aaf1955d8033ca2cdbf36486897318001">More...</a><br /></td></tr>
+<tr class="separator:aaf1955d8033ca2cdbf36486897318001"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a722c918569ba7682c7231b5f8fddcb56"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a722c918569ba7682c7231b5f8fddcb56">is_directory</a> (std::string path)</td></tr>
+<tr class="memdesc:a722c918569ba7682c7231b5f8fddcb56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path is directory and exists.  <a href="#a722c918569ba7682c7231b5f8fddcb56">More...</a><br /></td></tr>
+<tr class="separator:a722c918569ba7682c7231b5f8fddcb56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b2ee0c731cbcbdeba85225fc0710502"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a3b2ee0c731cbcbdeba85225fc0710502">absolute_path</a> (std::string reletivePath)</td></tr>
 <tr class="memdesc:a3b2ee0c731cbcbdeba85225fc0710502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert reletive path to absolute path.  <a href="#a3b2ee0c731cbcbdeba85225fc0710502">More...</a><br /></td></tr>
 <tr class="separator:a3b2ee0c731cbcbdeba85225fc0710502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a3a5d3b392f7c5a6f3463730c1a6104a7">normalize_path</a> (std::string dirtyPath)</td></tr>
+<tr class="memdesc:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalize path. Clean path messed up with sth like: /tmp/a/.././b/./c.  <a href="#a3a5d3b392f7c5a6f3463730c1a6104a7">More...</a><br /></td></tr>
+<tr class="separator:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf68a062316550753721d87b66e0e4e6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#abf68a062316550753721d87b66e0e4e6">create_directory</a> (std::string path)</td></tr>
 <tr class="memdesc:abf68a062316550753721d87b66e0e4e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create directory if not exist.  <a href="#abf68a062316550753721d87b66e0e4e6">More...</a><br /></td></tr>
 <tr class="separator:abf68a062316550753721d87b66e0e4e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,6 +226,49 @@ Functions</h2></td></tr>
 
 <p>Return the <a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a> of console window. </p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a>, which contains width and height </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aecb662e69082b1166da904883d4948b5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::copyfile </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>replaceDst</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy file, support unicode filename/path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">oldName</td><td></td></tr>
+    <tr><td class="paramname">newName</td><td></td></tr>
+    <tr><td class="paramname">replaceDst</td><td>If true, existing dst file will be replaced </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success </dd></dl>
 
 </div>
 </div>
@@ -268,7 +359,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af1ce7de3255706910cb18efecb79b7af"></a>
+<a class="anchor" id="ab09bde6931f619989c9bff773a739090"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -281,7 +372,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>filename</em>, </td>
         </tr>
         <tr>
@@ -324,15 +415,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Thread safe gmtime. </p>
-<p>Thread-safe version of gmtime.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">t</td><td>The std::time_t to process.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A std::tm.</dd></dl>
+<p>Thread-safe version of gmtime. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>std::time_t </td></tr>
@@ -343,7 +426,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae825c6a6de3dbd17ce5be694e7b89c17"></a>
+<a class="anchor" id="a0313ff99d481f065186bec1fcee7901e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -356,7 +439,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>filename</em>, </td>
         </tr>
         <tr>
@@ -385,6 +468,74 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a722c918569ba7682c7231b5f8fddcb56"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::is_directory </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if path is directory and exists. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if directory exists, not file </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aaf1955d8033ca2cdbf36486897318001"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::is_file </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if path is file and exists. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if file exists, not directory </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4faace6b4df596bc2565692f315acad5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::os::last_error </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieve the last error in errno. </p>
+<dl class="section return"><dt>Returns</dt><dd>Human readable error string </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac2f17e7f3d17d9695f0fc349b3f24513"></a>
 <div class="memitem">
 <div class="memproto">
@@ -399,15 +550,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Thread safe localtime. </p>
-<p>Thread-safe version of localtime.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">t</td><td>The std::time_t to process.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A std::tm.</dd></dl>
+<p>Thread-safe version of localtime. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>std::time_t </td></tr>
@@ -415,6 +558,74 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>std::tm format localtime </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a036af5a7e392aa9ebd06befd3cf0245c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::movefile </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>replaceDst</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Move file, support unicode filename/path. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">oldName</td><td></td></tr>
+    <tr><td class="paramname">newName</td><td></td></tr>
+    <tr><td class="paramname">replaceDst</td><td>If true, existing dst file will be replaced </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3a5d3b392f7c5a6f3463730c1a6104a7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::os::normalize_path </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>dirtyPath</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Normalize path. Clean path messed up with sth like: /tmp/a/.././b/./c. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dirtyPath</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Normalized path(also absolute) </dd></dl>
 
 </div>
 </div>
@@ -454,14 +665,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a06d0e9873bcaa1a08cf615ea9711d333"></a>
+<a class="anchor" id="ab929a153d303fe07f98738317791f528"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">bool zz::os::path_exists </td>
           <td>(</td>
-          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramtype">std::string&#160;</td>
           <td class="paramname"><em>path</em>, </td>
         </tr>
         <tr>
@@ -640,6 +851,92 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ac00490f04feabb6df98f9bab2f58a7df"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::remove_all </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove path, whatever file or directory. Dangerous! Cannot revert. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true as long as path does not exists anymore </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="acc68e8b1090e41e5ce2e453c7fc34af2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::remove_dir </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>root</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>recursive</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove directory and all sub-directories and files if set recursive to true. If recursive set to false, will try to delete an empty one only. Dangerous! Cannot revert. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">root</td><td></td></tr>
+    <tr><td class="paramname">recursive</td><td>Delete all contents inside of it. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true as long as directory does not exists anymore(file with same name may exist) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a71d06d577983fd5f1d9783af8f62693a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::remove_file </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove file. Dangerous! Cannot revert. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true as long as file does not exists anymore </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a1312dc26d8eb34e65b54a6b44083c6a7"></a>
 <div class="memitem">
 <div class="memproto">
@@ -664,7 +961,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>rename Rename file, support unicode filename/path. </p>
+<p>Rename file, support unicode filename/path. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">oldName</td><td></td></tr>
@@ -789,7 +1086,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

@@ -18,11 +18,32 @@
         <script type="text/javascript" src="doxy-boot.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-custom" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand">Zupply 0.0.1</a>
+                    <a class="navbar-brand">Zupply Documentation</a>
                 </div>
+				<ul class="nav navbar-nav">
+                <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+				<li>
+                    <a href="https://github.com/ZhreShold/zupply">Github Project</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#about">About</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/#contact">Contact</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io/logs">Logs</a>
+                </li>
+                <li>
+                    <a href="http://zhreshold.github.io">Home</a>
+                </li>
+            </ul>
             </div>
         </nav>
         <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -65,20 +86,19 @@
   <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#af9df7e44ab5c20883841b6805b15b0b4">close</a>()</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>FileEditor</b>()=default (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a0142b89021796668dc6c7f8f63a26307">FileEditor</a>(std::string filename, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>FileEditor</b>(FileEditor &amp;&amp;other) (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a7a6239ac8af94712d6b662b4f4d81596">filename</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#aeae0a4321c6bf3e668cc33c24b287996">flush</a>()</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#ad32d24a1d4fc023caefeaf9bb379e123">is_open</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#ad44d3a1b04f085b0b3d8a55db95ea8d3">is_valid</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a001f05a47a5faf60e029656301cfccd4">open</a>(std::string filename, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a2ed0d8a8350d8b1b18f451c7026f6a0d">open</a>(bool truncateOrNot=false)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#afe82d40757700b8fdc3b1402d8fc5530">operator&lt;&lt;</a>(T what)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>operator=</b>(FileEditor &amp;&amp;)=delete (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>operator=</b>(const UnCopyable &amp;)=delete (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#aac62a2d83f09e11f2f5ebd716c398084">reopen</a>(bool truncateOrNot=true)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>UnCopyable</b>() (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">private</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>UnCopyable</b>(const UnCopyable &amp;)=delete (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~FileEditor</b>() (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a7a6239ac8af94712d6b662b4f4d81596">filename</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#aeae0a4321c6bf3e668cc33c24b287996">flush</a>()</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#ad32d24a1d4fc023caefeaf9bb379e123">is_open</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#ad44d3a1b04f085b0b3d8a55db95ea8d3">is_valid</a>() const </td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a001f05a47a5faf60e029656301cfccd4">open</a>(std::string filename, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a2ed0d8a8350d8b1b18f451c7026f6a0d">open</a>(bool truncateOrNot=false)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#afe82d40757700b8fdc3b1402d8fc5530">operator&lt;&lt;</a>(T what)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>operator=</b>(FileEditor &amp;&amp;)=delete (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>operator=</b>(const UnCopyable &amp;)=delete (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#aac62a2d83f09e11f2f5ebd716c398084">reopen</a>(bool truncateOrNot=true)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>UnCopyable</b>() (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">private</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>UnCopyable</b>(const UnCopyable &amp;)=delete (defined in <a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a>)</td><td class="entry"><a class="el" href="classzz_1_1_un_copyable.html">zz::UnCopyable</a></td><td class="entry"><span class="mlabel">private</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>~FileEditor</b>() (defined in <a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a>)</td><td class="entry"><a class="el" href="classzz_1_1fs_1_1_file_editor.html">zz::fs::FileEditor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
@@ -88,7 +108,7 @@
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 2 2015 15:46:01 for Zupply by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

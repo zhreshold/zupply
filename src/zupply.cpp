@@ -2451,7 +2451,8 @@ namespace zz
 			}
 			if (ret.size() < alignment)
 			{
-				ret.resize(alignment);
+				while (ret.size() < alignment)
+					ret.push_back(' ');
 			}
 			else
 			{

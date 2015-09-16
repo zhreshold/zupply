@@ -38,6 +38,8 @@ void argparser_example(int argc, char** argv)
 	// now parse the arguments
 	argparser.parse(argc, argv);
 
+	fs::FileEditor fe("dump.txt");
+	fe << argparser.get_help() << os::endl();
 	// check errors
 	if (argparser.count_error() > 0)
 	{
@@ -45,13 +47,13 @@ void argparser_example(int argc, char** argv)
 		// print help
 		std::cout << argparser.get_help() << std::endl;
 		// continue or exit()??
-		exit(-1);
+		//exit(-1);
 	}
 
 	// op.d, op.flag, op.i, vd stores the arguments
 	std::cout << "flag: " << op.flag << std::endl;
-	std::cout << "i: " << op.flag << std::endl;
-	std::cout << "d: " << op.flag << std::endl;
+	std::cout << "i: " << op.i << std::endl;
+	std::cout << "d: " << op.d << std::endl;
 	std::cout << "vector: " << std::endl;
 	for (auto i = vd.begin(); i != vd.end(); ++i)
 	{

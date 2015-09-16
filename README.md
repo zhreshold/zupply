@@ -3,7 +3,7 @@
 ![Build Status](https://travis-ci.org/ZhreShold/zupply.svg)
 
 ## Introduction
-**Zupply** is a light-weight, cross-platform, easy to use C++11 library packed with fundamental functions/classes 
+**Zupply** is a light-weight, cross-platform, easy to use C++11 library packed with fundamental functions/classes best
 for reaserches/small projects/demos.
 
 #### Why Zupply
@@ -75,7 +75,7 @@ g++ -std=c++11 -pthread ../unittest/unittest.cpp ../src/zupply.cpp -lpthread -o 
 ```
 # using cmake is identical to gcc
 # or manually build with clang++
-cd src
+cd build
 clang++ -std=c++11 ../unittest/unittest.cpp ../src/zupply.cpp -o unittest
 ```
 

@@ -1056,7 +1056,7 @@ namespace zz
 		 * \param considerFile Consider file as well?
 		 * \return true if path exists
 		 */
-		bool path_exists(std::string path, bool considerFile = false);
+		bool path_exists(std::string path, bool considerFile = true);
 
 		/*!
 		 * \brief Check if path is file and exists
@@ -1148,11 +1148,16 @@ namespace zz
 		std::string last_error();
 
 		/*!
-		* \fn	std::string endl();
-		* \brief	Gets the OS dependent line end characters.
-		* \return	A std::string.
-		*/
+		 * \brief	Gets the OS dependent line end characters.
+		 * \return	A std::string.
+		 */
 		std::string endl();
+
+		/*!
+		 * \brief	Gets the OS dependent path delim.
+		 * \return	A std::string.
+		 */
+		std::string path_delim();
 
 		/*!
 		 * \brief Get current working directory
@@ -1168,20 +1173,22 @@ namespace zz
 		std::string absolute_path(std::string reletivePath);
 
 		/*!
-		 * \brief Normalize path.
-		 * Clean path messed up with sth like: /tmp/a/.././b/./c
-		 * \param dirtyPath
-		 * \return Normalized path(also absolute)
-		 */
-		std::string normalize_path(std::string dirtyPath);
-
-		/*!
 		 * \brief Split path into hierachical sub-folders
 		 * \param path
 		 * \return std::vector<std::string> of sub-folders
 		 * path_split("/usr/local/bin/xxx/")= {"usr","local","bin","xxx"}
 		 */
 		std::vector<std::string> path_split(std::string path);
+
+		/*!
+		 * \brief Compare identical path according to OS.
+		 * By default, windows paths are case-INsensitive.
+		 * \param first
+		 * \param second
+		 * \param forceCaseSensitve Force compare using case sensitivity.
+		 * \return True if paths are indentical
+		 */
+		bool path_identical(std::string first, std::string second, bool forceCaseSensitve = false);
 
 		/*!
 		 * \brief Join path from sub-folders
@@ -1248,6 +1255,13 @@ namespace zz
 		 * For example, create_directory_recursive("/a/b/c") will create /a->/a/b->/a/b/c recursively.
 		 */
 		bool create_directory_recursive(std::string path);
+
+		/*!
+		 * \brief List directory contents
+		 * \param root Root of the directory
+		 * \return A std::vecotr<std::string>, vector of absolute paths of files and sub-directories
+		 */
+		std::vector<std::string> list_directory(std::string root);
 
 		/*!
 		 * \brief Return the Size of console window
@@ -1433,9 +1447,157 @@ namespace zz
 			static const int kDefaultFileOpenRetryInterval = 10;
 		}
 
+		/*!
+		* \brief The Path class to resolve filesystem path
+		*/
+		class Path
+		{
+		public:
+			Path(std::string path, bool isAbsolute = false);
+
+			/*!
+			 * \brief Check if path is empty
+			 * \return True if empty
+			 */
+			bool empty() const;
+
+			/*!
+			 * \brief Check path existance, whatever file/dir/device...
+			 * \return True if path exist
+			 */
+			bool exist() const;
+
+			/*!
+			 * \brief Check if path is a file and exist
+			 * \return True if file exist
+			 */
+			bool is_file() const;
+
+			/*!
+			 * \brief Check if path is a directory and exist
+			 * \return True if dir exist
+			 */
+			bool is_dir() const;
+
+			/*!
+			 * \brief Return Absolute path
+			 * \return A std::string of absolute path
+			 */
+			std::string abs_path() const;
+
+			/*!
+			 * \brief Return relative path to current working directory
+			 * \return A std::string of relative path to cwd
+			 */
+			std::string relative_path() const;
+
+			/*!
+			 * \brief Return relative path to specified root.
+			 * \param root Specified root path
+			 * \return A std::string of relative path to root
+			 */
+			std::string relative_path(std::string root) const;
+
+			/*!
+			 * \brief Return filename if is file and exist.
+			 * Will return empty string if path is not a file
+			 * \return A std::string of filename
+			 */
+			std::string filename() const;
+
+		private:
+			std::string abspath_;
+		};
+
+		/*!
+		* \brief The Directory class for filesystem directory operations
+		*/
 		class Directory
 		{
+		public:
+			using iterator = std::vector<Path>::iterator;
+			using const_iterator = std::vector<Path>::const_iterator;
 
+			/*!
+			 * \brief Directory constructor
+			 * \param root Root of directory
+			 * \param recursive Recursive search or not
+			 */
+			Directory(std::string root, bool recursive = false);
+
+			/*!
+			 * \brief Directory constructor with filter pattern
+			 * \param root Root of directory
+			 * \param pattern Filter pattern
+			 * \param recursive Recursive search or not
+			 */
+			Directory(std::string root, std::string pattern, bool recursive = false);
+
+			/*!
+			 * \brief Return begin iterator
+			 * \return Iterator to begin
+			 */
+			iterator begin() { return paths_.begin(); }
+
+			/*!
+			 * \brief Return end iterator
+			 * \return Iterator to end
+			 */
+			iterator end() { return paths_.end(); }
+
+			/*!
+			 * \brief Return const begin iterator
+			 * \return Iterator to cbegin
+			 */
+			const_iterator cbegin() const { return paths_.cbegin(); }
+
+			/*!
+			 * \brief Return const end iterator
+			 * \return Iterator to cend
+			 */
+			const_iterator cend() const { return paths_.cend(); }
+
+			/*!
+			 * \brief Return number of contained directories or files
+			 * \return Size
+			 */
+			std::size_t size() const { return paths_.size(); };
+
+			/*!
+			* \brief Check if directory is resursively searched
+			* \return True if recursive
+			*/
+			bool is_recursive() const;
+
+			/*!
+			 * \brief Return root of directory
+			 * \return A std::string of absolute root path
+			 */
+			std::string root() const;
+
+			/*!
+			 * \brief Filter directory with specified pattern
+			 * \param Wild card matching pattern
+			 */
+			void filter(std::string pattern);
+
+			/*!
+			 * \brief Clear filter pattern, redo search in directory
+			 */
+			void reset();
+
+			/*!
+			 * \brief Return the entire list
+			 * \return A std::vector<Path> containing current list
+			 */
+			std::vector<Path> to_list() const;
+
+		private:
+			void resolve();
+
+			bool recursive_;
+			Path root_;
+			std::vector<Path> paths_;
 		};
 
 		/*!
@@ -1498,10 +1660,22 @@ namespace zz
 				int retryInterval = consts::kDefaultFileOpenRetryInterval);
 
 			/*!
-			* \brief Open file
-			* \param truncateOrNot Whether open in truncate mode or not
-			* \return True if success
-			*/
+			 * \brief Open file
+			 * \param filename
+			 * \param truncateOrNot Whether open in truncate mode or not
+			 * \param retryTimes Retry open file if not success
+			 * \param retryInterval Retry interval in ms
+			 * \return True if success
+			 */
+			bool open(const char* filename, bool truncateOrNot = false,
+				int retryTimes = consts::kDefaultFileOpenRetryTimes,
+				int retryInterval = consts::kDefaultFileOpenRetryInterval);
+
+			/*!
+			 * \brief Open file
+			 * \param truncateOrNot Whether open in truncate mode or not
+			 * \return True if success
+			 */
 			bool open(bool truncateOrNot = false);
 
 			/*!
@@ -1596,6 +1770,27 @@ namespace zz
 			 * \return File size in byte
 			 */
 			std::size_t	file_size();
+
+			/*!
+			 * \brief Count number of lines in text file
+			 * \return Number of lines
+			 */
+			std::size_t count_lines();
+
+			/*!
+			 * \brief Get next line
+			 * \param trimWhitespaces Whether or not trim whitespaces
+			 * \return A std::string of the line
+			 */
+			std::string next_line(bool trimWhiteSpaces = false);
+
+			/*!
+			 * \brief Count number of lines in text file
+			 * If reached end of file, will return the number of lines
+			 * \param n Line # to jump to
+			 * \return -1 if failed, otherwise return the position actually jumped to
+			 */
+			int goto_line(int n);
 
 		private:
 			bool open();

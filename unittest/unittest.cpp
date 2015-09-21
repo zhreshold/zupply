@@ -9,9 +9,6 @@
 #endif
 
 using namespace zz;
-using namespace std;
-using namespace zz::time;
-using namespace zz::fs;
 
 
 TEST_CASE("Size struct", "[size_struct]") {
@@ -49,12 +46,21 @@ TEST_CASE("filesystem", "[filesystem]") {
 	fe.open();
 	fe << "unit test" << os::endl();
 	fe << "\u5355\u5143\u6D4B\u8BD5" << os::endl();
-	fe << "\u30E6\u30CB\u30C3\u30C8\u30C6\u30B9\u30C8" << os::endl();
+	fe << "\u30E6\u30CB\u30C3\u30C8\u30C6\u30B9\u30C8";
 	fe.close();
 	CHECK(fs::get_file_size(testFile) > 0);
 	REQUIRE(os::path_exists(testFile, true));
 	REQUIRE(os::is_file(testFile));
 	REQUIRE_FALSE(os::is_directory(testFile));
+
+	SECTION("File reader")
+	{
+		fs::FileReader fr(testFile);
+		CHECK(fr.count_lines() == 3);
+		CHECK(fr.next_line() == "unit test");
+		CHECK(fr.goto_line(3) == 3);
+		CHECK(fr.next_line() == "\u30E6\u30CB\u30C3\u30C8\u30C6\u30B9\u30C8");
+	}
 
 	SECTION("Rename the file")
 	{
@@ -95,6 +101,44 @@ TEST_CASE("filesystem", "[filesystem]") {
 		REQUIRE_FALSE(os::path_exists(deepFile, true));
 		REQUIRE_FALSE(os::path_exists("./tmp", true));
 	}
+}
+
+TEST_CASE("filesystem-path", "fs-path")
+{
+	fs::Path path(".");
+	REQUIRE_FALSE(path.empty());
+	REQUIRE(path.exist());
+	REQUIRE(path.is_dir());
+	CHECK(path.abs_path() == os::current_working_directory());
+	CHECK(path.filename() == "");
+	
+	std::string filename = "path_test.txt";
+	fs::FileEditor fe(filename);
+	fe.close();
+	path = fs::Path(filename);
+	CHECK(path.exist());
+	CHECK(path.is_file());
+	CHECK(path.filename() == filename);
+	os::remove_file(filename);
+}
+
+TEST_CASE("filesystem-directory", "fs-directory")
+{
+	fs::FileEditor fe;
+	fe.open("dir_test/1.txt");
+	fe.open("dir_test/tmp/2.txt");
+	fe.open("dir_test/tmp/3.jpg");
+	fe.open("dir_test/tmp/tmp2/4.md");
+	fe.open("dir_test/tmp2/5.bin");
+	fe.open("dir_test/tmp2/tmp3/tmp4/tmp5/6.log");
+	fe.close();
+
+	REQUIRE(os::is_directory("dir_test"));
+	fs::Directory dir("dir_test", "*.jpg", true);
+	REQUIRE(dir.size() == 1);
+	CHECK(dir.cbegin()->filename() == "3.jpg");
+	
+	os::remove_all("dir_test");
 }
 
 TEST_CASE("os-console", "os-console")
@@ -351,6 +395,7 @@ TEST_CASE("fmt::strip", "[fmt-strip]") {
 TEST_CASE("fmt::skip", "[fmt-skip]") {
 	CHECK(fmt::rskip("/tmp/tmp2/tmp.txt", ".") == "/tmp/tmp2/tmp");
 	CHECK(fmt::lskip("   #comment string", "#") == "comment string");
+	CHECK(fmt::rskip_all("123 # ; ##   \t", "#") == "123 ");
 }
 
 TEST_CASE("fmt::split", "[fmt-split]") {

@@ -22,24 +22,23 @@ for reaserches/small projects/demos.
 - Targeting Linux/Windows/Mac OS X/Partial Unix based OSes, meanwhile providing unified experience coding on each platform
 
 #### What's included
-- Command line argument parser
-- INI/CFG configuration file parser
-- Easy to use Timer/DateTime class to measure time and date
-- Fast sync/async logger with rich information and highly configurable
-- Cross-platform functions to handle file-systems, such as create directory, check file existance, etc...
-- Various formatting functions to trim/split/replace strings
+- Command-line [Argument-parser](https://github.com/ZhreShold/zupply/wiki/Argument-Parser)
+- INI/CFG [Configuration-file-parser](https://github.com/ZhreShold/zupply/wiki/Configuration-file-parser)
+- Easy to use [Timer and DateTime](https://github.com/ZhreShold/zupply/wiki/Date-and-Timer) classes to measure time and datetime
+- Fast sync/async [Logger](https://github.com/ZhreShold/zupply/wiki/Logger) with rich information and highly configurable
+- Cross-platform functions to handle [filesystems](https://github.com/ZhreShold/zupply/wiki/Filesystem). (create directory, check file existence, iterate through folder etc...)
+- Various [formatting](https://github.com/ZhreShold/zupply/wiki/Format) functions to (trim/split/replace/...) strings
 - Thread safe data structures for specific purposes
 - A lot more
 
 #### What's under construction
-- Generate list of files/sub-directories with wildcard matching(simple but very useful)
 - Image IO functions: to read/write JPEG/PNG/BMP/TGA and GIF probably
 - Serializer/Deserializer: for dump/read objects to/from string directly, binary should also be supported
 - Progress bar class that is easy to use
 
 ## Usage
 ##### zupply is designed to be as easy to integrate as possible, thus you can:
-- Copy zupply.hpp and zupply.cpp into your project
+- Copy **zupply.hpp** and **zupply.cpp** into your project
 - Start writing code
 ```c++
 #include "zupply.hpp"
@@ -56,6 +55,8 @@ int main(int argc, char** argv)
 - Build and run
 
 ##### Note: you will need a compiler which support C++11 features, the following compilers/libraries are tested
+
+##### Or you can start from scratch with quickstart.cpp in src folder
 - vc++12(Visual Studio 2013) or newer
 ```
 # create visual studio project require cmake

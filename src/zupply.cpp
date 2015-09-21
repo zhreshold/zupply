@@ -40,7 +40,7 @@
 	|| defined(sgi) || defined(__sgi) \
 	|| (defined(__MACOSX__) || defined(__APPLE__)) \
 	|| defined(__CYGWIN__) || defined(__MINGW32__)
-#define ZUPPLY_OS_UNIX	1	//!< Unix like OS
+#define ZUPPLY_OS_UNIX	1	//!< Unix like OS(POSIX compliant)
 #undef ZUPPLY_OS_WINDOWS
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
 	|| defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
@@ -88,6 +88,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cstring>
+#include <deque>
 
 // UTF8CPP
 #include <stdexcept>
@@ -1175,6 +1176,174 @@ namespace zz
 
 	namespace fs
 	{
+		Path::Path(std::string path, bool isAbsolute)
+		{
+			if (isAbsolute) abspath_ = path;
+			else abspath_ = os::absolute_path(path);
+		}
+
+		bool Path::empty() const
+		{
+			return abspath_.empty();
+		}
+
+		bool Path::exist() const
+		{
+			if (empty()) return false;
+			return os::path_exists(abspath_, true);
+		}
+
+		bool Path::is_file() const
+		{
+			return os::is_file(abspath_);
+		}
+
+		bool Path::is_dir() const
+		{
+			return os::is_directory(abspath_);
+		}
+
+		std::string Path::abs_path() const
+		{
+			return abspath_;
+		}
+
+		std::string Path::relative_path() const
+		{
+			std::string cwd = os::current_working_directory() + os::path_delim();
+			if (fmt::starts_with(abspath_, cwd))
+			{
+				return fmt::lstrip(abspath_, cwd);
+			}
+			return relative_path(cwd);
+		}
+
+		std::string Path::relative_path(std::string root) const
+		{
+			if (!fmt::ends_with(root, os::path_delim())) root += os::path_delim();
+			if (fmt::starts_with(abspath_, root))
+			{
+				return fmt::lstrip(abspath_, root);
+			}
+			
+			auto rootParts = os::path_split(root);
+			auto thisParts = os::path_split(abspath_);
+			std::size_t commonParts = 0;
+			std::size_t size = (std::min)(rootParts.size(), thisParts.size());
+			for (std::size_t i = 0; i < size; ++i)
+			{
+				if (!os::path_identical(rootParts[i], thisParts[i])) break;
+				++commonParts;
+			}
+
+			if (commonParts == 0)
+			{
+				log::detail::zupply_internal_warn("Unable to resolve relative path to: " + root + "! Return absolute path.");
+				return abspath_;
+			}
+
+			std::vector<std::string> tmp;
+			// traverse back from root, add ../ to path
+			for (std::size_t pos = rootParts.size(); pos > commonParts; --pos)
+			{
+				tmp.push_back("..");
+			}
+			// forward add parts of this path
+			for (std::size_t pos = commonParts; pos < thisParts.size(); ++pos)
+			{
+				tmp.push_back(thisParts[pos]);
+			}
+			return os::path_join(tmp);
+		}
+
+		std::string Path::filename() const
+		{
+			if (is_file()) return os::path_split_filename(abspath_);
+			return std::string();
+		}
+
+		Directory::Directory(std::string root, bool recursive)
+			:root_(root), recursive_(recursive)
+		{
+			resolve();
+		}
+
+		Directory::Directory(std::string root, std::string pattern, bool recursive)
+			: root_(root), recursive_(recursive)
+		{
+			resolve();
+			filter(pattern);
+		}
+
+		bool Directory::is_recursive() const
+		{
+			return recursive_;
+		}
+
+		std::string Directory::root() const
+		{
+			return root_.abs_path();
+		}
+
+		std::vector<Path> Directory::to_list() const
+		{
+			return paths_;
+		}
+
+		void Directory::resolve()
+		{
+			std::deque<std::string> workList;
+			if (root_.is_dir())
+			{
+				workList.push_back(root_.abs_path());
+			}
+
+			while (!workList.empty())
+			{
+				std::vector<std::string> list = os::list_directory(workList.front());
+				workList.pop_front();
+				for (auto i = list.begin(); i != list.end(); ++i)
+				{
+					if (os::is_file(*i))  
+					{
+						paths_.push_back(Path(*i));
+					}
+					else if (os::is_directory(*i))
+					{
+						paths_.push_back(Path(*i));
+						if (recursive_) workList.push_back(*i);	// add subdir work list
+					}
+					else
+					{
+						// this should not happen unless file/dir modified during runtime
+						// ignore the error
+					}
+				}
+			}
+		}
+
+		void Directory::filter(std::string pattern)
+		{
+			std::vector<Path> filtered;
+			for (auto entry : paths_)
+			{
+				if (entry.is_file())
+				{
+					std::string filename = os::path_split_filename(entry.abs_path());
+					if (fmt::wild_card_match(filename.c_str(), pattern.c_str()))
+					{
+						filtered.push_back(entry);
+					}
+				}
+			}
+			paths_ = filtered;	// replace all
+		}
+
+		void Directory::reset()
+		{
+			resolve();
+		}
+
 		FileEditor::FileEditor(std::string filename, bool truncateOrNot, int retryTimes, int retryInterval)
 		{
 			// use absolute path
@@ -1206,6 +1375,15 @@ namespace zz
 			os::fstream_open(stream_, filename_, mode);
 			if (this->is_open()) return true;
 			return false;
+		}
+
+		bool FileEditor::open(const char* filename, bool truncateOrNot, int retryTimes, int retryInterval)
+		{
+			this->close();
+			// use absolute path
+			filename_ = os::absolute_path(filename);
+			// try open
+			return this->try_open(retryTimes, retryInterval, truncateOrNot);
 		}
 
 		bool FileEditor::open(std::string filename, bool truncateOrNot, int retryTimes, int retryInterval)
@@ -1284,6 +1462,96 @@ namespace zz
 				return size;
 			}
 			return 0;
+		}
+
+		std::size_t FileReader::count_lines()
+		{
+			// store current read location
+			std::streampos readPtrBackup = istream_.tellg();
+			istream_.seekg(std::ios_base::beg);
+
+			const int bufSize = 1024 * 1024;	// using 1MB buffer
+			std::vector<char> buf(bufSize);
+
+			std::size_t ct = 0;
+			std::streamsize nbuf = 0;
+			char last = 0;
+			do
+			{
+				istream_.read(&buf.front(), bufSize);
+				nbuf = istream_.gcount();
+				for (auto i = 0; i < nbuf; i++)
+				{
+					last = buf[i];
+					if (last == '\n')
+					{
+						++ct;
+					}
+				}
+			} while (nbuf > 0);
+
+			if (last != '\n') ++ct;
+
+			// restore read position
+			istream_.clear();
+			istream_.seekg(readPtrBackup);
+
+			return ct;
+		}
+
+		std::string FileReader::next_line(bool trimWhitespaces)
+		{
+			std::string line;
+
+			if (!istream_.good() || !istream_.is_open())
+			{
+				return line;
+			}
+
+			if (!istream_.eof())
+			{
+				std::getline(istream_, line);
+				if (trimWhitespaces) return fmt::trim(line);
+				if (line.back() == '\r')
+				{
+					// LFCR \r\n problem
+					line.pop_back();
+				}
+			}
+			return line;
+		}
+
+		int FileReader::goto_line(int n)
+		{
+			if (!istream_.good() || !istream_.is_open())
+				return -1;
+
+			istream_.seekg(std::ios::beg);
+
+			if (n < 0)
+			{
+				throw ArgException("Jumping to a negtive position!");
+			}
+
+			if (n == 0)
+			{
+				return 0;
+			}
+
+			int i = 0;
+			for (i = 0; i < n - 1; ++i)
+			{
+
+				istream_.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+
+				if (istream_.eof())
+				{
+					log::detail::zupply_internal_warn("Reached end of file, line: " + std::to_string(i + 1));
+					break;
+				}
+			}
+
+			return i + 1;
 		}
 
 		std::size_t get_file_size(std::string filename)
@@ -1458,6 +1726,8 @@ namespace zz
 		{
 			static const std::string kEndLineCRLF = std::string("\r\n");
 			static const std::string kEndLineLF = std::string("\n");
+			static const std::string kNativePathDelimWindows = "\\";
+			static const std::string kNativePathDelimPosix = "/";
 		}
 
 		int system(const char *const command, const char *const moduleName)
@@ -1733,7 +2003,7 @@ namespace zz
 		bool remove_all(std::string path)
 		{
 			if (!os::path_exists(path, true)) return true;
-			if (os::path_exists(path, false))
+			if (os::is_directory(path))
 			{
 				return remove_dir(path);
 			}
@@ -1754,7 +2024,7 @@ namespace zz
 		bool remove_dir(std::string path, bool recursive)
 		{
 			// as long as dir does not exist, return true
-			if (!path_exists(path, false)) return true;
+			if (!is_directory(path)) return true;
 #if ZUPPLY_OS_WINDOWS
 			std::wstring root = utf8_to_wstring(path);
 			bool            bSubdirectory = false;       // Flag, indicating whether subdirectories have been found
@@ -1882,6 +2152,15 @@ namespace zz
 #endif
 		}
 
+		std::string path_delim()
+		{
+#if ZUPPLY_OS_WINDOWS
+			return consts::kNativePathDelimWindows;
+#else // posix
+			return consts::kNativePathDelimPosix;
+#endif
+		}
+
 		std::string current_working_directory()
 		{
 #if ZUPPLY_OS_WINDOWS
@@ -1889,6 +2168,7 @@ namespace zz
 			if ((buffer = _wgetcwd(nullptr, 0)) == nullptr)
 			{
 				// failed
+				log::detail::zupply_internal_warn("Unable to get current working directory!");
 				return std::string(".");
 			}
 			else
@@ -1902,6 +2182,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
+				log::detail::zupply_internal_warn("Unable to get current working directory!");
 				return std::string(".");
 			}
 			else
@@ -1916,6 +2197,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
+				log::detail::zupply_internal_warn("Unable to get current working directory!");
 				return std::string(".");
 			}
 			else
@@ -1978,6 +2260,19 @@ namespace zz
 			return false;
 		}
 
+		bool path_identical(std::string first, std::string second, bool forceCaseSensitve)
+		{
+#if ZUPPLY_OS_WINDOWS
+			if (!forceCaseSensitve)
+			{
+				return fmt::to_lower_ascii(first) == fmt::to_lower_ascii(second);
+			}
+			return first == second;
+#else
+			return first == second;
+#endif
+		}
+
 		std::string absolute_path(std::string reletivePath)
 		{
 #if ZUPPLY_OS_WINDOWS
@@ -1987,6 +2282,7 @@ namespace zz
 			if (buffer == nullptr)
 			{
 				// failed
+				log::detail::zupply_internal_warn("Unable to get absolute path for: " + reletivePath + "! Return original.");
 				return reletivePath;
 			}
 			else
@@ -2002,15 +2298,38 @@ namespace zz
 				// failed
 				if (ENOENT == errno)
 				{
-					if (fmt::starts_with(reletivePath, current_working_directory()))
+					// try recover manually
+					std::string dirtyPath;
+					if (fmt::starts_with(reletivePath, "/"))
 					{
-						return reletivePath;
+						// already an absolute path
+						dirtyPath = reletivePath;
 					}
 					else
 					{
-						return path_join({ current_working_directory(), reletivePath });
+						dirtyPath = path_join({ current_working_directory(), reletivePath });
 					}
+					std::vector<std::string> parts = path_split(dirtyPath);
+					std::vector<std::string> ret;
+					for (auto i = parts.begin(); i != parts.end(); ++i)
+					{
+						if (*i == ".") continue;
+						if (*i == "..")
+						{
+							if (ret.size() < 1) throw RuntimeException("Invalid path: " + dirtyPath);
+							ret.pop_back();
+						}
+						else
+						{
+							ret.push_back(*i);
+						}
+					}
+					std::string tmp = path_join(ret);
+					if (!fmt::starts_with(tmp, "/")) tmp = "/" + tmp;
+					return tmp;
 				}
+				//still failed
+				log::detail::zupply_internal_warn("Unable to get absolute path for: " + reletivePath + "! Return original.");
 				return reletivePath;
 			}
 			else
@@ -2021,31 +2340,6 @@ namespace zz
 			}
 #endif
 			return std::string();
-		}
-
-		std::string normalize_path(std::string dirtyPath)
-		{
-			std::string absPath = absolute_path(dirtyPath);
-#if ZUPPLY_OS_WINDOWS
-			return absPath;
-#else
-			std::vector<std::string> parts = path_split(dirtyPath);
-			std::vector<std::string> ret;
-			for (auto i = parts.begin(); i != parts.end(); ++i)
-			{
-				if (*i == ".") continue;
-				if (*i == "..")
-				{
-					if (ret.size() < 1) throw RuntimeException("Invalid path: " + dirtyPath);
-					ret.pop_back();
-				}
-				else
-				{
-					ret.push_back(*i);
-				}
-			}
-			return "/" + path_join(ret);
-#endif
 		}
 
 		bool create_directory(std::string path)
@@ -2069,13 +2363,13 @@ namespace zz
 
 		bool create_directory_recursive(std::string path)
 		{
-			std::string tmp = normalize_path(path);
+			std::string tmp = absolute_path(path);
 			std::string target = tmp;
 
-			while (!path_exists(tmp))
+			while (!is_directory(tmp))
 			{
 				if (tmp.empty()) return false;	// invalid path
-				tmp = normalize_path(tmp + "/../");
+				tmp = absolute_path(tmp + "/../");
 			}
 
 			// tmp is the root from where to build
@@ -2085,7 +2379,57 @@ namespace zz
 				tmp = path_join({ tmp, sub });
 				if (!create_directory(tmp)) break;
 			}
-			return path_exists(path);
+			return is_directory(path);
+		}
+
+		std::vector<std::string> list_directory(std::string root)
+		{
+			std::vector<std::string> ret;
+			root = os::absolute_path(root);
+			if (os::is_file(root))
+			{ 
+				// it's a file, not dir
+				log::detail::zupply_internal_warn(root + " is a file, not a directory!");
+				return ret;
+			}
+			if (!os::is_directory(root)) return ret;	// not a dir
+
+#if ZUPPLY_OS_WINDOWS
+			std::wstring wroot = os::utf8_to_wstring(root);
+			wchar_t dirPath[1024];
+			wsprintfW(dirPath, L"%s\\*", wroot.c_str());
+			WIN32_FIND_DATAW f;
+			HANDLE h = FindFirstFileW(dirPath, &f);
+			if (h == INVALID_HANDLE_VALUE) { return ret; }
+
+			do
+			{
+				const wchar_t *name = f.cFileName;
+				if (lstrcmpW(name, L".") == 0 || lstrcmpW(name, L"..") == 0) { continue; }
+				std::wstring path = wroot + L"\\" + name;
+				ret.push_back(os::wstring_to_utf8(path));
+			} while (FindNextFileW(h, &f));
+			FindClose(h);
+			return ret;
+#else
+			DIR *dir;
+			struct dirent *entry;
+
+			if (!(dir = opendir(root.c_str())))
+				return ret;
+			if (!(entry = readdir(dir)))
+				return ret;
+
+			do {
+				if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+						continue;
+				std::string path = root + "/" + entry->d_name;
+				ret.push_back(path);
+			} while (entry = readdir(dir));
+			closedir(dir);
+			return ret;
+#endif
+			return ret;
 		}
 
 	}// namespace os

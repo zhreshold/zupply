@@ -117,6 +117,9 @@ template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a001f05a47a5faf60e029656301cfccd4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a001f05a47a5faf60e029656301cfccd4">open</a> (std::string <a class="el" href="classzz_1_1fs_1_1_file_editor.html#a7a6239ac8af94712d6b662b4f4d81596">filename</a>, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td></tr>
 <tr class="memdesc:a001f05a47a5faf60e029656301cfccd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open file.  <a href="#a001f05a47a5faf60e029656301cfccd4">More...</a><br /></td></tr>
 <tr class="separator:a001f05a47a5faf60e029656301cfccd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5920b7b38b3ed901ef0e7c90a3350d70"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a5920b7b38b3ed901ef0e7c90a3350d70">open</a> (const char *<a class="el" href="classzz_1_1fs_1_1_file_editor.html#a7a6239ac8af94712d6b662b4f4d81596">filename</a>, bool truncateOrNot=false, int retryTimes=consts::kDefaultFileOpenRetryTimes, int retryInterval=consts::kDefaultFileOpenRetryInterval)</td></tr>
+<tr class="memdesc:a5920b7b38b3ed901ef0e7c90a3350d70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open file.  <a href="#a5920b7b38b3ed901ef0e7c90a3350d70">More...</a><br /></td></tr>
+<tr class="separator:a5920b7b38b3ed901ef0e7c90a3350d70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_editor.html#a2ed0d8a8350d8b1b18f451c7026f6a0d">open</a> (bool truncateOrNot=false)</td></tr>
 <tr class="memdesc:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open file.  <a href="#a2ed0d8a8350d8b1b18f451c7026f6a0d">More...</a><br /></td></tr>
 <tr class="separator:a2ed0d8a8350d8b1b18f451c7026f6a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -277,6 +280,56 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
           <td class="memname">bool zz::fs::FileEditor::open </td>
           <td>(</td>
           <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>truncateOrNot</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>retryTimes</em> = <code>consts::kDefaultFileOpenRetryTimes</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>retryInterval</em> = <code>consts::kDefaultFileOpenRetryInterval</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Open file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td></td></tr>
+    <tr><td class="paramname">truncateOrNot</td><td>Whether open in truncate mode or not </td></tr>
+    <tr><td class="paramname">retryTimes</td><td>Retry open file if not success </td></tr>
+    <tr><td class="paramname">retryInterval</td><td>Retry interval in ms </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if success </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5920b7b38b3ed901ef0e7c90a3350d70"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::fs::FileEditor::open </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>filename</em>, </td>
         </tr>
         <tr>

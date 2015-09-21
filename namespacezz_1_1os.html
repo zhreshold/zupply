@@ -158,30 +158,36 @@ Functions</h2></td></tr>
 <tr class="memitem:a496c4c7378d923c4d131d9f77e90e79f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a496c4c7378d923c4d131d9f77e90e79f">endl</a> ()</td></tr>
 <tr class="memdesc:a496c4c7378d923c4d131d9f77e90e79f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the OS dependent line end characters.  <a href="#a496c4c7378d923c4d131d9f77e90e79f">More...</a><br /></td></tr>
 <tr class="separator:a496c4c7378d923c4d131d9f77e90e79f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a380f05fc945364a2718024f19cb05e39"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a380f05fc945364a2718024f19cb05e39">path_delim</a> ()</td></tr>
+<tr class="memdesc:a380f05fc945364a2718024f19cb05e39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the OS dependent path delim.  <a href="#a380f05fc945364a2718024f19cb05e39">More...</a><br /></td></tr>
+<tr class="separator:a380f05fc945364a2718024f19cb05e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6029e4e1b24e2778ddeff7f89be51563"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a6029e4e1b24e2778ddeff7f89be51563">current_working_directory</a> ()</td></tr>
 <tr class="memdesc:a6029e4e1b24e2778ddeff7f89be51563"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current working directory.  <a href="#a6029e4e1b24e2778ddeff7f89be51563">More...</a><br /></td></tr>
 <tr class="separator:a6029e4e1b24e2778ddeff7f89be51563"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab929a153d303fe07f98738317791f528"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab929a153d303fe07f98738317791f528">path_exists</a> (std::string path, bool considerFile=false)</td></tr>
-<tr class="memdesc:ab929a153d303fe07f98738317791f528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path exist in filesystem.  <a href="#ab929a153d303fe07f98738317791f528">More...</a><br /></td></tr>
-<tr class="separator:ab929a153d303fe07f98738317791f528"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10a62a951eb44d4b79f10607e20be22b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a10a62a951eb44d4b79f10607e20be22b">path_exists</a> (std::string path, bool considerFile=true)</td></tr>
+<tr class="memdesc:a10a62a951eb44d4b79f10607e20be22b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path exist in filesystem.  <a href="#a10a62a951eb44d4b79f10607e20be22b">More...</a><br /></td></tr>
+<tr class="separator:a10a62a951eb44d4b79f10607e20be22b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf1955d8033ca2cdbf36486897318001"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#aaf1955d8033ca2cdbf36486897318001">is_file</a> (std::string path)</td></tr>
 <tr class="memdesc:aaf1955d8033ca2cdbf36486897318001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path is file and exists.  <a href="#aaf1955d8033ca2cdbf36486897318001">More...</a><br /></td></tr>
 <tr class="separator:aaf1955d8033ca2cdbf36486897318001"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a722c918569ba7682c7231b5f8fddcb56"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a722c918569ba7682c7231b5f8fddcb56">is_directory</a> (std::string path)</td></tr>
 <tr class="memdesc:a722c918569ba7682c7231b5f8fddcb56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if path is directory and exists.  <a href="#a722c918569ba7682c7231b5f8fddcb56">More...</a><br /></td></tr>
 <tr class="separator:a722c918569ba7682c7231b5f8fddcb56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62c7606cbf4fd4bc342379de34d7d6c2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a62c7606cbf4fd4bc342379de34d7d6c2">path_identical</a> (std::string first, std::string second, bool forceCaseSensitve=false)</td></tr>
+<tr class="memdesc:a62c7606cbf4fd4bc342379de34d7d6c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare identical path according to OS. By default, windows paths are case-INsensitive.  <a href="#a62c7606cbf4fd4bc342379de34d7d6c2">More...</a><br /></td></tr>
+<tr class="separator:a62c7606cbf4fd4bc342379de34d7d6c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b2ee0c731cbcbdeba85225fc0710502"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a3b2ee0c731cbcbdeba85225fc0710502">absolute_path</a> (std::string reletivePath)</td></tr>
 <tr class="memdesc:a3b2ee0c731cbcbdeba85225fc0710502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert reletive path to absolute path.  <a href="#a3b2ee0c731cbcbdeba85225fc0710502">More...</a><br /></td></tr>
 <tr class="separator:a3b2ee0c731cbcbdeba85225fc0710502"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a3a5d3b392f7c5a6f3463730c1a6104a7">normalize_path</a> (std::string dirtyPath)</td></tr>
-<tr class="memdesc:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalize path. Clean path messed up with sth like: /tmp/a/.././b/./c.  <a href="#a3a5d3b392f7c5a6f3463730c1a6104a7">More...</a><br /></td></tr>
-<tr class="separator:a3a5d3b392f7c5a6f3463730c1a6104a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf68a062316550753721d87b66e0e4e6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#abf68a062316550753721d87b66e0e4e6">create_directory</a> (std::string path)</td></tr>
 <tr class="memdesc:abf68a062316550753721d87b66e0e4e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create directory if not exist.  <a href="#abf68a062316550753721d87b66e0e4e6">More...</a><br /></td></tr>
 <tr class="separator:abf68a062316550753721d87b66e0e4e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab042e672368249a16f9c8bf12a146d99"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab042e672368249a16f9c8bf12a146d99">create_directory_recursive</a> (std::string path)</td></tr>
 <tr class="memdesc:ab042e672368249a16f9c8bf12a146d99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create directory recursively if not exist.  <a href="#ab042e672368249a16f9c8bf12a146d99">More...</a><br /></td></tr>
 <tr class="separator:ab042e672368249a16f9c8bf12a146d99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5c382304dbd3b3a7b441aa430114d50"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#aa5c382304dbd3b3a7b441aa430114d50">list_directory</a> (std::string root)</td></tr>
+<tr class="memdesc:aa5c382304dbd3b3a7b441aa430114d50"><td class="mdescLeft">&#160;</td><td class="mdescRight">List directory contents.  <a href="#aa5c382304dbd3b3a7b441aa430114d50">More...</a><br /></td></tr>
+<tr class="separator:aa5c382304dbd3b3a7b441aa430114d50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Namespace for OS specific implementations. </p>
@@ -536,6 +542,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aa5c382304dbd3b3a7b441aa430114d50"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::string &gt; zz::os::list_directory </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>root</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List directory contents. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">root</td><td>Root of the directory </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A std::vecotr&lt;std::string&gt;, vector of absolute paths of files and sub-directories </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac2f17e7f3d17d9695f0fc349b3f24513"></a>
 <div class="memitem">
 <div class="memproto">
@@ -604,31 +635,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a3a5d3b392f7c5a6f3463730c1a6104a7"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string zz::os::normalize_path </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>dirtyPath</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Normalize path. Clean path messed up with sth like: /tmp/a/.././b/./c. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">dirtyPath</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Normalized path(also absolute) </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="a26b7781b6899940e6bd9aa8b41de8267"></a>
 <div class="memitem">
 <div class="memproto">
@@ -665,7 +671,25 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ab929a153d303fe07f98738317791f528"></a>
+<a class="anchor" id="a380f05fc945364a2718024f19cb05e39"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::os::path_delim </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the OS dependent path delim. </p>
+<dl class="section return"><dt>Returns</dt><dd>A std::string. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a10a62a951eb44d4b79f10607e20be22b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -679,7 +703,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>considerFile</em> = <code>false</code>&#160;</td>
+          <td class="paramname"><em>considerFile</em> = <code>true</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -698,6 +722,49 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if path exists </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a62c7606cbf4fd4bc342379de34d7d6c2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::os::path_identical </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>second</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>forceCaseSensitve</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compare identical path according to OS. By default, windows paths are case-INsensitive. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">first</td><td></td></tr>
+    <tr><td class="paramname">second</td><td></td></tr>
+    <tr><td class="paramname">forceCaseSensitve</td><td>Force compare using case sensitivity. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if paths are indentical </dd></dl>
 
 </div>
 </div>

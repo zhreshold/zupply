@@ -119,6 +119,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ac0685e56c4402546e6b0d44dc873d160"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#ac0685e56c4402546e6b0d44dc873d160">file_size</a> ()</td></tr>
 <tr class="memdesc:ac0685e56c4402546e6b0d44dc873d160"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get file size in byte, member function.  <a href="#ac0685e56c4402546e6b0d44dc873d160">More...</a><br /></td></tr>
 <tr class="separator:ac0685e56c4402546e6b0d44dc873d160"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6c53c74195bf3bf410f486f4a0dcfa7"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#ad6c53c74195bf3bf410f486f4a0dcfa7">count_lines</a> ()</td></tr>
+<tr class="memdesc:ad6c53c74195bf3bf410f486f4a0dcfa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count number of lines in text file.  <a href="#ad6c53c74195bf3bf410f486f4a0dcfa7">More...</a><br /></td></tr>
+<tr class="separator:ad6c53c74195bf3bf410f486f4a0dcfa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a125c31f4db7b6e5dfe0a4a1c0699d5"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#a8a125c31f4db7b6e5dfe0a4a1c0699d5">next_line</a> (bool trimWhiteSpaces=false)</td></tr>
+<tr class="memdesc:a8a125c31f4db7b6e5dfe0a4a1c0699d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get next line.  <a href="#a8a125c31f4db7b6e5dfe0a4a1c0699d5">More...</a><br /></td></tr>
+<tr class="separator:a8a125c31f4db7b6e5dfe0a4a1c0699d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abea11f904f1c2c62e4215c58ff18225a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_file_reader.html#abea11f904f1c2c62e4215c58ff18225a">goto_line</a> (int n)</td></tr>
+<tr class="memdesc:abea11f904f1c2c62e4215c58ff18225a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count number of lines in text file If reached end of file, will return the number of lines.  <a href="#abea11f904f1c2c62e4215c58ff18225a">More...</a><br /></td></tr>
+<tr class="separator:abea11f904f1c2c62e4215c58ff18225a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classzz_1_1fs_1_1_file_reader.html" title="The FileReader class for read-only operations. This class is derived from UnCopyable, so no copy operation. Move operation is allowed by std::move();. ">FileReader</a> class for read-only operations. This class is derived from <a class="el" href="classzz_1_1_un_copyable.html" title="A not copyable base class, should be inheritated privately. ">UnCopyable</a>, so no copy operation. Move operation is allowed by std::move();. </p>
@@ -166,6 +175,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ad6c53c74195bf3bf410f486f4a0dcfa7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t zz::fs::FileReader::count_lines </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Count number of lines in text file. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of lines </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac0685e56c4402546e6b0d44dc873d160"></a>
 <div class="memitem">
 <div class="memproto">
@@ -213,6 +240,31 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 <p>Return filename </p><dl class="section return"><dt>Returns</dt><dd>Filename </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abea11f904f1c2c62e4215c58ff18225a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int zz::fs::FileReader::goto_line </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Count number of lines in text file If reached end of file, will return the number of lines. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Line # to jump to </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>-1 if failed, otherwise return the position actually jumped to </dd></dl>
 
 </div>
 </div>
@@ -265,6 +317,31 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 <p>Check if valid filename is set. </p>
 <dl class="section return"><dt>Returns</dt><dd>True if valid </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8a125c31f4db7b6e5dfe0a4a1c0699d5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::fs::FileReader::next_line </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>trimWhiteSpaces</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get next line. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">trimWhitespaces</td><td>Whether or not trim whitespaces </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A std::string of the line </dd></dl>
 
 </div>
 </div>

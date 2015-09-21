@@ -76,12 +76,361 @@
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classzz_1_1fs_1_1_directory-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">zz::fs::Directory Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<hr/>The documentation for this class was generated from the following file:<ul>
+
+<p>The <a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> class for filesystem directory operations.  
+ <a href="classzz_1_1fs_1_1_directory.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="zupply_8hpp_source.html">zupply.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:af13773f9448819b7fd5338639d686f2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af13773f9448819b7fd5338639d686f2c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator</b> = std::vector&lt; <a class="el" href="classzz_1_1fs_1_1_path.html">Path</a> &gt;::iterator</td></tr>
+<tr class="separator:af13773f9448819b7fd5338639d686f2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a715a646083b67df6570e08dcbc28f9fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a715a646083b67df6570e08dcbc28f9fb"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>const_iterator</b> = std::vector&lt; <a class="el" href="classzz_1_1fs_1_1_path.html">Path</a> &gt;::const_iterator</td></tr>
+<tr class="separator:a715a646083b67df6570e08dcbc28f9fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a780cae4680049c1e97f14fcf58edfc81"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a780cae4680049c1e97f14fcf58edfc81">Directory</a> (std::string <a class="el" href="classzz_1_1fs_1_1_directory.html#abd61a4fd76b3c3bc01896c1c45f9f91d">root</a>, bool recursive=false)</td></tr>
+<tr class="memdesc:a780cae4680049c1e97f14fcf58edfc81"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> constructor.  <a href="#a780cae4680049c1e97f14fcf58edfc81">More...</a><br /></td></tr>
+<tr class="separator:a780cae4680049c1e97f14fcf58edfc81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad52388a64c06995747c1521a56d21e47"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#ad52388a64c06995747c1521a56d21e47">Directory</a> (std::string <a class="el" href="classzz_1_1fs_1_1_directory.html#abd61a4fd76b3c3bc01896c1c45f9f91d">root</a>, std::string pattern, bool recursive=false)</td></tr>
+<tr class="memdesc:ad52388a64c06995747c1521a56d21e47"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> constructor with filter pattern.  <a href="#ad52388a64c06995747c1521a56d21e47">More...</a><br /></td></tr>
+<tr class="separator:ad52388a64c06995747c1521a56d21e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab461c3558b41feccdeb72977e6c0c40d"><td class="memItemLeft" align="right" valign="top">iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#ab461c3558b41feccdeb72977e6c0c40d">begin</a> ()</td></tr>
+<tr class="memdesc:ab461c3558b41feccdeb72977e6c0c40d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return begin iterator.  <a href="#ab461c3558b41feccdeb72977e6c0c40d">More...</a><br /></td></tr>
+<tr class="separator:ab461c3558b41feccdeb72977e6c0c40d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c6bd847efce8e1334c9a6cd0ef08cd7"><td class="memItemLeft" align="right" valign="top">iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a7c6bd847efce8e1334c9a6cd0ef08cd7">end</a> ()</td></tr>
+<tr class="memdesc:a7c6bd847efce8e1334c9a6cd0ef08cd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return end iterator.  <a href="#a7c6bd847efce8e1334c9a6cd0ef08cd7">More...</a><br /></td></tr>
+<tr class="separator:a7c6bd847efce8e1334c9a6cd0ef08cd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e84b038d275f1bf13d69da49c82cda6"><td class="memItemLeft" align="right" valign="top">const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a9e84b038d275f1bf13d69da49c82cda6">cbegin</a> () const </td></tr>
+<tr class="memdesc:a9e84b038d275f1bf13d69da49c82cda6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return const begin iterator.  <a href="#a9e84b038d275f1bf13d69da49c82cda6">More...</a><br /></td></tr>
+<tr class="separator:a9e84b038d275f1bf13d69da49c82cda6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ee5ff16d2179075f78edcf4b4763b83"><td class="memItemLeft" align="right" valign="top">const_iterator&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a2ee5ff16d2179075f78edcf4b4763b83">cend</a> () const </td></tr>
+<tr class="memdesc:a2ee5ff16d2179075f78edcf4b4763b83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return const end iterator.  <a href="#a2ee5ff16d2179075f78edcf4b4763b83">More...</a><br /></td></tr>
+<tr class="separator:a2ee5ff16d2179075f78edcf4b4763b83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab91f2c240393b8a7f166dba051f0e17c"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#ab91f2c240393b8a7f166dba051f0e17c">size</a> () const </td></tr>
+<tr class="memdesc:ab91f2c240393b8a7f166dba051f0e17c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of contained directories or files.  <a href="#ab91f2c240393b8a7f166dba051f0e17c">More...</a><br /></td></tr>
+<tr class="separator:ab91f2c240393b8a7f166dba051f0e17c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a914e345eca16dd90080be94521ff00d6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a914e345eca16dd90080be94521ff00d6">is_recursive</a> () const </td></tr>
+<tr class="memdesc:a914e345eca16dd90080be94521ff00d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if directory is resursively searched.  <a href="#a914e345eca16dd90080be94521ff00d6">More...</a><br /></td></tr>
+<tr class="separator:a914e345eca16dd90080be94521ff00d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd61a4fd76b3c3bc01896c1c45f9f91d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#abd61a4fd76b3c3bc01896c1c45f9f91d">root</a> () const </td></tr>
+<tr class="memdesc:abd61a4fd76b3c3bc01896c1c45f9f91d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return root of directory.  <a href="#abd61a4fd76b3c3bc01896c1c45f9f91d">More...</a><br /></td></tr>
+<tr class="separator:abd61a4fd76b3c3bc01896c1c45f9f91d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23072d88e3a811de1572fe8a9e105c59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a23072d88e3a811de1572fe8a9e105c59">filter</a> (std::string pattern)</td></tr>
+<tr class="memdesc:a23072d88e3a811de1572fe8a9e105c59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter directory with specified pattern.  <a href="#a23072d88e3a811de1572fe8a9e105c59">More...</a><br /></td></tr>
+<tr class="separator:a23072d88e3a811de1572fe8a9e105c59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a868875628abb0c5dd358b8c4c0d6ebea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a868875628abb0c5dd358b8c4c0d6ebea"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a868875628abb0c5dd358b8c4c0d6ebea">reset</a> ()</td></tr>
+<tr class="memdesc:a868875628abb0c5dd358b8c4c0d6ebea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear filter pattern, redo search in directory. <br /></td></tr>
+<tr class="separator:a868875628abb0c5dd358b8c4c0d6ebea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bad35896eb813e71b565a84e39a884e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classzz_1_1fs_1_1_path.html">Path</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1fs_1_1_directory.html#a8bad35896eb813e71b565a84e39a884e">to_list</a> () const </td></tr>
+<tr class="memdesc:a8bad35896eb813e71b565a84e39a884e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the entire list.  <a href="#a8bad35896eb813e71b565a84e39a884e">More...</a><br /></td></tr>
+<tr class="separator:a8bad35896eb813e71b565a84e39a884e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The <a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> class for filesystem directory operations. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a780cae4680049c1e97f14fcf58edfc81"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zz::fs::Directory::Directory </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>root</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>recursive</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">root</td><td>Root of directory </td></tr>
+    <tr><td class="paramname">recursive</td><td>Recursive search or not </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ad52388a64c06995747c1521a56d21e47"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zz::fs::Directory::Directory </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>root</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>pattern</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>recursive</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classzz_1_1fs_1_1_directory.html" title="The Directory class for filesystem directory operations. ">Directory</a> constructor with filter pattern. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">root</td><td>Root of directory </td></tr>
+    <tr><td class="paramname">pattern</td><td>Filter pattern </td></tr>
+    <tr><td class="paramname">recursive</td><td>Recursive search or not </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ab461c3558b41feccdeb72977e6c0c40d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">iterator zz::fs::Directory::begin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return begin iterator. </p>
+<dl class="section return"><dt>Returns</dt><dd>Iterator to begin </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9e84b038d275f1bf13d69da49c82cda6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const_iterator zz::fs::Directory::cbegin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return const begin iterator. </p>
+<dl class="section return"><dt>Returns</dt><dd>Iterator to cbegin </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2ee5ff16d2179075f78edcf4b4763b83"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const_iterator zz::fs::Directory::cend </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return const end iterator. </p>
+<dl class="section return"><dt>Returns</dt><dd>Iterator to cend </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7c6bd847efce8e1334c9a6cd0ef08cd7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">iterator zz::fs::Directory::end </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return end iterator. </p>
+<dl class="section return"><dt>Returns</dt><dd>Iterator to end </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a23072d88e3a811de1572fe8a9e105c59"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zz::fs::Directory::filter </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>pattern</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Filter directory with specified pattern. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Wild</td><td>card matching pattern </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a914e345eca16dd90080be94521ff00d6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zz::fs::Directory::is_recursive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if directory is resursively searched. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if recursive </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="abd61a4fd76b3c3bc01896c1c45f9f91d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zz::fs::Directory::root </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return root of directory. </p>
+<dl class="section return"><dt>Returns</dt><dd>A std::string of absolute root path </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab91f2c240393b8a7f166dba051f0e17c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t zz::fs::Directory::size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return number of contained directories or files. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8bad35896eb813e71b565a84e39a884e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classzz_1_1fs_1_1_path.html">Path</a> &gt; zz::fs::Directory::to_list </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the entire list. </p>
+<dl class="section return"><dt>Returns</dt><dd>A std::vector&lt;Path&gt; containing current list </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>D:/Dev/vs_projects/zupply/src/<a class="el" href="zupply_8hpp_source.html">zupply.hpp</a></li>
+<li>D:/Dev/vs_projects/zupply/src/zupply.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

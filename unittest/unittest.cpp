@@ -563,12 +563,12 @@ TEST_CASE("arg-argParser", "arg-parser")
 	bool bbb = false;
 	p.add_opt_flag('b', "brief", "brief intro", &bbb);
 	p.add_opt_help('h', "help");
-	p.add_opt_version("version", "0.0.1");
+	p.add_opt_version(-1, "version", "0.0.1");
 	std::vector<int> v = { 1, 2, 3, 4 };
 	p.add_opt_value('a', "values", v, v, "vector of int to do", "INT").require().set_min(4).set_max(4);
 	std::vector<double> f;
 	std::vector<double> g = {0.0, 0.0};
-	p.add_opt_value(-1, "float", f, g, "vector of double values", "DOUBLE");
+	p.add_opt_value(-1, "float", f, g, "vector of double values", "DOUBLE").set_max(2);
 	double d;
 	p.add_opt_value(-1, "doublevalue", d, -0.5);
 

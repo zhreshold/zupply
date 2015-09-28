@@ -18,7 +18,7 @@ for reaserches/small projects/demos.
 #### Features
 - Zero dependency, only C++ 11 standard
 - Designed to be easily included in projects, no need to link
-- Pure and clean, everything wrapped in namespace zz, almost no pollution if you don't expose the namespace
+- Pure and clean, everything encapsulated in namespace zz, almost no pollution if you don't expose the namespace ([explain](https://github.com/ZhreShold/zupply/wiki/Why-not-single-file-and-header-only%3F))
 - Targeting Linux/Windows/Mac OS X/Partial Unix based OSes, meanwhile providing unified experience coding on each platform
 
 #### What's included
@@ -88,3 +88,6 @@ For tutorials, please check Zupply [Wiki](https://github.com/ZhreShold/zupply/wi
 
 ## License
 Zupply uses very permissive [MIT](https://opensource.org/licenses/MIT) license.
+
+## Credits
+- [UTF8-CPP](http://utfcpp.sourceforge.net/)

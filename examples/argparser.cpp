@@ -6,10 +6,12 @@ void argparser_example(int argc, char** argv)
 {
 	cfg::ArgParser argparser;
 
+	// add info
+	argparser.add_info("This is a demo argument parser");
 	// add option for help
 	argparser.add_opt_help('h', "help");
 	// add version info
-	argparser.add_opt_version('v', "version", "0.1");
+	//argparser.add_opt_version('v', "version", "0.1");
 
 	struct MyOption
 	{
@@ -30,16 +32,20 @@ void argparser_example(int argc, char** argv)
 	// we could also load arguments into vector
 	std::vector<double> vd;
 	// no short argument,  maximum 4 arguments
-	argparser.add_opt_value(-1, "vector", vd, std::vector<double>(), "load a vector").set_max(4);
+	argparser.add_opt_value(-1, "vector", vd, std::vector<double>({ 0.1, 0.2 }), "load a vector").set_max(4).set_type("DVEC");
+	// add place holder option
+	std::string input;
+	std::string output;
+	auto inputArg = argparser.add_opt_value(-1, "", input, std::string("input_filename"), "input filename", "file").require();
+	auto outputArg = argparser.add_opt_value(-1, "", output, std::string("output_filename"), "output filename", "file");
 
 	// argparser support custom option with lambda function
-	argparser.add_opt("custom").set_help("custom option").call([](){std::cout << "hey, called my custom stuff" << std::endl; });
+	argparser.add_opt("custom").set_help("custom option, print msg").call([](){std::cout << "hey, called my custom stuff" << std::endl; });
+
 
 	// now parse the arguments
 	argparser.parse(argc, argv);
 
-	fs::FileEditor fe("dump.txt");
-	fe << argparser.get_help() << os::endl();
 	// check errors
 	if (argparser.count_error() > 0)
 	{
@@ -59,6 +65,8 @@ void argparser_example(int argc, char** argv)
 	{
 		std::cout << *i << std::endl;
 	}
+	std::cout << "input filename: " << input << std::endl;
+	std::cout << "output filename: " << output << std::endl;
 
 }
 

@@ -2421,8 +2421,21 @@ namespace zz
 			 */
 			ArgOption& set_max(int maxCount);
 
+			/*!
+			 * \brief Return the stored value
+			 * \return Stored value
+			 */
+			Value get_value();
+
+			/*!
+			 * \brief Return the count
+			 * \return Reference count
+			 */
+			int get_count();
+
 		private:
-			std::string get_help();		//!< get help string
+			std::string get_help();			//!< get help string
+			std::string get_short_help();	//!< get short help string
 
 			char			shortKey_;	//!< short key eg. -h
 			std::string		longKey_;	//!< long key eg. --help
@@ -2453,26 +2466,34 @@ namespace zz
 			ArgParser();
 
 			/*!
-			 * \brief Add option with short key only.
-			 * \param shortKey A char
-			 * \return Reference to the added option
+			 * \brief Add info to parser
+			 * \param info Info to add
 			 */
-			ArgOption& add_opt(char shortKey);
+			void add_info(std::string info);
 
 			/*!
-			 * \brief Add option with long key only.
-			 * \param shortKey A std::string long key
-			 * \return Reference to the added option
-			 */
-			ArgOption& add_opt(std::string longKey);
-
-			/*!
-			 * \brief Add option with short key only.
+			 * \brief Add option.
+			 * Use -1 for shortkey if you don't want to specify short key.
+			 * Use "" for longkey if you don't want to specify long key.
 			 * \param shortKey A char
 			 * \param longKey A std::string
 			 * \return Reference to the added option
 			 */
 			ArgOption& add_opt(char shortKey, std::string longKey);
+
+			/*!
+			* \brief Add option, short version only.
+			* \param shortKey A char
+			* \return Reference to the added option
+			*/
+			ArgOption& add_opt(char shortKey);
+
+			/*!
+			* \brief Add option, long version only.
+			* \param longKey A std::string
+			* \return Reference to the added option
+			*/
+			ArgOption& add_opt(std::string longKey);
 
 			/*!
 			 * \fn template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
@@ -2485,25 +2506,12 @@ namespace zz
 			 * \param defaultValue Default value if this option not found
 			 * \param help Help description to this option
 			 * \param type Help describe the type of this option
+			 * \param min Minimum count of argument it takes
+			 * \param max Maximum count of argument it takes, use -1 to allow unlimited arguments
 			 * \return Reference to the added option
 			 */
 			template <typename T> ArgOption& add_opt_value(char shortKey, std::string longKey,
-				T& dst, T defaultValue, std::string help = "", std::string type = "");
-
-			/*!
-			 * \fn template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
-			 T defaultValue, std::string help = "", std::string type = "");
-			 * \brief Template function for an option take a value. Overload with no short key
-			 * This will store the value from argument to dst, otherwise dst = defaultValue.
-			 * \param longKey A std::string
-			 * \param dst Reference to the variable to be set
-			 * \param defaultValue Default value if this option not found
-			 * \param help Help description to this option
-			 * \param type Help describe the type of this option
-			 * \return Reference to the added option
-			 */
-			template <typename T> ArgOption& add_opt_value(std::string longKey, T& dst,
-				T defaultValue, std::string help = "", std::string type = "");
+				T& dst, T defaultValue, std::string help = "", std::string type = "", int min = 1, int max = 1);
 
 			/*!
 			 * \brief Add an toggle option.
@@ -2517,16 +2525,6 @@ namespace zz
 			ArgOption& add_opt_flag(char shortKey, std::string longKey, std::string help = "", bool* dst = nullptr);
 
 			/*!
-			 * \brief Add an toggle option. Overloaded with no short key.
-			 * When this option found, dst = true, otherwise dst = false.
-			 * \param longKey A std::string
-			 * \param help Help description.
-			 * \param dst Pointer to a bool variable to be set accroding to this option.
-			 * \return Reference to the added option
-			 */
-			ArgOption& add_opt_flag(std::string longKey, std::string help = "", bool* dst = nullptr);
-
-			/*!
 			 * \brief Add a special option used to display help information for argument parser.
 			 * When triggered, program will print help info and exit.
 			 * \param shortKey A char
@@ -2536,15 +2534,6 @@ namespace zz
 			void add_opt_help(char shortKey, std::string longKey, std::string help = "print this help and exit");
 
 			/*!
-			 * \brief Add a special option used to display help information for argument parser.
-			 * When triggered, program will print help info and exit.
-			 * Long key only.
-			 * \param longKey A std::string
-			 * \param help Option description
-			 */
-			void add_opt_help(std::string longKey, std::string = "print this help and exit");
-
-			/*!
 			 * \brief Add a special option used to display version information for argument parser.
 			 * When triggered, program will print version info and exit.
 			 * \param shortKey A char
@@ -2552,15 +2541,6 @@ namespace zz
 			 * \param help Option description
 			 */
 			void add_opt_version(char shortKey, std::string longKey, std::string version, std::string help = "print version and exit");
-
-			/*!
-			 * \brief Add a special option used to display version information for argument parser.
-			 * When triggered, program will print version info and exit. Long key only.
-			 * \param shortKey A char
-			 * \param longKey A std::string
-			 * \param help Option description
-			 */
-			void add_opt_version(std::string longKey, std::string version, std::string help = "print version and exit");
 
 			/*!
 			 * \brief Return version info.
@@ -2633,7 +2613,7 @@ namespace zz
 			enum class Type { SHORT_KEY, LONG_KEY, ARGUMENT, INVALID };
 			using ArgQueue = std::vector<std::pair<std::string, Type>>;
 
-			ArgOption& add_opt_internal(char shortKey, std::string longKey, bool active = true);
+			ArgOption& add_opt_internal(char shortKey, std::string longKey);
 			void register_keys(char shortKey, std::string longKey, std::size_t pos);
 			Type check_type(std::string str);
 			ArgQueue pretty_arguments(int argc, char** argv);
@@ -2707,20 +2687,15 @@ namespace zz
 		}
 
 		template <typename T> inline ArgOption& ArgParser::add_opt_value(char shortKey, std::string longKey,
-			T& dst, T defaultValue, std::string help, std::string type)
+			T& dst, T defaultValue, std::string help, std::string type, int min, int max)
 		{
 			dst = defaultValue;
 			Value dfltValue;
 			dfltValue.store(defaultValue);
-			auto& opt = add_opt(shortKey, longKey).call([longKey, &dst, this] {(*this)[longKey].load(dst); });
+			auto pos = options_.size();
+			auto& opt = add_opt(shortKey, longKey).call([&, pos] {options_[pos].get_value().load(dst); });
 			opt.default_ = dfltValue.str();
-			return opt.set_help(help).set_type(type);
-		}
-
-		template <typename T> inline ArgOption& ArgParser::add_opt_value(std::string longKey, T& dst,
-			T defaultValue, std::string help, std::string type)
-		{
-			return add_opt_value(-1, longKey, defaultValue, help, type);
+			return opt.set_help(help).set_type(type).set_min(min).set_max(max);
 		}
 
 	} // namespace cfg

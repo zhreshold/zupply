@@ -2712,7 +2712,7 @@ namespace zz
 		ArgOption::ArgOption(char shortKey, std::string longKey) :
 			shortKey_(shortKey), longKey_(longKey),
 			type_(""), default_(""), required_(false),
-			min_(0), max_(-1), once_(false), count_(0),
+			min_(0), max_(1), once_(false), count_(0),
 			val_(""), size_(0)
 		{}
 
@@ -2772,27 +2772,47 @@ namespace zz
 			return *this;
 		}
 
+		Value ArgOption::get_value()
+		{
+			return val_;
+		}
+
+		int ArgOption::get_count()
+		{
+			return count_;
+		}
+
 		std::string ArgOption::get_help()
 		{
 			// target: '-i, --input=FILE		this is an example input(default: abc.txt)'
 			const std::size_t alignment = 26;
 			std::string ret;
-			if (shortKey_ != -1)
+
+			// place holders
+			if (shortKey_ == -1 && longKey_.empty() && min_ > 0)
 			{
-				ret += "-";
-				ret.push_back(shortKey_);
+				ret = "<" + type_ + ">";
 			}
-			if (!longKey_.empty())
+			else
 			{
-				if (!ret.empty()) ret += ", ";
-				ret += "--";
-				ret += longKey_;
+				if (shortKey_ != -1)
+				{
+					ret += "-";
+					ret.push_back(shortKey_);
+				}
+				if (!longKey_.empty())
+				{
+					if (!ret.empty()) ret += ", ";
+					ret += "--";
+					ret += longKey_;
+				}
+				if (!type_.empty())
+				{
+					ret.push_back('=');
+					ret += type_;
+				}
 			}
-			if (!type_.empty())
-			{
-				ret.push_back('=');
-				ret += type_;
-			}
+
 			if (ret.size() < alignment)
 			{
 				while (ret.size() < alignment)
@@ -2816,10 +2836,58 @@ namespace zz
 			return ret;
 		}
 
+		std::string ArgOption::get_short_help()
+		{
+			// [-a=<DOUBLE>] [--long=<INT> [<INT>]]...
+			std::string ret = "-";
+			if (shortKey_ != -1)
+			{
+				ret.push_back(shortKey_);
+			}
+			else if (!longKey_.empty())
+			{
+				ret += "-" + longKey_;
+			}
+			else
+			{
+				ret = "<" + type_ + ">";
+				return ret;
+			}
+
+			// type info
+			std::string st = "<" + type_ + ">";
+			if (min_ > 0)
+			{
+				if (required_) ret.push_back('=');
+				else ret.push_back(' ');
+				ret += st;
+				for (int i = 2; i < min_; ++i)
+				{
+					ret.push_back(' ');
+					ret += st;
+				}
+				if (max_ == -1 || max_ > min_)
+				{
+					ret += " {" + st + "}...";
+				}
+			}
+
+			if (!required_)
+			{
+				ret = "[" + ret + "]";
+			}
+			return ret;
+		}
+
 		ArgParser::ArgParser() : info_({ "program", "?" })
 		{
-			add_opt_internal(-1, "", false);	// reserve for help
-			add_opt_internal(-1, "", false);	// reserve for version
+			add_opt_internal(-1, "").set_max(0);	// reserve for help
+			add_opt_internal(-1, "").set_max(0);	// reserve for version
+		}
+
+		void ArgParser::add_info(std::string info)
+		{
+			info_.push_back(info);
 		}
 
 		std::vector<Value> ArgParser::arguments() const
@@ -2859,15 +2927,13 @@ namespace zz
 			}
 		}
 
-		ArgOption& ArgParser::add_opt_internal(char shortKey, std::string longKey, bool active)
+		ArgOption& ArgParser::add_opt_internal(char shortKey, std::string longKey)
 		{
-			if (shortKey == -1 && longKey.empty())
-			{
-				if (active)	throw ArgException("At least one valid key required!");
-			}
-
 			options_.push_back(ArgOption(shortKey, longKey));
-			register_keys(shortKey, longKey, options_.size()-1);
+			if (shortKey != -1 || (!longKey.empty()))
+			{
+				register_keys(shortKey, longKey, options_.size() - 1);
+			}
 			return options_.back();
 		}
 
@@ -2893,12 +2959,8 @@ namespace zz
 			opt.shortKey_ = shortKey;
 			opt.longKey_ = longKey;
 			opt.set_help(help)
-				.call([this]{std::cout << this->get_help() << std::endl; std::exit(0); });
-		}
-
-		void ArgParser::add_opt_help(std::string longKey, std::string help)
-		{
-			add_opt_help(-1, longKey, help);
+				.call([this]{std::cout << this->get_help() << std::endl; std::exit(0); })
+				.set_min(0).set_max(0);
 		}
 
 		void ArgParser::add_opt_version(char shortKey, std::string longKey, std::string version, std::string help)
@@ -2909,27 +2971,18 @@ namespace zz
 			opt.shortKey_ = shortKey;
 			opt.longKey_ = longKey;
 			opt.set_help(help)
-				.call([this]{std::cout << this->version() << std::endl; std::exit(0); });
-		}
-
-		void ArgParser::add_opt_version(std::string longKey, std::string version, std::string help)
-		{
-			add_opt_version(-1, longKey, version, help);
+				.call([this]{std::cout << this->version() << std::endl; std::exit(0); })
+				.set_min(0).set_max(0);
 		}
 
 		ArgOption& ArgParser::add_opt_flag(char shortKey, std::string longKey, std::string help, bool* dst)
 		{
-			auto& opt = add_opt(shortKey, longKey).set_help(help);
+			auto& opt = add_opt(shortKey, longKey).set_help(help).set_min(0).set_max(0);
 			if (nullptr != dst)
 			{
 				opt.call([dst]{*dst = true; }, [dst]{*dst = false; });
 			}
 			return opt;
-		}
-
-		ArgOption& ArgParser::add_opt_flag(std::string longKey, std::string help, bool* dst)
-		{
-			return add_opt_flag(-1, longKey, help, dst);
 		}
 
 		ArgParser::Type ArgParser::check_type(std::string opt)
@@ -3082,7 +3135,25 @@ namespace zz
 				}
 			}
 
-			// 3. callbacks
+			// 3. placeholders
+			for (auto o = options_.begin(); o != options_.end(); ++o)
+			{
+				if (o->shortKey_ == -1 && o->longKey_.empty())
+				{
+					int n = o->max_;
+					while (n > 0 && args_.size() > 0)
+					{
+						o->val_ = o->val_.str() + " " + args_[0].str();
+						++o->count_;
+						--n;
+						args_.erase(args_.begin());
+					}
+					o->val_ = fmt::trim(o->val_.str());
+					if (args_.empty()) break;
+				}
+			}
+
+			// 4. callbacks
 			for (auto o : options_)
 			{
 				if (o.count_ > 0)
@@ -3104,20 +3175,20 @@ namespace zz
 			}
 			
 
-			// 4. check errors
+			// 5. check errors
 			for (auto o : options_)
 			{
 				if (o.required_ && (o.count_ < 1))
 				{
-					errors_.push_back("Required option not found: <" + o.get_help() + ">");
+					errors_.push_back("[ArgParser Error]: Required option not found: " + o.get_short_help());
 				}
-				if (o.min_ > o.size_)
+				if (o.count_ > 1 && o.min_ > o.size_)
 				{
-					errors_.push_back("<" + o.get_help() + "> need at least " + std::to_string(o.min_) + " arguments.");
+					errors_.push_back("[ArgParser Error]:" + o.get_short_help() + " need at least " + std::to_string(o.min_) + " arguments.");
 				}
 				if (o.count_ > 1 && o.once_)
 				{
-					errors_.push_back("<" + o.get_help() + "> limited to be called only once.");
+					errors_.push_back("[ArgParser Error]:" + o.get_short_help() + " limited to be called only once.");
 				}
 			}
 		}
@@ -3126,16 +3197,58 @@ namespace zz
 		{
 			std::string ret("Usage: ");
 			ret += info_[0];
-			ret += "\n  version: " + info_[1] + "\n";
+			std::string usageLine;
+
+			// single line options list
+			for (auto opt : options_)
+			{
+				if (!opt.required_ && opt.max_ == 0 && opt.shortKey_ != -1)
+				{
+					// put optional short flags together [-abcdefg...]
+					usageLine.push_back(opt.shortKey_);
+				}
+			}
+			if (!usageLine.empty())
+			{
+				usageLine = " [-" + usageLine + "]";
+			}
+
+			// options that take arguments
+			for (auto opt : options_)
+			{
+				if (!opt.required_ && opt.max_ == 0) continue;
+				std::string tmp = " " + opt.get_short_help();
+				if (!tmp.empty()) usageLine += tmp;
+			}
+
+			ret += " " + usageLine + "\n";
+
 			for (std::size_t i = 2; i < info_.size(); ++i)
 			{
 				ret += "  " + info_[i] + "\n";
 			}
 
-			ret.push_back('\n');
+			// required options first
+			ret += "\n  Required options:\n";
 			for (auto opt : options_)
 			{
-				ret += "  " + opt.get_help() + "\n";
+				if (opt.required_) 
+				{ 
+					std::string tmpLine = "  " + opt.get_help() + "\n";
+					if (fmt::trim(tmpLine).empty()) continue;
+					ret += tmpLine; 
+				}
+			}
+			// optional options
+			ret += "\n  Optional options:\n";
+			for (auto opt : options_)
+			{
+				if (!opt.required_)
+				{
+					std::string tmpLine = "  " + opt.get_help() + "\n";
+					if (fmt::trim(tmpLine).empty()) continue;
+					ret += tmpLine;
+				}
 			}
 			return ret;
 		}

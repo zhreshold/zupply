@@ -2425,7 +2425,7 @@ namespace zz
 						continue;
 				std::string path = root + "/" + entry->d_name;
 				ret.push_back(path);
-			} while (entry = readdir(dir));
+			} while ((entry = readdir(dir)));
 			closedir(dir);
 			return ret;
 #endif

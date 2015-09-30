@@ -1,6 +1,6 @@
 # Zupply - A light-weight portable C++ 11 library for Researches and Demos
 
-![Build Status](https://travis-ci.org/ZhreShold/zupply.svg)
+![Build Status](https://travis-ci.org/ZhreShold/zupply.svg?branch=master)
 
 ## Introduction
 **Zupply** is a light-weight, cross-platform, easy to use C++11 library packed with fundamental functions/classes best

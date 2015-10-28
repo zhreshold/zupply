@@ -52,11 +52,15 @@
 #endif
 
 #if ZUPPLY_OS_WINDOWS
+#if _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <windows.h>
 #include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
+#include <io.h>
 #elif ZUPPLY_OS_UNIX
 #include <unistd.h>	/* POSIX flags */
 #include <sys/stat.h>
@@ -1789,6 +1793,16 @@ namespace zz
 
 		}
 
+		int is_atty()
+		{
+#if ZUPPLY_OS_WINDOWS
+			return _isatty(_fileno(stdout));
+#elif
+			return isatty(fileno(stdout));
+#endif
+			return 0;
+		}
+
 		Size console_size()
 		{
 			Size ret(-1, -1);
@@ -3306,6 +3320,164 @@ namespace zz
 
 	namespace log
 	{
+		ProgBar::ProgBar(unsigned range, std::string info)
+			: ss_(nullptr), info_(info)
+		{
+			range_ = range;
+			pos_ = 0;
+			running_ = false;
+			timer_.reset();
+			sprintf(rate_, "%.1f/sec", 0);
+			start();
+		}
+
+		ProgBar::~ProgBar()
+		{
+			stop();
+		}
+
+		void ProgBar::step(unsigned size)
+		{
+			pos_ += size;
+			if (pos_ >= range_)
+			{
+				stop();
+			}
+			calc_rate(size);
+			timer_.reset();
+		}
+
+		void ProgBar::calc_rate(unsigned size)
+		{
+			double interval = timer_.elapsed_sec_double();
+			if (interval < 1e-12) interval = 1e-12;
+			double rate = size / interval;
+			if (rate > 1073741824)
+			{
+				sprintf(rate_, "%.1e/s", rate);
+			}
+			else if (rate > 1048576)
+			{
+				sprintf(rate_, "%.1fM/sec", rate / 1048576);
+			}
+			else if (rate > 1024)
+			{
+				sprintf(rate_, "%.1fK/sec", rate / 1024);
+			}
+			else if (rate > 0.1)
+			{
+				sprintf(rate_, "%.1f/sec", rate);
+			}
+			else if (rate * 60 > 1)
+			{
+				sprintf(rate_, "%.1f/min", rate * 60);
+			}
+			else if (rate * 3600 > 1)
+			{
+				sprintf(rate_, "%.1f/sec", rate * 3600);
+			}
+			else
+			{
+				sprintf(rate_, "%.1e/s", rate);
+			}
+		}
+
+		void ProgBar::start()
+		{
+			if (os::is_atty())
+			{
+				oldCout_ = std::cout.rdbuf(buffer_.rdbuf());
+				oldCerr_ = std::cerr.rdbuf(buffer_.rdbuf());
+				ss_.rdbuf(oldCout_);
+				ss_ << std::endl;
+				running_ = true;
+				worker_ = std::thread([this]{ this->bg_work(); });
+			}
+		}
+
+		void ProgBar::stop()
+		{
+			if (running_)
+			{
+				running_ = false;
+				worker_.join();	// join worker thread
+				draw();
+				std::cout.rdbuf(oldCout_);
+				std::cerr.rdbuf(oldCerr_);
+				std::cout << std::endl;
+			}
+		}
+
+		void ProgBar::draw()
+		{
+			Size sz = os::console_size();
+			// clear line
+			ss_ << "\r";
+			for (int i = 1; i < sz.width; ++i)
+			{
+				ss_ << " ";
+			}
+			ss_ << "\r";
+			// flush stored messages
+			std::string buf = buffer_.str();
+			if (!buf.empty())
+			{
+				ss_ << buf;
+				if (buf.back() != '\n')
+				{
+					ss_ << "\n";
+				}
+				try
+				{
+					buffer_.str(std::string());
+				}
+				catch (...)
+				{
+					// suppress the exception as a hack
+				}
+			}
+			
+			const int reserved = 21;	// leave some space for info
+			int available = sz.width - reserved - static_cast<int>(info_.size()) - 2;
+			if (available > 10)
+			{
+				int cnt = 0;
+				int len = static_cast<int>(pos_ / static_cast<double>(range_) * available) - 1;
+				ss_ << info_ << "[";
+				for (int i = 0; i < len; ++i)
+				{
+					ss_ << "=";
+					++cnt;
+				}
+				if (len >= 0)
+				{
+					ss_ << ">";
+					++cnt;
+				}
+				for (int i = cnt; i < available; ++i)
+				{
+					ss_ << " ";
+				}
+				ss_ << "] ";
+				float perc = 100.f * pos_ / range_;
+				ss_ << std::fixed << std::setprecision(1) << perc;
+				ss_ << "% (";
+				ss_ << std::string(rate_);
+				ss_ << ")";
+				ss_.flush();
+			}
+
+		}
+
+		void ProgBar::bg_work()
+		{
+			while (running_)
+			{
+				draw();
+				time::sleep(66);
+			}
+		}
+
 		namespace detail
 		{
 			LoggerRegistry& LoggerRegistry::instance()

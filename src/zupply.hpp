@@ -1021,6 +1021,12 @@ namespace zz
 		std::size_t thread_id();
 
 		/*!
+		 * \brief Check if stdout is associated with console
+		 * \return None zero value if stdout is not redirected to file
+		 */
+		int is_atty();
+
+		/*!
 		 * \fn std::tm localtime(std::time_t t)
 		 * \brief Thread-safe version of localtime
 		 * \param t std::time_t
@@ -2739,7 +2745,30 @@ namespace zz
 
 		class ProgBar
 		{
+		public:
+			ProgBar(unsigned range = 100, std::string info = "");
+			~ProgBar();
 
+			void step(unsigned size = 1);
+			void stop();
+
+		private:
+			void start();
+			void bg_work();
+			void draw();
+			void calc_rate(unsigned size);
+
+			std::string				info_;
+			unsigned				range_;
+			std::atomic_uint32_t	pos_;
+			std::thread				worker_;
+			std::atomic_bool		running_;
+			std::streambuf			*oldCout_;
+			std::streambuf			*oldCerr_;
+			std::ostream			ss_;
+			std::ostringstream		buffer_;
+			char					rate_[10];
+			time::Timer				timer_;
 		};
 
 		typedef enum LogLevelEnum

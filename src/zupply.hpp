@@ -128,7 +128,7 @@ namespace zz
 		UnCopyable() {};
 		// no copy constructor
 		UnCopyable(const UnCopyable&) = delete;
-		// no copy operator
+		// no assignment
 		UnCopyable& operator=(const UnCopyable&) = delete;
 	};
 
@@ -259,25 +259,172 @@ namespace zz
 	};
 
 	/*!
-	 * \struct Size
-	 * \brief The Size struct storing width and height
+	 * \brief The 2D size class
+	 * The class represents the size of a 2D rectangle, image size, matrix size etc.
+	 * Normally, Size ~ Size_<int> is used.
 	 */
-	struct Size
+	template<typename _Tp> class Size_
 	{
-		int width;
-		int height;
+	public:
+		typedef _Tp value_type;
 
-		Size(int x, int y) : width(x), height(y) {}
-		bool operator==(const Size& other)
-		{
-			return (width == other.width) && (height == other.height);
-		}
+		//! various constructors
+		Size_();
+		Size_(_Tp _width, _Tp _height);
+		Size_(const Size_& sz);
 
-		bool operator!=(const Size& other)
-		{
-			return (width != other.width) || (height != other.height);
-		}
+		Size_& operator = (const Size_& sz);
+		bool operator==(const Size_& other);
+		bool operator!=(const Size_& other);
+		//! the area (width*height)
+		_Tp area() const;
+
+		//! conversion of another data type.
+		template<typename _Tp2> operator Size_<_Tp2>() const;
+
+		_Tp width, height; // the width and the height
 	};
+	using Size2i = Size_<int>;
+	using Size2f = Size_<float>;
+	using Size2d = Size_<double>;
+	using Size = Size_<int>;
+
+	template<typename _Tp> class Rect_;
+	/*! \brief template 2D point class.
+	The class defines a point in 2D space. Data type of the point coordinates is specified
+	as a template parameter. There are a few shorter aliases available for user convenience.
+	See zl::Point, zl::Point2i, zl::Point2f and zl::Point2d.
+	*/
+	template<typename _Tp> class Point_
+	{
+	public:
+		typedef _Tp value_type;
+
+		// various constructors
+		Point_();
+		Point_(_Tp _x, _Tp _y);
+		Point_(const Point_& pt);
+
+		Point_& operator = (const Point_& pt);
+
+		//! conversion to another data type
+		template<typename _Tp2> operator Point_<_Tp2>() const;
+
+		//! dot product
+		_Tp dot(const Point_& pt) const;
+		//! dot product computed in double-precision arithmetics
+		double ddot(const Point_& pt) const;
+		//! cross-product
+		double cross(const Point_& pt) const;
+		////! checks whether the point is inside the specified rectangle
+		bool inside(const Rect_<_Tp>& r) const;
+
+		_Tp x, y; //< the point coordinates
+	};
+	typedef Point_<int> Point2i;
+	typedef Point_<float> Point2f;
+	typedef Point_<double> Point2d;
+	typedef Point2i Point;
+	typedef std::vector<Point> Vecpts;	//!< 1-D vector of Points
+
+	/*! \brief The 2D up-right rectangle class
+	The class represents a 2D rectangle with coordinates of the specified data type.
+	Normally, zl::Rect ~ zl::Rect_<int> is used.
+	*/
+	template<typename _Tp> class Rect_
+	{
+	public:
+		typedef _Tp value_type;
+
+		//! various constructors
+		Rect_();
+		Rect_(_Tp _x, _Tp _y, _Tp _width, _Tp _height);
+		Rect_(const Rect_& r);
+		Rect_(const Point_<_Tp>& org, const Size_<_Tp>& sz);
+		Rect_(const Point_<_Tp>& pt1, const Point_<_Tp>& pt2);
+
+		Rect_& operator = (const Rect_& r);
+		//! the top-left corner
+		Point_<_Tp> tl() const;
+		//! the bottom-right corner
+		Point_<_Tp> br() const;
+
+		//! size (width, height) of the rectangle
+		Size_<_Tp> size() const;
+		//! area (width*height) of the rectangle
+		_Tp area() const;
+
+		//! conversion to another data type
+		template<typename _Tp2> operator Rect_<_Tp2>() const;
+
+		//! checks whether the rectangle contains the point
+		bool contains(const Point_<_Tp>& pt) const;
+
+		_Tp x, y, width, height; //< the top-left corner, as well as width and height of the rectangle
+	};
+
+	typedef Rect_<int> Rect2i;
+	typedef Rect_<float> Rect2f;
+	typedef Rect_<double> Rect2d;
+	typedef Rect2i Rect;
+
+	
+
+	template<typename _Tp> class Image_
+	{
+	public:
+		typedef _Tp value_type;
+
+		enum class Convert { RGB_TO_GRAYSCALE};
+
+		Image_();
+		Image_(const Size_& other);
+		Image_(const char* filename, bool grayscale = false);
+
+		~Image_();
+
+		Image_& operator= (const Image_& other);
+		_Tp& operator() (int row, int col, int channel = 0);
+		const _Tp& operator() (int row, int col, int channel = 0) const;
+
+		bool empty() const;
+		int rows() const;
+		int cols() const;
+		int channels() const;
+
+		_Tp at(int row, int col, int channel = 0) const;
+		_Tp* ptr(int offset = 0) const;
+		_Tp* ptr(int row, int col, int channel = 0) const;
+
+		void load(const char* filename, bool grayscale = false);
+		void save(const char* filename) const;
+
+		void import(_Tp* data, int rows, int cols, int channels);
+		void import(std::vector<_Tp> data, int rows, int cols, int channels);
+		std::vector<_Tp> export_raw() const;
+		std::vector<_Tp> export_deinterleave() const;
+
+		void crop(int r0, int c0, int r1, int c1);
+		void crop(Point p0, Point p1);
+		void crop(Rect rect);
+
+		void resize(int height, int width);
+		void resize(double ratio);
+		void resize(Size sz);
+
+	private:
+		void detach();
+
+		int rows_;
+		int cols_;
+		int channels_;
+		std::shared_ptr<std::vector<_Tp>> data_;
+
+	};
+	typedef Image_<unsigned char> Image;
+	typedef Image_<float> Imagef;
+	typedef Imagef ImageHdr;
+	
 
 	/*!
 	 * \namespace  zz::math
@@ -1119,7 +1266,7 @@ namespace zz
 		 * \param newName
 		 * \param replaceDst If true, existing dst file will be replaced
 		 * \return true on success
-		*/
+		 */
 		bool movefile(std::string src, std::string dst, bool replaceDst = false);
 
 		/*!
@@ -2743,13 +2890,36 @@ namespace zz
 			};
 		}
 
+		/*!
+		 * \brief The Progress bar class.
+		 * For simple progress bar.
+		 */
 		class ProgBar
 		{
 		public:
+			/*!
+			 * \brief Constructor of ProgBar
+			 * \param range Number of tasks to finish
+			 * \param info Info message to show
+			 */
 			ProgBar(unsigned range = 100, std::string info = "");
+
+			/*!
+			 * \brief Destructor will stop background thread
+			 */
 			~ProgBar();
 
+			/*!
+			 * \brief Step forward for the progress
+			 * \param size Step size, indicate how much work done in this step
+			 */
 			void step(unsigned size = 1);
+
+			/*!
+			 * \brief Stop the progress bar.
+			 * Don't call this manully unless you know what u r doing.
+			 * This will automatically be triggered when progress reach 100%.
+			 */
 			void stop();
 
 		private:
@@ -2760,7 +2930,7 @@ namespace zz
 
 			std::string				info_;
 			unsigned				range_;
-			std::atomic_uint32_t	pos_;
+			std::atomic<unsigned>	pos_;
 			std::thread				worker_;
 			std::atomic_bool		running_;
 			std::streambuf			*oldCout_;
@@ -3427,7 +3597,7 @@ namespace zz
 					sink_it(finalMessage);
 				}
 
-				void set_level_mask(int levelMask)
+				void set_level_mask(int levelMask) override
 				{
 					levelMask_ = levelMask & LogLevels::sentinel;
 				}
@@ -3847,6 +4017,555 @@ namespace zz
 		void config_from_stringstream(std::stringstream& ss);
 	} // namespace log
 
+	// implementations
+	/////////////// saturate_cast (used in image & signal processing) ///////////////////
+
+	template<typename _Tp> static inline _Tp saturate_cast(unsigned char v)    { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(char v)    { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(unsigned short v)   { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(short v)    { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(unsigned v) { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(int v)      { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(float v)    { return _Tp(v); }
+	template<typename _Tp> static inline _Tp saturate_cast(double v)   { return _Tp(v); }
+
+	template<> inline unsigned char saturate_cast<unsigned char>(char v)        { return (unsigned char)(std::max)((int)v, 0); }
+	template<> inline unsigned char saturate_cast<unsigned char>(unsigned char v)       { return (unsigned char)(std::min)((unsigned)v, (unsigned)UCHAR_MAX); }
+	template<> inline unsigned char saturate_cast<unsigned char>(int v)          { return (unsigned char)((unsigned)v <= UCHAR_MAX ? v : v > 0 ? UCHAR_MAX : 0); }
+	template<> inline unsigned char saturate_cast<unsigned char>(short v)        { return saturate_cast<unsigned char>((int)v); }
+	template<> inline unsigned char saturate_cast<unsigned char>(unsigned v)     { return (unsigned char)(std::min)(v, (unsigned)UCHAR_MAX); }
+	template<> inline unsigned char saturate_cast<unsigned char>(float v)        { int iv = math::round(v); return saturate_cast<unsigned char>(iv); }
+	template<> inline unsigned char saturate_cast<unsigned char>(double v)       { int iv = math::round(v); return saturate_cast<unsigned char>(iv); }
+
+	template<> inline char saturate_cast<char>(unsigned char v)        { return (char)(std::min)((int)v, SCHAR_MAX); }
+	template<> inline char saturate_cast<char>(unsigned short v)       { return (char)(std::min)((unsigned)v, (unsigned)SCHAR_MAX); }
+	template<> inline char saturate_cast<char>(int v)          { return (char)((unsigned)(v - SCHAR_MIN) <= (unsigned)UCHAR_MAX ? v : v > 0 ? SCHAR_MAX : SCHAR_MIN); }
+	template<> inline char saturate_cast<char>(short v)        { return saturate_cast<char>((int)v); }
+	template<> inline char saturate_cast<char>(unsigned int v)     { return (char)(std::min)(v, (unsigned)SCHAR_MAX); }
+	template<> inline char saturate_cast<char>(float v)        { int iv = math::round(v); return saturate_cast<char>(iv); }
+	template<> inline char saturate_cast<char>(double v)       { int iv = math::round(v); return saturate_cast<char>(iv); }
+
+	template<> inline unsigned short saturate_cast<unsigned short>(char v)      { return (unsigned short)(std::max)((int)v, 0); }
+	template<> inline unsigned short saturate_cast<unsigned short>(short v)      { return (unsigned short)(std::max)((int)v, 0); }
+	template<> inline unsigned short saturate_cast<unsigned short>(int v)        { return (unsigned short)((unsigned)v <= (unsigned)USHRT_MAX ? v : v > 0 ? USHRT_MAX : 0); }
+	template<> inline unsigned short saturate_cast<unsigned short>(unsigned v)   { return (unsigned short)(std::min)(v, (unsigned)USHRT_MAX); }
+	template<> inline unsigned short saturate_cast<unsigned short>(float v)      { int iv = math::round(v); return saturate_cast<unsigned short>(iv); }
+	template<> inline unsigned short saturate_cast<unsigned short>(double v)     { int iv = math::round(v); return saturate_cast<unsigned short>(iv); }
+
+	template<> inline short saturate_cast<short>(unsigned short v)       { return (short)(std::min)((int)v, SHRT_MAX); }
+	template<> inline short saturate_cast<short>(int v)          { return (short)((unsigned)(v - SHRT_MIN) <= (unsigned)USHRT_MAX ? v : v > 0 ? SHRT_MAX : SHRT_MIN); }
+	template<> inline short saturate_cast<short>(unsigned v)     { return (short)(std::min)(v, (unsigned)SHRT_MAX); }
+	template<> inline short saturate_cast<short>(float v)        { int iv = math::round(v); return saturate_cast<short>(iv); }
+	template<> inline short saturate_cast<short>(double v)       { int iv = math::round(v); return saturate_cast<short>(iv); }
+
+	template<> inline int saturate_cast<int>(float v)            { return math::round(v); }
+	template<> inline int saturate_cast<int>(double v)           { return math::round(v); }
+
+	// we intentionally do not clip negative numbers, to make -1 become 0xffffffff etc.
+	template<> inline unsigned saturate_cast<unsigned>(float v)  { return (unsigned)math::round(v); }
+	template<> inline unsigned saturate_cast<unsigned>(double v) { return (unsigned)math::round(v); }
+
+	////////////////////////////////// Size /////////////////////////////////
+	template<typename _Tp> inline
+		Size_<_Tp>::Size_()
+		: width(0), height(0) {}
+
+	template<typename _Tp> inline
+		Size_<_Tp>::Size_(_Tp _width, _Tp _height)
+		: width(_width), height(_height) {}
+
+	template<typename _Tp> inline
+		Size_<_Tp>::Size_(const Size_& sz)
+		: width(sz.width), height(sz.height) {}
+
+	template<typename _Tp> template<typename _Tp2> inline
+		Size_<_Tp>::operator Size_<_Tp2>() const
+	{
+			return Size_<_Tp2>(saturate_cast<_Tp2>(width), saturate_cast<_Tp2>(height));
+		}
+
+	template<typename _Tp> inline
+		Size_<_Tp>& Size_<_Tp>::operator = (const Size_<_Tp>& sz)
+	{
+			width = sz.width; height = sz.height;
+			return *this;
+		}
+
+	template<typename _Tp> inline
+		bool Size_<_Tp>::operator == (const Size_<_Tp>& sz)
+	{
+			return (width == sz.width) && (height == sz.height);
+		}
+
+	template<typename _Tp> inline
+		bool Size_<_Tp>::operator != (const Size_<_Tp>& sz)
+	{
+			return (width != sz.width) || (height != sz.height);
+		}
+
+	template<typename _Tp> inline
+		_Tp Size_<_Tp>::area() const
+	{
+			return width * height;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp>& operator *= (Size_<_Tp>& a, _Tp b)
+	{
+			a.width *= b;
+			a.height *= b;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp> operator * (const Size_<_Tp>& a, _Tp b)
+	{
+			Size_<_Tp> tmp(a);
+			tmp *= b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp>& operator /= (Size_<_Tp>& a, _Tp b)
+	{
+			a.width /= b;
+			a.height /= b;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp> operator / (const Size_<_Tp>& a, _Tp b)
+	{
+			Size_<_Tp> tmp(a);
+			tmp /= b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp>& operator += (Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			a.width += b.width;
+			a.height += b.height;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp> operator + (const Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			Size_<_Tp> tmp(a);
+			tmp += b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp>& operator -= (Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			a.width -= b.width;
+			a.height -= b.height;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Size_<_Tp> operator - (const Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			Size_<_Tp> tmp(a);
+			tmp -= b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		bool operator == (const Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			return a.width == b.width && a.height == b.height;
+		}
+
+	template<typename _Tp> static inline
+		bool operator != (const Size_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			return !(a == b);
+		}
+
+	//////////////////////////////// 2D Point ///////////////////////////////
+	template<typename _Tp> inline
+		Point_<_Tp>::Point_()
+		: x(0), y(0) {}
+
+	template<typename _Tp> inline
+		Point_<_Tp>::Point_(_Tp _x, _Tp _y)
+		: x(_x), y(_y) {}
+
+	template<typename _Tp> inline
+		Point_<_Tp>::Point_(const Point_& pt)
+		: x(pt.x), y(pt.y) {}
+
+	/// operator override
+	template<typename _Tp> inline
+		Point_<_Tp>& Point_<_Tp>::operator = (const Point_& pt)
+	{
+			x = pt.x; y = pt.y;
+			return *this;
+		}
+
+	template<typename _Tp> template<typename _Tp2> inline
+		Point_<_Tp>::operator Point_<_Tp2>() const
+	{
+			return Point_<_Tp2>(saturate_cast<_Tp2>(x), saturate_cast<_Tp2>(y));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator += (Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			a.x += b.x;
+			a.y += b.y;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator -= (Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			a.x -= b.x;
+			a.y -= b.y;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator *= (Point_<_Tp>& a, int b)
+	{
+			a.x = saturate_cast<_Tp>(a.x * b);
+			a.y = saturate_cast<_Tp>(a.y * b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator *= (Point_<_Tp>& a, float b)
+	{
+			a.x = saturate_cast<_Tp>(a.x * b);
+			a.y = saturate_cast<_Tp>(a.y * b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator *= (Point_<_Tp>& a, double b)
+	{
+			a.x = saturate_cast<_Tp>(a.x * b);
+			a.y = saturate_cast<_Tp>(a.y * b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator /= (Point_<_Tp>& a, int b)
+	{
+			a.x = saturate_cast<_Tp>(a.x / b);
+			a.y = saturate_cast<_Tp>(a.y / b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator /= (Point_<_Tp>& a, float b)
+	{
+			a.x = saturate_cast<_Tp>(a.x / b);
+			a.y = saturate_cast<_Tp>(a.y / b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp>& operator /= (Point_<_Tp>& a, double b)
+	{
+			a.x = saturate_cast<_Tp>(a.x / b);
+			a.y = saturate_cast<_Tp>(a.y / b);
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		bool operator == (const Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return a.x == b.x && a.y == b.y;
+		}
+
+	template<typename _Tp> static inline
+		bool operator != (const Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return a.x != b.x || a.y != b.y;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator + (const Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(a.x + b.x), saturate_cast<_Tp>(a.y + b.y));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator - (const Point_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(a.x - b.x), saturate_cast<_Tp>(a.y - b.y));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator - (const Point_<_Tp>& a)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(-a.x), saturate_cast<_Tp>(-a.y));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (const Point_<_Tp>& a, int b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(a.x*b), saturate_cast<_Tp>(a.y*b));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (int a, const Point_<_Tp>& b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(b.x*a), saturate_cast<_Tp>(b.y*a));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (const Point_<_Tp>& a, float b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(a.x*b), saturate_cast<_Tp>(a.y*b));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (float a, const Point_<_Tp>& b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(b.x*a), saturate_cast<_Tp>(b.y*a));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (const Point_<_Tp>& a, double b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(a.x*b), saturate_cast<_Tp>(a.y*b));
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator * (double a, const Point_<_Tp>& b)
+	{
+			return Point_<_Tp>(saturate_cast<_Tp>(b.x*a), saturate_cast<_Tp>(b.y*a));
+		}
+
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator / (const Point_<_Tp>& a, int b)
+	{
+			Point_<_Tp> tmp(a);
+			tmp /= b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator / (const Point_<_Tp>& a, float b)
+	{
+			Point_<_Tp> tmp(a);
+			tmp /= b;
+			return tmp;
+		}
+
+	template<typename _Tp> static inline
+		Point_<_Tp> operator / (const Point_<_Tp>& a, double b)
+	{
+			Point_<_Tp> tmp(a);
+			tmp /= b;
+			return tmp;
+		}
+
+	template<typename _Tp> inline
+		_Tp Point_<_Tp>::dot(const Point_& pt) const
+	{
+			return saturate_cast<_Tp>(x*pt.x + y*pt.y);
+		}
+
+	template<typename _Tp> inline
+		double Point_<_Tp>::ddot(const Point_& pt) const
+	{
+			return (double)x*pt.x + (double)y*pt.y;
+		}
+
+	template<typename _Tp> inline
+		double Point_<_Tp>::cross(const Point_& pt) const
+	{
+			return (double)x*pt.y - (double)y*pt.x;
+		}
+
+	template<typename _Tp> inline bool
+		Point_<_Tp>::inside(const Rect_<_Tp>& r) const
+	{
+			return r.contains(*this);
+		}
+
+	////////////////////////////////// Rect /////////////////////////////////
+
+	template<typename _Tp> inline
+		Rect_<_Tp>::Rect_()
+		: x(0), y(0), width(0), height(0) {}
+
+	template<typename _Tp> inline
+		Rect_<_Tp>::Rect_(_Tp _x, _Tp _y, _Tp _width, _Tp _height)
+		: x(_x), y(_y), width(_width), height(_height) {}
+
+	template<typename _Tp> inline
+		Rect_<_Tp>::Rect_(const Rect_<_Tp>& r)
+		: x(r.x), y(r.y), width(r.width), height(r.height) {}
+
+	template<typename _Tp> inline
+		Rect_<_Tp>::Rect_(const Point_<_Tp>& org, const Size_<_Tp>& sz)
+		: x(org.x), y(org.y), width(sz.width), height(sz.height) {}
+
+	template<typename _Tp> inline
+		Rect_<_Tp>::Rect_(const Point_<_Tp>& pt1, const Point_<_Tp>& pt2)
+	{
+			x = std::min(pt1.x, pt2.x);
+			y = std::min(pt1.y, pt2.y);
+			width = std::max(pt1.x, pt2.x) - x;
+			height = std::max(pt1.y, pt2.y) - y;
+		}
+
+	template<typename _Tp> inline
+		Rect_<_Tp>& Rect_<_Tp>::operator = (const Rect_<_Tp>& r)
+	{
+			x = r.x;
+			y = r.y;
+			width = r.width;
+			height = r.height;
+			return *this;
+		}
+
+	template<typename _Tp> inline
+		Point_<_Tp> Rect_<_Tp>::tl() const
+	{
+			return Point_<_Tp>(x, y);
+		}
+
+	template<typename _Tp> inline
+		Point_<_Tp> Rect_<_Tp>::br() const
+	{
+			return Point_<_Tp>(x + width, y + height);
+		}
+
+	template<typename _Tp> inline
+		Size_<_Tp> Rect_<_Tp>::size() const
+	{
+			return Size_<_Tp>(width, height);
+		}
+
+	template<typename _Tp> inline
+		_Tp Rect_<_Tp>::area() const
+	{
+			return width * height;
+		}
+
+	template<typename _Tp> template<typename _Tp2> inline
+		Rect_<_Tp>::operator Rect_<_Tp2>() const
+	{
+			return Rect_<_Tp2>(saturate_cast<_Tp2>(x), saturate_cast<_Tp2>(y), saturate_cast<_Tp2>(width), saturate_cast<_Tp2>(height));
+		}
+
+	template<typename _Tp> inline
+		bool Rect_<_Tp>::contains(const Point_<_Tp>& pt) const
+	{
+			return x <= pt.x && pt.x < x + width && y <= pt.y && pt.y < y + height;
+		}
+
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator += (Rect_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			a.x += b.x;
+			a.y += b.y;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator -= (Rect_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			a.x -= b.x;
+			a.y -= b.y;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator += (Rect_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			a.width += b.width;
+			a.height += b.height;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator -= (Rect_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			a.width -= b.width;
+			a.height -= b.height;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator &= (Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			_Tp x1 = std::max(a.x, b.x);
+			_Tp y1 = std::max(a.y, b.y);
+			a.width = std::min(a.x + a.width, b.x + b.width) - x1;
+			a.height = std::min(a.y + a.height, b.y + b.height) - y1;
+			a.x = x1;
+			a.y = y1;
+			if (a.width <= 0 || a.height <= 0)
+				a = Rect();
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp>& operator |= (Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			_Tp x1 = std::min(a.x, b.x);
+			_Tp y1 = std::min(a.y, b.y);
+			a.width = std::max(a.x + a.width, b.x + b.width) - x1;
+			a.height = std::max(a.y + a.height, b.y + b.height) - y1;
+			a.x = x1;
+			a.y = y1;
+			return a;
+		}
+
+	template<typename _Tp> static inline
+		bool operator == (const Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
+		}
+
+	template<typename _Tp> static inline
+		bool operator != (const Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			return a.x != b.x || a.y != b.y || a.width != b.width || a.height != b.height;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp> operator + (const Rect_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return Rect_<_Tp>(a.x + b.x, a.y + b.y, a.width, a.height);
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp> operator - (const Rect_<_Tp>& a, const Point_<_Tp>& b)
+	{
+			return Rect_<_Tp>(a.x - b.x, a.y - b.y, a.width, a.height);
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp> operator + (const Rect_<_Tp>& a, const Size_<_Tp>& b)
+	{
+			return Rect_<_Tp>(a.x, a.y, a.width + b.width, a.height + b.height);
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp> operator & (const Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			Rect_<_Tp> c = a;
+			return c &= b;
+		}
+
+	template<typename _Tp> static inline
+		Rect_<_Tp> operator | (const Rect_<_Tp>& a, const Rect_<_Tp>& b)
+	{
+			Rect_<_Tp> c = a;
+			return c |= b;
+		}
 
 } // namespace zz
 

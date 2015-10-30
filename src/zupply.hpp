@@ -368,62 +368,67 @@ namespace zz
 	typedef Rect_<double> Rect2d;
 	typedef Rect2i Rect;
 
-	
-
-	template<typename _Tp> class Image_
+	namespace detail
 	{
-	public:
-		typedef _Tp value_type;
+		template<typename _Tp> class ImageBase
+		{
+		public:
+			typedef _Tp value_type;
 
-		enum class Convert { RGB_TO_GRAYSCALE};
+			ImageBase();
+			ImageBase(const ImageBase& other);
+			ImageBase(ImageBase&& other);
 
-		Image_();
-		Image_(const Size_& other);
-		Image_(const char* filename, bool grayscale = false);
+			virtual ~ImageBase();
 
-		~Image_();
+			ImageBase& operator= (const ImageBase& other);
+			ImageBase& operator= (ImageBase&& other);
+			_Tp& operator() (int row, int col, int channel = 0);
+			const _Tp& operator() (int row, int col, int channel = 0) const;
 
-		Image_& operator= (const Image_& other);
-		_Tp& operator() (int row, int col, int channel = 0);
-		const _Tp& operator() (int row, int col, int channel = 0) const;
+			bool empty() const;
+			int rows() const;
+			int cols() const;
+			int channels() const;
 
-		bool empty() const;
-		int rows() const;
-		int cols() const;
-		int channels() const;
+			_Tp at(int row, int col, int channel = 0) const;
+			_Tp* ptr(int offset = 0) const;
+			_Tp* ptr(int row, int col, int channel = 0) const;
 
-		_Tp at(int row, int col, int channel = 0) const;
-		_Tp* ptr(int offset = 0) const;
-		_Tp* ptr(int row, int col, int channel = 0) const;
+			void import(_Tp* data, int rows, int cols, int channels);
+			void import(std::vector<_Tp> data, int rows, int cols, int channels);
+			std::vector<_Tp> export_raw() const;
+			std::vector<_Tp> export_deinterleave() const;
 
-		void load(const char* filename, bool grayscale = false);
-		void save(const char* filename) const;
+			void crop(int r0, int c0, int r1, int c1);
+			void crop(Point p0, Point p1);
+			void crop(Rect rect);
 
-		void import(_Tp* data, int rows, int cols, int channels);
-		void import(std::vector<_Tp> data, int rows, int cols, int channels);
-		std::vector<_Tp> export_raw() const;
-		std::vector<_Tp> export_deinterleave() const;
+			void resize(int height, int width);
+			void resize(double ratio);
+			void resize(Size sz);
 
-		void crop(int r0, int c0, int r1, int c1);
-		void crop(Point p0, Point p1);
-		void crop(Rect rect);
+		private:
+			void range_check(long pos);
+			void detach();
 
-		void resize(int height, int width);
-		void resize(double ratio);
-		void resize(Size sz);
+			int rows_;
+			int cols_;
+			int channels_;
+			std::shared_ptr<std::vector<_Tp>> data_;
 
-	private:
-		void detach();
+		};
+	} // namespace zz::detail
 
-		int rows_;
-		int cols_;
-		int channels_;
-		std::shared_ptr<std::vector<_Tp>> data_;
+	class Image : public detail::ImageBase<unsigned char>
+	{
 
 	};
-	typedef Image_<unsigned char> Image;
-	typedef Image_<float> Imagef;
-	typedef Imagef ImageHdr;
+
+	class ImageHdr : public detail::ImageBase<float>
+	{
+
+	};
 	
 
 	/*!
@@ -4017,7 +4022,7 @@ namespace zz
 		void config_from_stringstream(std::stringstream& ss);
 	} // namespace log
 
-	// implementations
+	/////////////// implementations ////////////////
 	/////////////// saturate_cast (used in image & signal processing) ///////////////////
 
 	template<typename _Tp> static inline _Tp saturate_cast(unsigned char v)    { return _Tp(v); }
@@ -4412,10 +4417,10 @@ namespace zz
 	template<typename _Tp> inline
 		Rect_<_Tp>::Rect_(const Point_<_Tp>& pt1, const Point_<_Tp>& pt2)
 	{
-			x = std::min(pt1.x, pt2.x);
-			y = std::min(pt1.y, pt2.y);
-			width = std::max(pt1.x, pt2.x) - x;
-			height = std::max(pt1.y, pt2.y) - y;
+			x = (std::min)(pt1.x, pt2.x);
+			y = (std::min)(pt1.y, pt2.y);
+			width = (std::max)(pt1.x, pt2.x) - x;
+			height = (std::max)(pt1.y, pt2.y) - y;
 		}
 
 	template<typename _Tp> inline
@@ -4500,10 +4505,10 @@ namespace zz
 	template<typename _Tp> static inline
 		Rect_<_Tp>& operator &= (Rect_<_Tp>& a, const Rect_<_Tp>& b)
 	{
-			_Tp x1 = std::max(a.x, b.x);
-			_Tp y1 = std::max(a.y, b.y);
-			a.width = std::min(a.x + a.width, b.x + b.width) - x1;
-			a.height = std::min(a.y + a.height, b.y + b.height) - y1;
+			_Tp x1 = (std::max)(a.x, b.x);
+			_Tp y1 = (std::max)(a.y, b.y);
+			a.width = (std::min)(a.x + a.width, b.x + b.width) - x1;
+			a.height = (std::min)(a.y + a.height, b.y + b.height) - y1;
 			a.x = x1;
 			a.y = y1;
 			if (a.width <= 0 || a.height <= 0)
@@ -4514,10 +4519,10 @@ namespace zz
 	template<typename _Tp> static inline
 		Rect_<_Tp>& operator |= (Rect_<_Tp>& a, const Rect_<_Tp>& b)
 	{
-			_Tp x1 = std::min(a.x, b.x);
-			_Tp y1 = std::min(a.y, b.y);
-			a.width = std::max(a.x + a.width, b.x + b.width) - x1;
-			a.height = std::max(a.y + a.height, b.y + b.height) - y1;
+			_Tp x1 = (std::min)(a.x, b.x);
+			_Tp y1 = (std::min)(a.y, b.y);
+			a.width = (std::max)(a.x + a.width, b.x + b.width) - x1;
+			a.height = (std::max)(a.y + a.height, b.y + b.height) - y1;
 			a.x = x1;
 			a.y = y1;
 			return a;
@@ -4566,6 +4571,178 @@ namespace zz
 			Rect_<_Tp> c = a;
 			return c |= b;
 		}
+
+	namespace detail
+	{
+		////////////////////////////////// ImageBase /////////////////////////////////
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase()
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase(const ImageBase& other)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase(ImageBase&& other)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase(const char* filename, bool grayscale = false)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::~ImageBase()
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase& operator= (const ImageBase& other)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase& operator= (ImageBase&& other)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			ImageBase<_Tp>::_Tp& operator() (int row, int col, int channel = 0)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			const ImageBase<_Tp>::_Tp& operator() (int row, int col, int channel = 0) const
+		{
+
+			}
+
+		template<typename _Tp> static inline
+			bool ImageBase<_Tp>::empty() const
+		{
+				return (rows_ < 1 || cols_ < 1 || channels_ < 1 || (!data_));
+			}
+
+		template<typename _Tp> static inline
+			int ImageBase<_Tp>::rows() const
+		{
+				return rows_;
+			}
+
+		template<typename _Tp> static inline
+			int ImageBase<_Tp>::cols() const
+		{
+				return cols_;
+			}
+
+		template<typename _Tp> static inline
+			int ImageBase<_Tp>::channels() const
+		{
+				return channels_;
+			}
+
+		template<typename _Tp> static inline
+			void ImageBase<_Tp>::range_check(long pos)
+		{
+				
+			}
+
+		template<typename _Tp> static inline
+			ImageBase<_Tp>::_Tp at(int row, int col, int channel = 0) const
+		{
+				
+			}
+
+		template<typename _Tp> static inline
+			ImageBase<_Tp>::_Tp* ptr(int offset = 0) const
+		{
+
+			}
+
+		template<typename _Tp> static inline
+			ImageBase<_Tp>::_Tp* ptr(int row, int col, int channel = 0) const
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::import(_Tp* data, int rows, int cols, int channels)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::import(std::vector<_Tp> data, int rows, int cols, int channels)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			std::vector<_Tp> ImageBase<_Tp>::export_raw() const
+		{
+
+			}
+
+		template<typename _Tp> inline
+			std::vector<_Tp> ImageBase<_Tp>::export_deinterleave() const
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::crop(int r0, int c0, int r1, int c1)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::crop(Point p0, Point p1)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::crop(Rect rect)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::resize(int height, int width)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::resize(double ratio)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::resize(Size sz)
+		{
+
+			}
+
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::detach()
+		{
+
+			}
+	} // namespace zz::detail
 
 } // namespace zz
 

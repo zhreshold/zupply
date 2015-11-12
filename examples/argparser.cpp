@@ -1,5 +1,5 @@
 /* Zupply example: argparser */
-#include "../src/zupply.hpp"
+#include "zupply.hpp"
 using namespace zz;
 
 void argparser_example(int argc, char** argv)

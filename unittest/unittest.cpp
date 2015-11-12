@@ -652,6 +652,75 @@ TEST_CASE("logger", "logger")
 	CHECK(fs::get_file_size(fn1) == fs::get_file_size(fn2));
 }
 
+TEST_CASE("Image", "Image")
+{
+	Image image;
+	CHECK(image.empty());
+	image.create(10, 10, 3);
+	REQUIRE(image.rows() == 10);
+	REQUIRE(image.cols() == 10);
+	REQUIRE(image.channels() == 3);
+	unsigned char buf[9] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	image.import(buf, 3, 3, 1);
+	CHECK(image.at(1, 1, 0) == 5);
+	Image image2 = image;
+	image(1, 1, 0) = 15;
+	CHECK(image.at(1, 1, 0) == 15);
+	CHECK(image2.at(1, 1, 0) == 5);
+	image.create(100, 100, 3);
+	for (int r = 0; r < 100; ++r)
+	{
+		for (int c = 0; c < 100; ++c)
+		{
+			image(r, c, 0) = 255;
+			image(r, c, 1) = 0;
+			image(r, c, 2) = 0;
+		}
+	}
+	image.save("save_test.bmp");
+	Image image3("save_test.bmp");
+	CHECK(image3.at(0, 0, 0) == 255);
+
+	ImageHdr imghdr("save_test.bmp");
+	CHECK(imghdr.at(0, 0, 0) == Approx(1.0));
+	ImageHdr imghdr2(image, 255.f);
+	CHECK(imghdr2.at(0, 0, 0) == Approx(255.0));
+	imghdr.to_normal().save("save_test2.bmp");
+
+	// test crop function
+	Image cropTest(100, 100, 4);
+	int tcnt = 0;
+	for (int r = 0; r < 100; ++r)
+	{
+		for (int c = 0; c < 100; ++c)
+		{
+			for (int k = 0; k < 4; ++k)
+			{
+				cropTest(r, c, k) = static_cast<unsigned char>(tcnt % 255);
+				++tcnt;
+			}
+		}
+	}
+	Image cropRef = cropTest;
+	cropTest.crop(10, 10, 50, 50);
+	int testCnt = 0;
+	for (int r = 0; r < cropTest.rows(); ++r)
+	{
+		for (int c = 0; c < cropTest.cols(); ++c)
+		{
+			for (int k = 0; k < cropTest.channels(); ++k)
+			{
+				if (testCnt < 10)
+				{
+					CHECK((int)cropTest.at(r, c, k) == (int)cropRef.at(r + 10, c + 10, k));
+					++testCnt;
+				}
+			}
+		}
+	}
+}
+
+
 int main(int argc, char** argv)
 {
 #ifdef _MSC_VER

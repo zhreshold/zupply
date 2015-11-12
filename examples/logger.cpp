@@ -1,5 +1,5 @@
 /* Zupply example: logger */
-#include "../src/zupply.hpp"
+#include "zupply.hpp"
 using namespace zz;
 
 void thread_func()

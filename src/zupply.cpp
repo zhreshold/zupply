@@ -54,6 +54,7 @@
 #if ZUPPLY_OS_WINDOWS
 #if _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 #include <windows.h>
 #include <direct.h>
@@ -93,6 +94,7 @@
 #include <cmath>
 #include <cstring>
 #include <deque>
+#include <cstdarg>
 
 // UTF8CPP
 #include <stdexcept>
@@ -6817,7 +6819,3534 @@ namespace zz
 					return stbi__info_main(&s, x, y, comp);
 				}
 			} // namespace stbi::decode
+
+			namespace encode
+			{
+				int stbi_write_png(char const *filename, int w, int h, int comp, const void  *data, int stride_in_bytes);
+				int stbi_write_bmp(char const *filename, int w, int h, int comp, const void  *data);
+				int stbi_write_tga(char const *filename, int w, int h, int comp, const void  *data);
+				int stbi_write_hdr(char const *filename, int w, int h, int comp, const float *data);
+				typedef void stbi_write_func(void *context, void *data, int size);
+				int stbi_write_png_to_func(stbi_write_func *func, void *context, int w, int h, int comp, const void  *data, int stride_in_bytes);
+				int stbi_write_bmp_to_func(stbi_write_func *func, void *context, int w, int h, int comp, const void  *data);
+				int stbi_write_tga_to_func(stbi_write_func *func, void *context, int w, int h, int comp, const void  *data);
+				int stbi_write_hdr_to_func(stbi_write_func *func, void *context, int w, int h, int comp, const float *data);
+
+#if defined(STBIW_MALLOC) && defined(STBIW_FREE) && defined(STBIW_REALLOC)
+				// ok
+#elif !defined(STBIW_MALLOC) && !defined(STBIW_FREE) && !defined(STBIW_REALLOC)
+				// ok
+#else
+#error "Must define all or none of STBIW_MALLOC, STBIW_FREE, and STBIW_REALLOC."
+#endif
+
+#ifndef STBIW_MALLOC
+#define STBIW_MALLOC(sz)    malloc(sz)
+#define STBIW_REALLOC(p,sz) realloc(p,sz)
+#define STBIW_FREE(p)       free(p)
+#endif
+#ifndef STBIW_MEMMOVE
+#define STBIW_MEMMOVE(a,b,sz) memmove(a,b,sz)
+#endif
+
+
+#ifndef STBIW_ASSERT
+#define STBIW_ASSERT(x) assert(x)
+#endif
+
+				typedef struct
+				{
+					stbi_write_func *func;
+					void *context;
+				} stbi__write_context;
+
+				// initialize a callback-based context
+				void stbi__start_write_callbacks(stbi__write_context *s, stbi_write_func *c, void *context)
+				{
+					s->func = c;
+					s->context = context;
+				}
+
+#ifndef STBI_WRITE_NO_STDIO
+
+				void stbi__stdio_write(void *context, void *data, int size)
+				{
+					fwrite(data, 1, size, (FILE*)context);
+				}
+
+				int stbi__start_write_file(stbi__write_context *s, const char *filename)
+				{
+					FILE *f = fopen(filename, "wb");
+					stbi__start_write_callbacks(s, stbi__stdio_write, (void *)f);
+					return f != NULL;
+				}
+
+				void stbi__end_write_file(stbi__write_context *s)
+				{
+					fclose((FILE *)s->context);
+				}
+
+#endif // !STBI_WRITE_NO_STDIO
+
+				typedef unsigned int stbiw_uint32;
+				typedef int stb_image_write_test[sizeof(stbiw_uint32) == 4 ? 1 : -1];
+
+#ifdef STB_IMAGE_WRITE_
+				int stbi_write_tga_with_rle = 1;
+#else
+				int stbi_write_tga_with_rle = 1;
+#endif
+
+				void stbiw__writefv(stbi__write_context *s, const char *fmt, va_list v)
+				{
+					while (*fmt) {
+						switch (*fmt++) {
+						case ' ': break;
+						case '1': { unsigned char x = (unsigned char)va_arg(v, int);
+							s->func(s->context, &x, 1);
+							break; }
+						case '2': { int x = va_arg(v, int);
+							unsigned char b[2];
+							b[0] = (unsigned char)x;
+							b[1] = (unsigned char)(x >> 8);
+							s->func(s->context, b, 2);
+							break; }
+						case '4': { stbiw_uint32 x = va_arg(v, int);
+							unsigned char b[4];
+							b[0] = (unsigned char)x;
+							b[1] = (unsigned char)(x >> 8);
+							b[2] = (unsigned char)(x >> 16);
+							b[3] = (unsigned char)(x >> 24);
+							s->func(s->context, b, 4);
+							break; }
+						default:
+							STBIW_ASSERT(0);
+							return;
+						}
+					}
+				}
+
+				void stbiw__writef(stbi__write_context *s, const char *fmt, ...)
+				{
+					va_list v;
+					va_start(v, fmt);
+					stbiw__writefv(s, fmt, v);
+					va_end(v);
+				}
+
+				void stbiw__write3(stbi__write_context *s, unsigned char a, unsigned char b, unsigned char c)
+				{
+					unsigned char arr[3];
+					arr[0] = a, arr[1] = b, arr[2] = c;
+					s->func(s->context, arr, 3);
+				}
+
+				void stbiw__write_pixel(stbi__write_context *s, int rgb_dir, int comp, int write_alpha, int expand_mono, unsigned char *d)
+				{
+					unsigned char bg[3] = { 255, 0, 255 }, px[3];
+					int k;
+
+					if (write_alpha < 0)
+						s->func(s->context, &d[comp - 1], 1);
+
+					switch (comp) {
+					case 1:
+						s->func(s->context, d, 1);
+						break;
+					case 2:
+						if (expand_mono)
+							stbiw__write3(s, d[0], d[0], d[0]); // monochrome bmp
+						else
+							s->func(s->context, d, 1);  // monochrome TGA
+						break;
+					case 4:
+						if (!write_alpha) {
+							// composite against pink background
+							for (k = 0; k < 3; ++k)
+								px[k] = bg[k] + ((d[k] - bg[k]) * d[3]) / 255;
+							stbiw__write3(s, px[1 - rgb_dir], px[1], px[1 + rgb_dir]);
+							break;
+						}
+						/* FALLTHROUGH */
+					case 3:
+						stbiw__write3(s, d[1 - rgb_dir], d[1], d[1 + rgb_dir]);
+						break;
+					}
+					if (write_alpha > 0)
+						s->func(s->context, &d[comp - 1], 1);
+				}
+
+				void stbiw__write_pixels(stbi__write_context *s, int rgb_dir, int vdir, int x, int y, int comp, void *data, int write_alpha, int scanline_pad, int expand_mono)
+				{
+					stbiw_uint32 zero = 0;
+					int i, j, j_end;
+
+					if (y <= 0)
+						return;
+
+					if (vdir < 0)
+						j_end = -1, j = y - 1;
+					else
+						j_end = y, j = 0;
+
+					for (; j != j_end; j += vdir) {
+						for (i = 0; i < x; ++i) {
+							unsigned char *d = (unsigned char *)data + (j*x + i)*comp;
+							stbiw__write_pixel(s, rgb_dir, comp, write_alpha, expand_mono, d);
+						}
+						s->func(s->context, &zero, scanline_pad);
+					}
+				}
+
+				int stbiw__outfile(stbi__write_context *s, int rgb_dir, int vdir, int x, int y, int comp, int expand_mono, void *data, int alpha, int pad, const char *fmt, ...)
+				{
+					if (y < 0 || x < 0) {
+						return 0;
+					}
+					else {
+						va_list v;
+						va_start(v, fmt);
+						stbiw__writefv(s, fmt, v);
+						va_end(v);
+						stbiw__write_pixels(s, rgb_dir, vdir, x, y, comp, data, alpha, pad, expand_mono);
+						return 1;
+					}
+				}
+
+				int stbi_write_bmp_core(stbi__write_context *s, int x, int y, int comp, const void *data)
+				{
+					int pad = (-x * 3) & 3;
+					return stbiw__outfile(s, -1, -1, x, y, comp, 1, (void *)data, 0, pad,
+						"11 4 22 4" "4 44 22 444444",
+						'B', 'M', 14 + 40 + (x * 3 + pad)*y, 0, 0, 14 + 40,  // file header
+						40, x, y, 1, 24, 0, 0, 0, 0, 0, 0);             // bitmap header
+				}
+
+				int stbi_write_bmp_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const void *data)
+				{
+					stbi__write_context s;
+					stbi__start_write_callbacks(&s, func, context);
+					return stbi_write_bmp_core(&s, x, y, comp, data);
+				}
+
+#ifndef STBI_WRITE_NO_STDIO
+				int stbi_write_bmp(char const *filename, int x, int y, int comp, const void *data)
+				{
+					stbi__write_context s;
+					if (stbi__start_write_file(&s, filename)) {
+						int r = stbi_write_bmp_core(&s, x, y, comp, data);
+						stbi__end_write_file(&s);
+						return r;
+					}
+					else
+						return 0;
+				}
+#endif //!STBI_WRITE_NO_STDIO
+
+				int stbi_write_tga_core(stbi__write_context *s, int x, int y, int comp, void *data)
+				{
+					int has_alpha = (comp == 2 || comp == 4);
+					int colorbytes = has_alpha ? comp - 1 : comp;
+					int format = colorbytes < 2 ? 3 : 2; // 3 color channels (RGB/RGBA) = 2, 1 color channel (Y/YA) = 3
+
+					if (y < 0 || x < 0)
+						return 0;
+
+					if (!stbi_write_tga_with_rle) {
+						return stbiw__outfile(s, -1, -1, x, y, comp, 0, (void *)data, has_alpha, 0,
+							"111 221 2222 11", 0, 0, format, 0, 0, 0, 0, 0, x, y, (colorbytes + has_alpha) * 8, has_alpha * 8);
+					}
+					else {
+						int i, j, k;
+
+						stbiw__writef(s, "111 221 2222 11", 0, 0, format + 8, 0, 0, 0, 0, 0, x, y, (colorbytes + has_alpha) * 8, has_alpha * 8);
+
+						for (j = y - 1; j >= 0; --j) {
+							unsigned char *row = (unsigned char *)data + j * x * comp;
+							int len;
+
+							for (i = 0; i < x; i += len) {
+								unsigned char *begin = row + i * comp;
+								int diff = 1;
+								len = 1;
+
+								if (i < x - 1) {
+									++len;
+									diff = memcmp(begin, row + (i + 1) * comp, comp);
+									if (diff) {
+										const unsigned char *prev = begin;
+										for (k = i + 2; k < x && len < 128; ++k) {
+											if (memcmp(prev, row + k * comp, comp)) {
+												prev += comp;
+												++len;
+											}
+											else {
+												--len;
+												break;
+											}
+										}
+									}
+									else {
+										for (k = i + 2; k < x && len < 128; ++k) {
+											if (!memcmp(begin, row + k * comp, comp)) {
+												++len;
+											}
+											else {
+												break;
+											}
+										}
+									}
+								}
+
+								if (diff) {
+									unsigned char header = (unsigned char)(len - 1);
+									s->func(s->context, &header, 1);
+									for (k = 0; k < len; ++k) {
+										stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin + k * comp);
+									}
+								}
+								else {
+									unsigned char header = (unsigned char)(len - 129);
+									s->func(s->context, &header, 1);
+									stbiw__write_pixel(s, -1, comp, has_alpha, 0, begin);
+								}
+							}
+						}
+					}
+					return 1;
+				}
+
+				int stbi_write_tga_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const void *data)
+				{
+					stbi__write_context s;
+					stbi__start_write_callbacks(&s, func, context);
+					return stbi_write_tga_core(&s, x, y, comp, (void *)data);
+				}
+
+#ifndef STBI_WRITE_NO_STDIO
+				int stbi_write_tga(char const *filename, int x, int y, int comp, const void *data)
+				{
+					stbi__write_context s;
+					if (stbi__start_write_file(&s, filename)) {
+						int r = stbi_write_tga_core(&s, x, y, comp, (void *)data);
+						stbi__end_write_file(&s);
+						return r;
+					}
+					else
+						return 0;
+				}
+#endif
+
+				// *************************************************************************************************
+				// Radiance RGBE HDR writer
+				// by Baldur Karlsson
+#ifndef STBI_WRITE_NO_STDIO
+
+#define stbiw__max(a, b)  ((a) > (b) ? (a) : (b))
+
+				void stbiw__linear_to_rgbe(unsigned char *rgbe, float *linear)
+				{
+					int exponent;
+					float maxcomp = stbiw__max(linear[0], stbiw__max(linear[1], linear[2]));
+
+					if (maxcomp < 1e-32) {
+						rgbe[0] = rgbe[1] = rgbe[2] = rgbe[3] = 0;
+					}
+					else {
+						float normalize = (float)frexp(maxcomp, &exponent) * 256.0f / maxcomp;
+
+						rgbe[0] = (unsigned char)(linear[0] * normalize);
+						rgbe[1] = (unsigned char)(linear[1] * normalize);
+						rgbe[2] = (unsigned char)(linear[2] * normalize);
+						rgbe[3] = (unsigned char)(exponent + 128);
+					}
+				}
+
+				void stbiw__write_run_data(stbi__write_context *s, int length, unsigned char databyte)
+				{
+					unsigned char lengthbyte = (unsigned char)(length + 128);
+					STBIW_ASSERT(length + 128 <= 255);
+					s->func(s->context, &lengthbyte, 1);
+					s->func(s->context, &databyte, 1);
+				}
+
+				void stbiw__write_dump_data(stbi__write_context *s, int length, unsigned char *data)
+				{
+					unsigned char lengthbyte = (unsigned char)(length & 0xff);
+					STBIW_ASSERT(length <= 128); // inconsistent with spec but consistent with official code
+					s->func(s->context, &lengthbyte, 1);
+					s->func(s->context, data, length);
+				}
+
+				void stbiw__write_hdr_scanline(stbi__write_context *s, int width, int ncomp, unsigned char *scratch, float *scanline)
+				{
+					unsigned char scanlineheader[4] = { 2, 2, 0, 0 };
+					unsigned char rgbe[4];
+					float linear[3];
+					int x;
+
+					scanlineheader[2] = (width & 0xff00) >> 8;
+					scanlineheader[3] = (width & 0x00ff);
+
+					/* skip RLE for images too small or large */
+					if (width < 8 || width >= 32768) {
+						for (x = 0; x < width; x++) {
+							switch (ncomp) {
+							case 4: /* fallthrough */
+							case 3: linear[2] = scanline[x*ncomp + 2];
+								linear[1] = scanline[x*ncomp + 1];
+								linear[0] = scanline[x*ncomp + 0];
+								break;
+							default:
+								linear[0] = linear[1] = linear[2] = scanline[x*ncomp + 0];
+								break;
+							}
+							stbiw__linear_to_rgbe(rgbe, linear);
+							s->func(s->context, rgbe, 4);
+						}
+					}
+					else {
+						int c, r;
+						/* encode into scratch buffer */
+						for (x = 0; x < width; x++) {
+							switch (ncomp) {
+							case 4: /* fallthrough */
+							case 3: linear[2] = scanline[x*ncomp + 2];
+								linear[1] = scanline[x*ncomp + 1];
+								linear[0] = scanline[x*ncomp + 0];
+								break;
+							default:
+								linear[0] = linear[1] = linear[2] = scanline[x*ncomp + 0];
+								break;
+							}
+							stbiw__linear_to_rgbe(rgbe, linear);
+							scratch[x + width * 0] = rgbe[0];
+							scratch[x + width * 1] = rgbe[1];
+							scratch[x + width * 2] = rgbe[2];
+							scratch[x + width * 3] = rgbe[3];
+						}
+
+						s->func(s->context, scanlineheader, 4);
+
+						/* RLE each component separately */
+						for (c = 0; c < 4; c++) {
+							unsigned char *comp = &scratch[width*c];
+
+							x = 0;
+							while (x < width) {
+								// find first run
+								r = x;
+								while (r + 2 < width) {
+									if (comp[r] == comp[r + 1] && comp[r] == comp[r + 2])
+										break;
+									++r;
+								}
+								if (r + 2 >= width)
+									r = width;
+								// dump up to first run
+								while (x < r) {
+									int len = r - x;
+									if (len > 128) len = 128;
+									stbiw__write_dump_data(s, len, &comp[x]);
+									x += len;
+								}
+								// if there's a run, output it
+								if (r + 2 < width) { // same test as what we break out of in search loop, so only true if we break'd
+									// find next byte after run
+									while (r < width && comp[r] == comp[x])
+										++r;
+									// output run up to r
+									while (x < r) {
+										int len = r - x;
+										if (len > 127) len = 127;
+										stbiw__write_run_data(s, len, comp[x]);
+										x += len;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				int stbi_write_hdr_core(stbi__write_context *s, int x, int y, int comp, float *data)
+				{
+					if (y <= 0 || x <= 0 || data == NULL)
+						return 0;
+					else {
+						// Each component is stored separately. Allocate scratch space for full output scanline.
+						unsigned char *scratch = (unsigned char *)STBIW_MALLOC(x * 4);
+						int i, len;
+						char buffer[128];
+						char header[] = "#?RADIANCE\n# Written by stb_image_write.h\nFORMAT=32-bit_rle_rgbe\n";
+						s->func(s->context, header, sizeof(header)-1);
+
+						len = sprintf(buffer, "EXPOSURE=          1.0000000000000\n\n-Y %d +X %d\n", y, x);
+						s->func(s->context, buffer, len);
+
+						for (i = 0; i < y; i++)
+							stbiw__write_hdr_scanline(s, x, comp, scratch, data + comp*i*x);
+						STBIW_FREE(scratch);
+						return 1;
+					}
+				}
+
+				int stbi_write_hdr_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const float *data)
+				{
+					stbi__write_context s;
+					stbi__start_write_callbacks(&s, func, context);
+					return stbi_write_hdr_core(&s, x, y, comp, (float *)data);
+				}
+
+				int stbi_write_hdr(char const *filename, int x, int y, int comp, const float *data)
+				{
+					stbi__write_context s;
+					if (stbi__start_write_file(&s, filename)) {
+						int r = stbi_write_hdr_core(&s, x, y, comp, (float *)data);
+						stbi__end_write_file(&s);
+						return r;
+					}
+					else
+						return 0;
+				}
+#endif // STBI_WRITE_NO_STDIO
+
+
+				//////////////////////////////////////////////////////////////////////////////
+				//
+				// PNG writer
+				//
+
+				// stretchy buffer; stbiw__sbpush() == vector<>::push_back() -- stbiw__sbcount() == vector<>::size()
+#define stbiw__sbraw(a) ((int *) (a) - 2)
+#define stbiw__sbm(a)   stbiw__sbraw(a)[0]
+#define stbiw__sbn(a)   stbiw__sbraw(a)[1]
+
+#define stbiw__sbneedgrow(a,n)  ((a)==0 || stbiw__sbn(a)+n >= stbiw__sbm(a))
+#define stbiw__sbmaybegrow(a,n) (stbiw__sbneedgrow(a,(n)) ? stbiw__sbgrow(a,n) : 0)
+#define stbiw__sbgrow(a,n)  stbiw__sbgrowf((void **) &(a), (n), sizeof(*(a)))
+
+#define stbiw__sbpush(a, v)      (stbiw__sbmaybegrow(a,1), (a)[stbiw__sbn(a)++] = (v))
+#define stbiw__sbcount(a)        ((a) ? stbiw__sbn(a) : 0)
+#define stbiw__sbfree(a)         ((a) ? STBIW_FREE(stbiw__sbraw(a)),0 : 0)
+
+				void *stbiw__sbgrowf(void **arr, int increment, int itemsize)
+				{
+					int m = *arr ? 2 * stbiw__sbm(*arr) + increment : increment + 1;
+					void *p = STBIW_REALLOC(*arr ? stbiw__sbraw(*arr) : 0, itemsize * m + sizeof(int)* 2);
+					STBIW_ASSERT(p);
+					if (p) {
+						if (!*arr) ((int *)p)[1] = 0;
+						*arr = (void *)((int *)p + 2);
+						stbiw__sbm(*arr) = m;
+					}
+					return *arr;
+				}
+
+				unsigned char *stbiw__zlib_flushf(unsigned char *data, unsigned int *bitbuffer, int *bitcount)
+				{
+					while (*bitcount >= 8) {
+						stbiw__sbpush(data, (unsigned char)*bitbuffer);
+						*bitbuffer >>= 8;
+						*bitcount -= 8;
+					}
+					return data;
+				}
+
+				int stbiw__zlib_bitrev(int code, int codebits)
+				{
+					int res = 0;
+					while (codebits--) {
+						res = (res << 1) | (code & 1);
+						code >>= 1;
+					}
+					return res;
+				}
+
+				unsigned int stbiw__zlib_countm(unsigned char *a, unsigned char *b, int limit)
+				{
+					int i;
+					for (i = 0; i < limit && i < 258; ++i)
+					if (a[i] != b[i]) break;
+					return i;
+				}
+
+				unsigned int stbiw__zhash(unsigned char *data)
+				{
+					stbiw_uint32 hash = data[0] + (data[1] << 8) + (data[2] << 16);
+					hash ^= hash << 3;
+					hash += hash >> 5;
+					hash ^= hash << 4;
+					hash += hash >> 17;
+					hash ^= hash << 25;
+					hash += hash >> 6;
+					return hash;
+				}
+
+#define stbiw__zlib_flush() (out = stbiw__zlib_flushf(out, &bitbuf, &bitcount))
+#define stbiw__zlib_add(code,codebits) \
+	(bitbuf |= (code) << bitcount, bitcount += (codebits), stbiw__zlib_flush())
+#define stbiw__zlib_huffa(b,c)  stbiw__zlib_add(stbiw__zlib_bitrev(b,c),c)
+				// default huffman tables
+#define stbiw__zlib_huff1(n)  stbiw__zlib_huffa(0x30 + (n), 8)
+#define stbiw__zlib_huff2(n)  stbiw__zlib_huffa(0x190 + (n)-144, 9)
+#define stbiw__zlib_huff3(n)  stbiw__zlib_huffa(0 + (n)-256,7)
+#define stbiw__zlib_huff4(n)  stbiw__zlib_huffa(0xc0 + (n)-280,8)
+#define stbiw__zlib_huff(n)  ((n) <= 143 ? stbiw__zlib_huff1(n) : (n) <= 255 ? stbiw__zlib_huff2(n) : (n) <= 279 ? stbiw__zlib_huff3(n) : stbiw__zlib_huff4(n))
+#define stbiw__zlib_huffb(n) ((n) <= 143 ? stbiw__zlib_huff1(n) : stbiw__zlib_huff2(n))
+
+#define stbiw__ZHASH   16384
+
+				unsigned char * stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality)
+				{
+					unsigned short lengthc[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 259 };
+					unsigned char  lengtheb[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0 };
+					unsigned short distc[] = { 1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577, 32768 };
+					unsigned char  disteb[] = { 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13 };
+					unsigned int bitbuf = 0;
+					int i, j, bitcount = 0;
+					unsigned char *out = NULL;
+					unsigned char **hash_table[stbiw__ZHASH]; // 64KB on the stack!
+					if (quality < 5) quality = 5;
+
+					stbiw__sbpush(out, 0x78);   // DEFLATE 32K window
+					stbiw__sbpush(out, 0x5e);   // FLEVEL = 1
+					stbiw__zlib_add(1, 1);  // BFINAL = 1
+					stbiw__zlib_add(1, 2);  // BTYPE = 1 -- fixed huffman
+
+					for (i = 0; i < stbiw__ZHASH; ++i)
+						hash_table[i] = NULL;
+
+					i = 0;
+					while (i < data_len - 3) {
+						// hash next 3 bytes of data to be compressed
+						int h = stbiw__zhash(data + i)&(stbiw__ZHASH - 1), best = 3;
+						unsigned char *bestloc = 0;
+						unsigned char **hlist = hash_table[h];
+						int n = stbiw__sbcount(hlist);
+						for (j = 0; j < n; ++j) {
+							if (hlist[j] - data > i - 32768) { // if entry lies within window
+								int d = stbiw__zlib_countm(hlist[j], data + i, data_len - i);
+								if (d >= best) best = d, bestloc = hlist[j];
+							}
+						}
+						// when hash table entry is too long, delete half the entries
+						if (hash_table[h] && stbiw__sbn(hash_table[h]) == 2 * quality) {
+							STBIW_MEMMOVE(hash_table[h], hash_table[h] + quality, sizeof(hash_table[h][0])*quality);
+							stbiw__sbn(hash_table[h]) = quality;
+						}
+						stbiw__sbpush(hash_table[h], data + i);
+
+						if (bestloc) {
+							// "lazy matching" - check match at *next* byte, and if it's better, do cur byte as literal
+							h = stbiw__zhash(data + i + 1)&(stbiw__ZHASH - 1);
+							hlist = hash_table[h];
+							n = stbiw__sbcount(hlist);
+							for (j = 0; j < n; ++j) {
+								if (hlist[j] - data > i - 32767) {
+									int e = stbiw__zlib_countm(hlist[j], data + i + 1, data_len - i - 1);
+									if (e > best) { // if next match is better, bail on current match
+										bestloc = NULL;
+										break;
+									}
+								}
+							}
+						}
+
+						if (bestloc) {
+							int d = (int)(data + i - bestloc); // distance back
+							STBIW_ASSERT(d <= 32767 && best <= 258);
+							for (j = 0; best > lengthc[j + 1] - 1; ++j);
+							stbiw__zlib_huff(j + 257);
+							if (lengtheb[j]) stbiw__zlib_add(best - lengthc[j], lengtheb[j]);
+							for (j = 0; d > distc[j + 1] - 1; ++j);
+							stbiw__zlib_add(stbiw__zlib_bitrev(j, 5), 5);
+							if (disteb[j]) stbiw__zlib_add(d - distc[j], disteb[j]);
+							i += best;
+						}
+						else {
+							stbiw__zlib_huffb(data[i]);
+							++i;
+						}
+					}
+					// write out final bytes
+					for (; i < data_len; ++i)
+						stbiw__zlib_huffb(data[i]);
+					stbiw__zlib_huff(256); // end of block
+					// pad with 0 bits to byte boundary
+					while (bitcount)
+						stbiw__zlib_add(0, 1);
+
+					for (i = 0; i < stbiw__ZHASH; ++i)
+						(void)stbiw__sbfree(hash_table[i]);
+
+					{
+						// compute adler32 on input
+						unsigned int k = 0, s1 = 1, s2 = 0;
+						int blocklen = (int)(data_len % 5552);
+						j = 0;
+						while (j < data_len) {
+							for (i = 0; i < blocklen; ++i) s1 += data[j + i], s2 += s1;
+							s1 %= 65521, s2 %= 65521;
+							j += blocklen;
+							blocklen = 5552;
+						}
+						stbiw__sbpush(out, (unsigned char)(s2 >> 8));
+						stbiw__sbpush(out, (unsigned char)s2);
+						stbiw__sbpush(out, (unsigned char)(s1 >> 8));
+						stbiw__sbpush(out, (unsigned char)s1);
+					}
+					*out_len = stbiw__sbn(out);
+					// make returned pointer freeable
+					STBIW_MEMMOVE(stbiw__sbraw(out), out, *out_len);
+					return (unsigned char *)stbiw__sbraw(out);
+				}
+
+				unsigned int stbiw__crc32(unsigned char *buffer, int len)
+				{
+					unsigned int crc_table[256];
+					unsigned int crc = ~0u;
+					int i, j;
+					if (crc_table[1] == 0)
+					for (i = 0; i < 256; i++)
+					for (crc_table[i] = i, j = 0; j < 8; ++j)
+						crc_table[i] = (crc_table[i] >> 1) ^ (crc_table[i] & 1 ? 0xedb88320 : 0);
+					for (i = 0; i < len; ++i)
+						crc = (crc >> 8) ^ crc_table[buffer[i] ^ (crc & 0xff)];
+					return ~crc;
+				}
+
+#define stbiw__wpng4(o,a,b,c,d) ((o)[0]=(unsigned char)(a),(o)[1]=(unsigned char)(b),(o)[2]=(unsigned char)(c),(o)[3]=(unsigned char)(d),(o)+=4)
+#define stbiw__wp32(data,v) stbiw__wpng4(data, (v)>>24,(v)>>16,(v)>>8,(v));
+#define stbiw__wptag(data,s) stbiw__wpng4(data, s[0],s[1],s[2],s[3])
+
+				void stbiw__wpcrc(unsigned char **data, int len)
+				{
+					unsigned int crc = stbiw__crc32(*data - len - 4, len + 4);
+					stbiw__wp32(*data, crc);
+				}
+
+				unsigned char stbiw__paeth(int a, int b, int c)
+				{
+					int p = a + b - c, pa = abs(p - a), pb = abs(p - b), pc = abs(p - c);
+					if (pa <= pb && pa <= pc) return (unsigned char)a;
+					if (pb <= pc) return (unsigned char)b;
+					return (unsigned char)c;
+				}
+
+				unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len)
+				{
+					int ctype[5] = { -1, 0, 4, 2, 6 };
+					unsigned char sig[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+					unsigned char *out, *o, *filt, *zlib;
+					signed char *line_buffer;
+					int i, j, k, p, zlen;
+
+					if (stride_bytes == 0)
+						stride_bytes = x * n;
+
+					filt = (unsigned char *)STBIW_MALLOC((x*n + 1) * y); if (!filt) return 0;
+					line_buffer = (signed char *)STBIW_MALLOC(x * n); if (!line_buffer) { STBIW_FREE(filt); return 0; }
+					for (j = 0; j < y; ++j) {
+						int mapping[] = { 0, 1, 2, 3, 4 };
+						int firstmap[] = { 0, 1, 0, 5, 6 };
+						int *mymap = j ? mapping : firstmap;
+						int best = 0, bestval = 0x7fffffff;
+						for (p = 0; p < 2; ++p) {
+							for (k = p ? best : 0; k < 5; ++k) {
+								int type = mymap[k], est = 0;
+								unsigned char *z = pixels + stride_bytes*j;
+								for (i = 0; i < n; ++i)
+									switch (type) {
+									case 0: line_buffer[i] = z[i]; break;
+									case 1: line_buffer[i] = z[i]; break;
+									case 2: line_buffer[i] = z[i] - z[i - stride_bytes]; break;
+									case 3: line_buffer[i] = z[i] - (z[i - stride_bytes] >> 1); break;
+									case 4: line_buffer[i] = (signed char)(z[i] - stbiw__paeth(0, z[i - stride_bytes], 0)); break;
+									case 5: line_buffer[i] = z[i]; break;
+									case 6: line_buffer[i] = z[i]; break;
+								}
+								for (i = n; i < x*n; ++i) {
+									switch (type) {
+									case 0: line_buffer[i] = z[i]; break;
+									case 1: line_buffer[i] = z[i] - z[i - n]; break;
+									case 2: line_buffer[i] = z[i] - z[i - stride_bytes]; break;
+									case 3: line_buffer[i] = z[i] - ((z[i - n] + z[i - stride_bytes]) >> 1); break;
+									case 4: line_buffer[i] = z[i] - stbiw__paeth(z[i - n], z[i - stride_bytes], z[i - stride_bytes - n]); break;
+									case 5: line_buffer[i] = z[i] - (z[i - n] >> 1); break;
+									case 6: line_buffer[i] = z[i] - stbiw__paeth(z[i - n], 0, 0); break;
+									}
+								}
+								if (p) break;
+								for (i = 0; i < x*n; ++i)
+									est += abs((signed char)line_buffer[i]);
+								if (est < bestval) { bestval = est; best = k; }
+							}
+						}
+						// when we get here, best contains the filter type, and line_buffer contains the data
+						filt[j*(x*n + 1)] = (unsigned char)best;
+						STBIW_MEMMOVE(filt + j*(x*n + 1) + 1, line_buffer, x*n);
+					}
+					STBIW_FREE(line_buffer);
+					zlib = stbi_zlib_compress(filt, y*(x*n + 1), &zlen, 8); // increase 8 to get smaller but use more memory
+					STBIW_FREE(filt);
+					if (!zlib) return 0;
+
+					// each tag requires 12 bytes of overhead
+					out = (unsigned char *)STBIW_MALLOC(8 + 12 + 13 + 12 + zlen + 12);
+					if (!out) return 0;
+					*out_len = 8 + 12 + 13 + 12 + zlen + 12;
+
+					o = out;
+					STBIW_MEMMOVE(o, sig, 8); o += 8;
+					stbiw__wp32(o, 13); // header length
+					stbiw__wptag(o, "IHDR");
+					stbiw__wp32(o, x);
+					stbiw__wp32(o, y);
+					*o++ = 8;
+					*o++ = (unsigned char)ctype[n];
+					*o++ = 0;
+					*o++ = 0;
+					*o++ = 0;
+					stbiw__wpcrc(&o, 13);
+
+					stbiw__wp32(o, zlen);
+					stbiw__wptag(o, "IDAT");
+					STBIW_MEMMOVE(o, zlib, zlen);
+					o += zlen;
+					STBIW_FREE(zlib);
+					stbiw__wpcrc(&o, zlen);
+
+					stbiw__wp32(o, 0);
+					stbiw__wptag(o, "IEND");
+					stbiw__wpcrc(&o, 0);
+
+					STBIW_ASSERT(o == out + *out_len);
+
+					return out;
+				}
+
+#ifndef STBI_WRITE_NO_STDIO
+				int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes)
+				{
+					FILE *f;
+					int len;
+					unsigned char *png = stbi_write_png_to_mem((unsigned char *)data, stride_bytes, x, y, comp, &len);
+					if (png == NULL) return 0;
+					f = fopen(filename, "wb");
+					if (!f) { STBIW_FREE(png); return 0; }
+					fwrite(png, 1, len, f);
+					fclose(f);
+					STBIW_FREE(png);
+					return 1;
+				}
+#endif
+
+				int stbi_write_png_to_func(stbi_write_func *func, void *context, int x, int y, int comp, const void *data, int stride_bytes)
+				{
+					int len;
+					unsigned char *png = stbi_write_png_to_mem((unsigned char *)data, stride_bytes, x, y, comp, &len);
+					if (png == NULL) return 0;
+					func(context, png, len);
+					STBIW_FREE(png);
+					return 1;
+				}
+			} // namespace stbi::encode
+
+			namespace resize
+			{
+#ifdef _MSC_VER
+				typedef unsigned char  stbir_uint8;
+				typedef unsigned short stbir_uint16;
+				typedef unsigned int   stbir_uint32;
+#else
+#include <stdint.h>
+				typedef uint8_t  stbir_uint8;
+				typedef uint16_t stbir_uint16;
+				typedef uint32_t stbir_uint32;
+#endif
+
+#ifdef STB_IMAGE_RESIZE_STATIC
+#define static
+#else
+#ifdef __cplusplus
+#define extern "C"
+#else
+#define extern
+#endif
+#endif
+
+
+				//////////////////////////////////////////////////////////////////////////////
+				//
+				// Easy-to-use API:
+				//
+				//     * "input pixels" points to an array of image data with 'num_channels' channels (e.g. RGB=3, RGBA=4)
+				//     * input_w is input image width (x-axis), input_h is input image height (y-axis)
+				//     * stride is the offset between successive rows of image data in memory, in bytes. you can
+				//       specify 0 to mean packed continuously in memory
+				//     * alpha channel is treated identically to other channels.
+				//     * colorspace is linear or sRGB as specified by function name
+				//     * returned result is 1 for success or 0 in case of an error.
+				//       #define STBIR_ASSERT() to trigger an assert on parameter validation errors.
+				//     * Memory required grows approximately linearly with input and output size, but with
+				//       discontinuities at input_w == output_w and input_h == output_h.
+				//     * These functions use a "default" resampling filter defined at compile time. To change the filter,
+				//       you can change the compile-time defaults by #defining STBIR_DEFAULT_FILTER_UPSAMPLE
+				//       and STBIR_DEFAULT_FILTER_DOWNSAMPLE, or you can use the medium-complexity API.
+
+				int stbir_resize_uint8(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels);
+
+				int stbir_resize_float(const float *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					float *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels);
+
+
+				// The following functions interpret image data as gamma-corrected sRGB. 
+				// Specify STBIR_ALPHA_CHANNEL_NONE if you have no alpha channel,
+				// or otherwise provide the index of the alpha channel. Flags value
+				// of 0 will probably do the right thing if you're not sure what
+				// the flags mean.
+
+#define STBIR_ALPHA_CHANNEL_NONE       -1
+
+				// Set this flag if your texture has premultiplied alpha. Otherwise, stbir will
+				// use alpha-weighted resampling (effectively premultiplying, resampling,
+				// then unpremultiplying).
+#define STBIR_FLAG_ALPHA_PREMULTIPLIED    (1 << 0)
+				// The specified alpha channel should be handled as gamma-corrected value even
+				// when doing sRGB operations.
+#define STBIR_FLAG_ALPHA_USES_COLORSPACE  (1 << 1)
+
+				int stbir_resize_uint8_srgb(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags);
+
+
+				typedef enum
+				{
+					STBIR_EDGE_CLAMP = 1,
+					STBIR_EDGE_REFLECT = 2,
+					STBIR_EDGE_WRAP = 3,
+					STBIR_EDGE_ZERO = 4,
+				} stbir_edge;
+
+				// This function adds the ability to specify how requests to sample off the edge of the image are handled.
+				int stbir_resize_uint8_srgb_edgemode(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode);
+
+				//////////////////////////////////////////////////////////////////////////////
+				//
+				// Medium-complexity API
+				//
+				// This extends the easy-to-use API as follows:
+				//
+				//     * Alpha-channel can be processed separately
+				//       * If alpha_channel is not STBIR_ALPHA_CHANNEL_NONE
+				//         * Alpha channel will not be gamma corrected (unless flags&STBIR_FLAG_GAMMA_CORRECT)
+				//         * Filters will be weighted by alpha channel (unless flags&STBIR_FLAG_ALPHA_PREMULTIPLIED)
+				//     * Filter can be selected explicitly
+				//     * uint16 image type
+				//     * sRGB colorspace available for all types
+				//     * context parameter for passing to STBIR_MALLOC
+
+				typedef enum
+				{
+					STBIR_FILTER_DEFAULT = 0,  // use same filter type that easy-to-use API chooses
+					STBIR_FILTER_BOX = 1,  // A trapezoid w/1-pixel wide ramps, same result as box for integer scale ratios
+					STBIR_FILTER_TRIANGLE = 2,  // On upsampling, produces same results as bilinear texture filtering
+					STBIR_FILTER_CUBICBSPLINE = 3,  // The cubic b-spline (aka Mitchell-Netrevalli with B=1,C=0), gaussian-esque
+					STBIR_FILTER_CATMULLROM = 4,  // An interpolating cubic spline
+					STBIR_FILTER_MITCHELL = 5,  // Mitchell-Netrevalli filter with B=1/3, C=1/3
+				} stbir_filter;
+
+				typedef enum
+				{
+					STBIR_COLORSPACE_LINEAR,
+					STBIR_COLORSPACE_SRGB,
+
+					STBIR_MAX_COLORSPACES,
+				} stbir_colorspace;
+
+				// The following functions are all identical except for the type of the image data
+
+				int stbir_resize_uint8_generic(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context);
+
+				int stbir_resize_uint16_generic(const stbir_uint16 *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					stbir_uint16 *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context);
+
+				int stbir_resize_float_generic(const float *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					float *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context);
+
+
+
+				//////////////////////////////////////////////////////////////////////////////
+				//
+				// Full-complexity API
+				//
+				// This extends the medium API as follows:
+				//
+				//       * uint32 image type
+				//     * not typesafe
+				//     * separate filter types for each axis
+				//     * separate edge modes for each axis
+				//     * can specify scale explicitly for subpixel correctness
+				//     * can specify image source tile using texture coordinates
+
+				typedef enum
+				{
+					STBIR_TYPE_UINT8,
+					STBIR_TYPE_UINT16,
+					STBIR_TYPE_UINT32,
+					STBIR_TYPE_FLOAT,
+
+					STBIR_MAX_TYPES
+				} stbir_datatype;
+
+				int stbir_resize(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context);
+
+				int stbir_resize_subpixel(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context,
+					float x_scale, float y_scale,
+					float x_offset, float y_offset);
+
+				int stbir_resize_region(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context,
+					float s0, float t0, float s1, float t1);
+				// (s0, t0) & (s1, t1) are the top-left and bottom right corner (uv addressing style: [0, 1]x[0, 1]) of a region of the input image to use.
+				
+#ifndef STBIR_ASSERT
+//#include <assert.h>
+#define STBIR_ASSERT(x) assert(x)
+#endif
+
+#ifdef STBIR_DEBUG
+#define STBIR__DEBUG_ASSERT STBIR_ASSERT
+#else
+#define STBIR__DEBUG_ASSERT
+#endif
+
+				// If you hit this it means I haven't done it yet.
+#define STBIR__UNIMPLEMENTED(x) STBIR_ASSERT(!(x))
+
+				// For memset
+#include <string.h>
+
+#include <math.h>
+
+#ifndef STBIR_MALLOC
+#include <stdlib.h>
+#define STBIR_MALLOC(size,c) malloc(size)
+#define STBIR_FREE(ptr,c)    free(ptr)
+#endif
+
+#ifndef _MSC_VER
+#ifdef __cplusplus
+#define stbir__inline inline
+#else
+#define stbir__inline
+#endif
+#else
+#define stbir__inline __forceinline
+#endif
+
+
+				// should produce compiler error if size is wrong
+				typedef unsigned char stbir__validate_uint32[sizeof(stbir_uint32) == 4 ? 1 : -1];
+
+#ifdef _MSC_VER
+#define STBIR__NOTUSED(v)  (void)(v)
+#else
+#define STBIR__NOTUSED(v)  (void)sizeof(v)
+#endif
+
+#define STBIR__ARRAY_SIZE(a) (sizeof((a))/sizeof((a)[0]))
+
+#ifndef STBIR_DEFAULT_FILTER_UPSAMPLE
+#define STBIR_DEFAULT_FILTER_UPSAMPLE    STBIR_FILTER_CATMULLROM
+#endif
+
+#ifndef STBIR_DEFAULT_FILTER_DOWNSAMPLE
+#define STBIR_DEFAULT_FILTER_DOWNSAMPLE  STBIR_FILTER_MITCHELL
+#endif
+
+#ifndef STBIR_PROGRESS_REPORT
+#define STBIR_PROGRESS_REPORT(float_0_to_1)
+#endif
+
+#ifndef STBIR_MAX_CHANNELS
+#define STBIR_MAX_CHANNELS 64
+#endif
+
+#if STBIR_MAX_CHANNELS > 65536
+#error "Too many channels; STBIR_MAX_CHANNELS must be no more than 65536."
+				// because we store the indices in 16-bit variables
+#endif
+
+				// This value is added to alpha just before premultiplication to avoid
+				// zeroing out color values. It is equivalent to 2^-80. If you don't want
+				// that behavior (it may interfere if you have floating point images with
+				// very small alpha values) then you can define STBIR_NO_ALPHA_EPSILON to
+				// disable it.
+#ifndef STBIR_ALPHA_EPSILON
+#define STBIR_ALPHA_EPSILON ((float)1 / (1 << 20) / (1 << 20) / (1 << 20) / (1 << 20))
+#endif
+
+
+
+#ifdef _MSC_VER
+#define STBIR__UNUSED_PARAM(v)  (void)(v)
+#else
+#define STBIR__UNUSED_PARAM(v)  (void)sizeof(v)
+#endif
+
+				// must match stbir_datatype
+				unsigned char stbir__type_size[] = {
+					1, // STBIR_TYPE_UINT8
+					2, // STBIR_TYPE_UINT16
+					4, // STBIR_TYPE_UINT32
+					4, // STBIR_TYPE_FLOAT
+				};
+
+				// Kernel function centered at 0
+				typedef float (stbir__kernel_fn)(float x, float scale);
+				typedef float (stbir__support_fn)(float scale);
+
+				typedef struct
+				{
+					stbir__kernel_fn* kernel;
+					stbir__support_fn* support;
+				} stbir__filter_info;
+
+				// When upsampling, the contributors are which source pixels contribute.
+				// When downsampling, the contributors are which destination pixels are contributed to.
+				typedef struct
+				{
+					int n0; // First contributing pixel
+					int n1; // Last contributing pixel
+				} stbir__contributors;
+
+				typedef struct
+				{
+					const void* input_data;
+					int input_w;
+					int input_h;
+					int input_stride_bytes;
+
+					void* output_data;
+					int output_w;
+					int output_h;
+					int output_stride_bytes;
+
+					float s0, t0, s1, t1;
+
+					float horizontal_shift; // Units: output pixels
+					float vertical_shift;   // Units: output pixels
+					float horizontal_scale;
+					float vertical_scale;
+
+					int channels;
+					int alpha_channel;
+					stbir_uint32 flags;
+					stbir_datatype type;
+					stbir_filter horizontal_filter;
+					stbir_filter vertical_filter;
+					stbir_edge edge_horizontal;
+					stbir_edge edge_vertical;
+					stbir_colorspace colorspace;
+
+					stbir__contributors* horizontal_contributors;
+					float* horizontal_coefficients;
+
+					stbir__contributors* vertical_contributors;
+					float* vertical_coefficients;
+
+					int decode_buffer_pixels;
+					float* decode_buffer;
+
+					float* horizontal_buffer;
+
+					// cache these because ceil/floor are inexplicably showing up in profile
+					int horizontal_coefficient_width;
+					int vertical_coefficient_width;
+					int horizontal_filter_pixel_width;
+					int vertical_filter_pixel_width;
+					int horizontal_filter_pixel_margin;
+					int vertical_filter_pixel_margin;
+					int horizontal_num_contributors;
+					int vertical_num_contributors;
+
+					int ring_buffer_length_bytes; // The length of an individual entry in the ring buffer. The total number of ring buffers is stbir__get_filter_pixel_width(filter)
+					int ring_buffer_first_scanline;
+					int ring_buffer_last_scanline;
+					int ring_buffer_begin_index;
+					float* ring_buffer;
+
+					float* encode_buffer; // A temporary buffer to store floats so we don't lose precision while we do multiply-adds.
+
+					int horizontal_contributors_size;
+					int horizontal_coefficients_size;
+					int vertical_contributors_size;
+					int vertical_coefficients_size;
+					int decode_buffer_size;
+					int horizontal_buffer_size;
+					int ring_buffer_size;
+					int encode_buffer_size;
+				} stbir__info;
+
+				stbir__inline int stbir__min(int a, int b)
+				{
+					return a < b ? a : b;
+				}
+
+				stbir__inline int stbir__max(int a, int b)
+				{
+					return a > b ? a : b;
+				}
+
+				stbir__inline float stbir__saturate(float x)
+				{
+					if (x < 0)
+						return 0;
+
+					if (x > 1)
+						return 1;
+
+					return x;
+				}
+
+#ifdef STBIR_SATURATE_INT
+				stbir__inline stbir_uint8 stbir__saturate8(int x)
+				{
+					if ((unsigned int)x <= 255)
+						return x;
+
+					if (x < 0)
+						return 0;
+
+					return 255;
+				}
+
+				stbir__inline stbir_uint16 stbir__saturate16(int x)
+				{
+					if ((unsigned int)x <= 65535)
+						return x;
+
+					if (x < 0)
+						return 0;
+
+					return 65535;
+				}
+#endif
+
+				float stbir__srgb_uchar_to_linear_float[256] = {
+					0.000000f, 0.000304f, 0.000607f, 0.000911f, 0.001214f, 0.001518f, 0.001821f, 0.002125f, 0.002428f, 0.002732f, 0.003035f,
+					0.003347f, 0.003677f, 0.004025f, 0.004391f, 0.004777f, 0.005182f, 0.005605f, 0.006049f, 0.006512f, 0.006995f, 0.007499f,
+					0.008023f, 0.008568f, 0.009134f, 0.009721f, 0.010330f, 0.010960f, 0.011612f, 0.012286f, 0.012983f, 0.013702f, 0.014444f,
+					0.015209f, 0.015996f, 0.016807f, 0.017642f, 0.018500f, 0.019382f, 0.020289f, 0.021219f, 0.022174f, 0.023153f, 0.024158f,
+					0.025187f, 0.026241f, 0.027321f, 0.028426f, 0.029557f, 0.030713f, 0.031896f, 0.033105f, 0.034340f, 0.035601f, 0.036889f,
+					0.038204f, 0.039546f, 0.040915f, 0.042311f, 0.043735f, 0.045186f, 0.046665f, 0.048172f, 0.049707f, 0.051269f, 0.052861f,
+					0.054480f, 0.056128f, 0.057805f, 0.059511f, 0.061246f, 0.063010f, 0.064803f, 0.066626f, 0.068478f, 0.070360f, 0.072272f,
+					0.074214f, 0.076185f, 0.078187f, 0.080220f, 0.082283f, 0.084376f, 0.086500f, 0.088656f, 0.090842f, 0.093059f, 0.095307f,
+					0.097587f, 0.099899f, 0.102242f, 0.104616f, 0.107023f, 0.109462f, 0.111932f, 0.114435f, 0.116971f, 0.119538f, 0.122139f,
+					0.124772f, 0.127438f, 0.130136f, 0.132868f, 0.135633f, 0.138432f, 0.141263f, 0.144128f, 0.147027f, 0.149960f, 0.152926f,
+					0.155926f, 0.158961f, 0.162029f, 0.165132f, 0.168269f, 0.171441f, 0.174647f, 0.177888f, 0.181164f, 0.184475f, 0.187821f,
+					0.191202f, 0.194618f, 0.198069f, 0.201556f, 0.205079f, 0.208637f, 0.212231f, 0.215861f, 0.219526f, 0.223228f, 0.226966f,
+					0.230740f, 0.234551f, 0.238398f, 0.242281f, 0.246201f, 0.250158f, 0.254152f, 0.258183f, 0.262251f, 0.266356f, 0.270498f,
+					0.274677f, 0.278894f, 0.283149f, 0.287441f, 0.291771f, 0.296138f, 0.300544f, 0.304987f, 0.309469f, 0.313989f, 0.318547f,
+					0.323143f, 0.327778f, 0.332452f, 0.337164f, 0.341914f, 0.346704f, 0.351533f, 0.356400f, 0.361307f, 0.366253f, 0.371238f,
+					0.376262f, 0.381326f, 0.386430f, 0.391573f, 0.396755f, 0.401978f, 0.407240f, 0.412543f, 0.417885f, 0.423268f, 0.428691f,
+					0.434154f, 0.439657f, 0.445201f, 0.450786f, 0.456411f, 0.462077f, 0.467784f, 0.473532f, 0.479320f, 0.485150f, 0.491021f,
+					0.496933f, 0.502887f, 0.508881f, 0.514918f, 0.520996f, 0.527115f, 0.533276f, 0.539480f, 0.545725f, 0.552011f, 0.558340f,
+					0.564712f, 0.571125f, 0.577581f, 0.584078f, 0.590619f, 0.597202f, 0.603827f, 0.610496f, 0.617207f, 0.623960f, 0.630757f,
+					0.637597f, 0.644480f, 0.651406f, 0.658375f, 0.665387f, 0.672443f, 0.679543f, 0.686685f, 0.693872f, 0.701102f, 0.708376f,
+					0.715694f, 0.723055f, 0.730461f, 0.737911f, 0.745404f, 0.752942f, 0.760525f, 0.768151f, 0.775822f, 0.783538f, 0.791298f,
+					0.799103f, 0.806952f, 0.814847f, 0.822786f, 0.830770f, 0.838799f, 0.846873f, 0.854993f, 0.863157f, 0.871367f, 0.879622f,
+					0.887923f, 0.896269f, 0.904661f, 0.913099f, 0.921582f, 0.930111f, 0.938686f, 0.947307f, 0.955974f, 0.964686f, 0.973445f,
+					0.982251f, 0.991102f, 1.0f
+				};
+
+				float stbir__srgb_to_linear(float f)
+				{
+					if (f <= 0.04045f)
+						return f / 12.92f;
+					else
+						return (float)pow((f + 0.055f) / 1.055f, 2.4f);
+				}
+
+				float stbir__linear_to_srgb(float f)
+				{
+					if (f <= 0.0031308f)
+						return f * 12.92f;
+					else
+						return 1.055f * (float)pow(f, 1 / 2.4f) - 0.055f;
+				}
+
+#ifndef STBIR_NON_IEEE_FLOAT
+				// From https://gist.github.com/rygorous/2203834
+
+				typedef union
+				{
+					stbir_uint32 u;
+					float f;
+				} stbir__FP32;
+
+				const stbir_uint32 fp32_to_srgb8_tab4[104] = {
+					0x0073000d, 0x007a000d, 0x0080000d, 0x0087000d, 0x008d000d, 0x0094000d, 0x009a000d, 0x00a1000d,
+					0x00a7001a, 0x00b4001a, 0x00c1001a, 0x00ce001a, 0x00da001a, 0x00e7001a, 0x00f4001a, 0x0101001a,
+					0x010e0033, 0x01280033, 0x01410033, 0x015b0033, 0x01750033, 0x018f0033, 0x01a80033, 0x01c20033,
+					0x01dc0067, 0x020f0067, 0x02430067, 0x02760067, 0x02aa0067, 0x02dd0067, 0x03110067, 0x03440067,
+					0x037800ce, 0x03df00ce, 0x044600ce, 0x04ad00ce, 0x051400ce, 0x057b00c5, 0x05dd00bc, 0x063b00b5,
+					0x06970158, 0x07420142, 0x07e30130, 0x087b0120, 0x090b0112, 0x09940106, 0x0a1700fc, 0x0a9500f2,
+					0x0b0f01cb, 0x0bf401ae, 0x0ccb0195, 0x0d950180, 0x0e56016e, 0x0f0d015e, 0x0fbc0150, 0x10630143,
+					0x11070264, 0x1238023e, 0x1357021d, 0x14660201, 0x156601e9, 0x165a01d3, 0x174401c0, 0x182401af,
+					0x18fe0331, 0x1a9602fe, 0x1c1502d2, 0x1d7e02ad, 0x1ed4028d, 0x201a0270, 0x21520256, 0x227d0240,
+					0x239f0443, 0x25c003fe, 0x27bf03c4, 0x29a10392, 0x2b6a0367, 0x2d1d0341, 0x2ebe031f, 0x304d0300,
+					0x31d105b0, 0x34a80555, 0x37520507, 0x39d504c5, 0x3c37048b, 0x3e7c0458, 0x40a8042a, 0x42bd0401,
+					0x44c20798, 0x488e071e, 0x4c1c06b6, 0x4f76065d, 0x52a50610, 0x55ac05cc, 0x5892058f, 0x5b590559,
+					0x5e0c0a23, 0x631c0980, 0x67db08f6, 0x6c55087f, 0x70940818, 0x74a007bd, 0x787d076c, 0x7c330723,
+				};
+
+				stbir_uint8 stbir__linear_to_srgb_uchar(float in)
+				{
+					const stbir__FP32 almostone = { 0x3f7fffff }; // 1-eps
+					const stbir__FP32 minval = { (127 - 13) << 23 };
+					stbir_uint32 tab, bias, scale, t;
+					stbir__FP32 f;
+
+					// Clamp to [2^(-13), 1-eps]; these two values map to 0 and 1, respectively.
+					// The tests are carefully written so that NaNs map to 0, same as in the reference
+					// implementation.
+					if (!(in > minval.f)) // written this way to catch NaNs
+						in = minval.f;
+					if (in > almostone.f)
+						in = almostone.f;
+
+					// Do the table lookup and unpack bias, scale
+					f.f = in;
+					tab = fp32_to_srgb8_tab4[(f.u - minval.u) >> 20];
+					bias = (tab >> 16) << 9;
+					scale = tab & 0xffff;
+
+					// Grab next-highest mantissa bits and perform linear interpolation
+					t = (f.u >> 12) & 0xff;
+					return (unsigned char)((bias + scale*t) >> 16);
+				}
+
+#else
+				// sRGB transition values, scaled by 1<<28
+				int stbir__srgb_offset_to_linear_scaled[256] =
+				{
+					0, 40738, 122216, 203693, 285170, 366648, 448125, 529603,
+					611080, 692557, 774035, 855852, 942009, 1033024, 1128971, 1229926,
+					1335959, 1447142, 1563542, 1685229, 1812268, 1944725, 2082664, 2226148,
+					2375238, 2529996, 2690481, 2856753, 3028870, 3206888, 3390865, 3580856,
+					3776916, 3979100, 4187460, 4402049, 4622919, 4850123, 5083710, 5323731,
+					5570236, 5823273, 6082892, 6349140, 6622065, 6901714, 7188133, 7481369,
+					7781466, 8088471, 8402427, 8723380, 9051372, 9386448, 9728650, 10078021,
+					10434603, 10798439, 11169569, 11548036, 11933879, 12327139, 12727857, 13136073,
+					13551826, 13975156, 14406100, 14844697, 15290987, 15745007, 16206795, 16676389,
+					17153826, 17639142, 18132374, 18633560, 19142734, 19659934, 20185196, 20718552,
+					21260042, 21809696, 22367554, 22933648, 23508010, 24090680, 24681686, 25281066,
+					25888850, 26505076, 27129772, 27762974, 28404716, 29055026, 29713942, 30381490,
+					31057708, 31742624, 32436272, 33138682, 33849884, 34569912, 35298800, 36036568,
+					36783260, 37538896, 38303512, 39077136, 39859796, 40651528, 41452360, 42262316,
+					43081432, 43909732, 44747252, 45594016, 46450052, 47315392, 48190064, 49074096,
+					49967516, 50870356, 51782636, 52704392, 53635648, 54576432, 55526772, 56486700,
+					57456236, 58435408, 59424248, 60422780, 61431036, 62449032, 63476804, 64514376,
+					65561776, 66619028, 67686160, 68763192, 69850160, 70947088, 72053992, 73170912,
+					74297864, 75434880, 76581976, 77739184, 78906536, 80084040, 81271736, 82469648,
+					83677792, 84896192, 86124888, 87363888, 88613232, 89872928, 91143016, 92423512,
+					93714432, 95015816, 96327688, 97650056, 98982952, 100326408, 101680440, 103045072,
+					104420320, 105806224, 107202800, 108610064, 110028048, 111456776, 112896264, 114346544,
+					115807632, 117279552, 118762328, 120255976, 121760536, 123276016, 124802440, 126339832,
+					127888216, 129447616, 131018048, 132599544, 134192112, 135795792, 137410592, 139036528,
+					140673648, 142321952, 143981456, 145652208, 147334208, 149027488, 150732064, 152447968,
+					154175200, 155913792, 157663776, 159425168, 161197984, 162982240, 164777968, 166585184,
+					168403904, 170234160, 172075968, 173929344, 175794320, 177670896, 179559120, 181458992,
+					183370528, 185293776, 187228736, 189175424, 191133888, 193104112, 195086128, 197079968,
+					199085648, 201103184, 203132592, 205173888, 207227120, 209292272, 211369392, 213458480,
+					215559568, 217672656, 219797792, 221934976, 224084240, 226245600, 228419056, 230604656,
+					232802400, 235012320, 237234432, 239468736, 241715280, 243974080, 246245120, 248528464,
+					250824112, 253132064, 255452368, 257785040, 260130080, 262487520, 264857376, 267239664,
+				};
+
+				stbir_uint8 stbir__linear_to_srgb_uchar(float f)
+				{
+					int x = (int)(f * (1 << 28)); // has headroom so you don't need to clamp
+					int v = 0;
+					int i;
+
+					// Refine the guess with a short binary search.
+					i = v + 128; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 64; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 32; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 16; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 8; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 4; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 2; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+					i = v + 1; if (x >= stbir__srgb_offset_to_linear_scaled[i]) v = i;
+
+					return (stbir_uint8)v;
+				}
+#endif
+
+				float stbir__filter_trapezoid(float x, float scale)
+				{
+					float halfscale = scale / 2;
+					float t = 0.5f + halfscale;
+					STBIR__DEBUG_ASSERT(scale <= 1);
+
+					x = (float)fabs(x);
+
+					if (x >= t)
+						return 0;
+					else
+					{
+						float r = 0.5f - halfscale;
+						if (x <= r)
+							return 1;
+						else
+							return (t - x) / scale;
+					}
+				}
+
+				float stbir__support_trapezoid(float scale)
+				{
+					STBIR__DEBUG_ASSERT(scale <= 1);
+					return 0.5f + scale / 2;
+				}
+
+				float stbir__filter_triangle(float x, float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+
+					x = (float)fabs(x);
+
+					if (x <= 1.0f)
+						return 1 - x;
+					else
+						return 0;
+				}
+
+				float stbir__filter_cubic(float x, float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+
+					x = (float)fabs(x);
+
+					if (x < 1.0f)
+						return (4 + x*x*(3 * x - 6)) / 6;
+					else if (x < 2.0f)
+						return (8 + x*(-12 + x*(6 - x))) / 6;
+
+					return (0.0f);
+				}
+
+				float stbir__filter_catmullrom(float x, float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+
+					x = (float)fabs(x);
+
+					if (x < 1.0f)
+						return 1 - x*x*(2.5f - 1.5f*x);
+					else if (x < 2.0f)
+						return 2 - x*(4 + x*(0.5f*x - 2.5f));
+
+					return (0.0f);
+				}
+
+				float stbir__filter_mitchell(float x, float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+
+					x = (float)fabs(x);
+
+					if (x < 1.0f)
+						return (16 + x*x*(21 * x - 36)) / 18;
+					else if (x < 2.0f)
+						return (32 + x*(-60 + x*(36 - 7 * x))) / 18;
+
+					return (0.0f);
+				}
+
+				float stbir__support_zero(float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+					return 0;
+				}
+
+				float stbir__support_one(float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+					return 1;
+				}
+
+				float stbir__support_two(float s)
+				{
+					STBIR__UNUSED_PARAM(s);
+					return 2;
+				}
+
+				stbir__filter_info stbir__filter_info_table[] = {
+					{ NULL, stbir__support_zero },
+					{ stbir__filter_trapezoid, stbir__support_trapezoid },
+					{ stbir__filter_triangle, stbir__support_one },
+					{ stbir__filter_cubic, stbir__support_two },
+					{ stbir__filter_catmullrom, stbir__support_two },
+					{ stbir__filter_mitchell, stbir__support_two },
+				};
+
+				stbir__inline int stbir__use_upsampling(float ratio)
+				{
+					return ratio > 1;
+				}
+
+				stbir__inline int stbir__use_width_upsampling(stbir__info* stbir_info)
+				{
+					return stbir__use_upsampling(stbir_info->horizontal_scale);
+				}
+
+				stbir__inline int stbir__use_height_upsampling(stbir__info* stbir_info)
+				{
+					return stbir__use_upsampling(stbir_info->vertical_scale);
+				}
+
+				// This is the maximum number of input samples that can affect an output sample
+				// with the given filter
+				int stbir__get_filter_pixel_width(stbir_filter filter, float scale)
+				{
+					STBIR_ASSERT(filter != 0);
+					STBIR_ASSERT(filter < STBIR__ARRAY_SIZE(stbir__filter_info_table));
+
+					if (stbir__use_upsampling(scale))
+						return (int)ceil(stbir__filter_info_table[filter].support(1 / scale) * 2);
+					else
+						return (int)ceil(stbir__filter_info_table[filter].support(scale) * 2 / scale);
+				}
+
+				// This is how much to expand buffers to account for filters seeking outside
+				// the image boundaries.
+				int stbir__get_filter_pixel_margin(stbir_filter filter, float scale)
+				{
+					return stbir__get_filter_pixel_width(filter, scale) / 2;
+				}
+
+				int stbir__get_coefficient_width(stbir_filter filter, float scale)
+				{
+					if (stbir__use_upsampling(scale))
+						return (int)ceil(stbir__filter_info_table[filter].support(1 / scale) * 2);
+					else
+						return (int)ceil(stbir__filter_info_table[filter].support(scale) * 2);
+				}
+
+				int stbir__get_contributors(float scale, stbir_filter filter, int input_size, int output_size)
+				{
+					if (stbir__use_upsampling(scale))
+						return output_size;
+					else
+						return (input_size + stbir__get_filter_pixel_margin(filter, scale) * 2);
+				}
+
+				int stbir__get_total_horizontal_coefficients(stbir__info* info)
+				{
+					return info->horizontal_num_contributors
+						* stbir__get_coefficient_width(info->horizontal_filter, info->horizontal_scale);
+				}
+
+				int stbir__get_total_vertical_coefficients(stbir__info* info)
+				{
+					return info->vertical_num_contributors
+						* stbir__get_coefficient_width(info->vertical_filter, info->vertical_scale);
+				}
+
+				stbir__contributors* stbir__get_contributor(stbir__contributors* contributors, int n)
+				{
+					return &contributors[n];
+				}
+
+				// For perf reasons this code is duplicated in stbir__resample_horizontal_upsample/downsample,
+				// if you change it here change it there too.
+				float* stbir__get_coefficient(float* coefficients, stbir_filter filter, float scale, int n, int c)
+				{
+					int width = stbir__get_coefficient_width(filter, scale);
+					return &coefficients[width*n + c];
+				}
+
+				int stbir__edge_wrap_slow(stbir_edge edge, int n, int max)
+				{
+					switch (edge)
+					{
+					case STBIR_EDGE_ZERO:
+						return 0; // we'll decode the wrong pixel here, and then overwrite with 0s later
+
+					case STBIR_EDGE_CLAMP:
+						if (n < 0)
+							return 0;
+
+						if (n >= max)
+							return max - 1;
+
+						return n; // NOTREACHED
+
+					case STBIR_EDGE_REFLECT:
+					{
+											   if (n < 0)
+											   {
+												   if (n < max)
+													   return -n;
+												   else
+													   return max - 1;
+											   }
+
+											   if (n >= max)
+											   {
+												   int max2 = max * 2;
+												   if (n >= max2)
+													   return 0;
+												   else
+													   return max2 - n - 1;
+											   }
+
+											   return n; // NOTREACHED
+					}
+
+					case STBIR_EDGE_WRAP:
+						if (n >= 0)
+							return (n % max);
+						else
+						{
+							int m = (-n) % max;
+
+							if (m != 0)
+								m = max - m;
+
+							return (m);
+						}
+						return n;  // NOTREACHED
+
+					default:
+						STBIR__UNIMPLEMENTED("Unimplemented edge type");
+						return 0;
+					}
+				}
+
+				stbir__inline int stbir__edge_wrap(stbir_edge edge, int n, int max)
+				{
+					// avoid per-pixel switch
+					if (n >= 0 && n < max)
+						return n;
+					return stbir__edge_wrap_slow(edge, n, max);
+				}
+
+				// What input pixels contribute to this output pixel?
+				void stbir__calculate_sample_range_upsample(int n, float out_filter_radius, float scale_ratio, float out_shift, int* in_first_pixel, int* in_last_pixel, float* in_center_of_out)
+				{
+					float out_pixel_center = (float)n + 0.5f;
+					float out_pixel_influence_lowerbound = out_pixel_center - out_filter_radius;
+					float out_pixel_influence_upperbound = out_pixel_center + out_filter_radius;
+
+					float in_pixel_influence_lowerbound = (out_pixel_influence_lowerbound + out_shift) / scale_ratio;
+					float in_pixel_influence_upperbound = (out_pixel_influence_upperbound + out_shift) / scale_ratio;
+
+					*in_center_of_out = (out_pixel_center + out_shift) / scale_ratio;
+					*in_first_pixel = (int)(floor(in_pixel_influence_lowerbound + 0.5));
+					*in_last_pixel = (int)(floor(in_pixel_influence_upperbound - 0.5));
+				}
+
+				// What output pixels does this input pixel contribute to?
+				void stbir__calculate_sample_range_downsample(int n, float in_pixels_radius, float scale_ratio, float out_shift, int* out_first_pixel, int* out_last_pixel, float* out_center_of_in)
+				{
+					float in_pixel_center = (float)n + 0.5f;
+					float in_pixel_influence_lowerbound = in_pixel_center - in_pixels_radius;
+					float in_pixel_influence_upperbound = in_pixel_center + in_pixels_radius;
+
+					float out_pixel_influence_lowerbound = in_pixel_influence_lowerbound * scale_ratio - out_shift;
+					float out_pixel_influence_upperbound = in_pixel_influence_upperbound * scale_ratio - out_shift;
+
+					*out_center_of_in = in_pixel_center * scale_ratio - out_shift;
+					*out_first_pixel = (int)(floor(out_pixel_influence_lowerbound + 0.5));
+					*out_last_pixel = (int)(floor(out_pixel_influence_upperbound - 0.5));
+				}
+
+				void stbir__calculate_coefficients_upsample(stbir__info* stbir_info, stbir_filter filter, float scale, int in_first_pixel, int in_last_pixel, float in_center_of_out, stbir__contributors* contributor, float* coefficient_group)
+				{
+					int i;
+					float total_filter = 0;
+					float filter_scale;
+
+					STBIR__DEBUG_ASSERT(in_last_pixel - in_first_pixel <= (int)ceil(stbir__filter_info_table[filter].support(1 / scale) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
+
+					contributor->n0 = in_first_pixel;
+					contributor->n1 = in_last_pixel;
+
+					STBIR__DEBUG_ASSERT(contributor->n1 >= contributor->n0);
+
+					for (i = 0; i <= in_last_pixel - in_first_pixel; i++)
+					{
+						float in_pixel_center = (float)(i + in_first_pixel) + 0.5f;
+						coefficient_group[i] = stbir__filter_info_table[filter].kernel(in_center_of_out - in_pixel_center, 1 / scale);
+
+						// If the coefficient is zero, skip it. (Don't do the <0 check here, we want the influence of those outside pixels.)
+						if (i == 0 && !coefficient_group[i])
+						{
+							contributor->n0 = ++in_first_pixel;
+							i--;
+							continue;
+						}
+
+						total_filter += coefficient_group[i];
+					}
+
+					STBIR__DEBUG_ASSERT(stbir__filter_info_table[filter].kernel((float)(in_last_pixel + 1) + 0.5f - in_center_of_out, 1 / scale) == 0);
+
+					STBIR__DEBUG_ASSERT(total_filter > 0.9);
+					STBIR__DEBUG_ASSERT(total_filter < 1.1f); // Make sure it's not way off.
+
+					// Make sure the sum of all coefficients is 1.
+					filter_scale = 1 / total_filter;
+
+					for (i = 0; i <= in_last_pixel - in_first_pixel; i++)
+						coefficient_group[i] *= filter_scale;
+
+					for (i = in_last_pixel - in_first_pixel; i >= 0; i--)
+					{
+						if (coefficient_group[i])
+							break;
+
+						// This line has no weight. We can skip it.
+						contributor->n1 = contributor->n0 + i - 1;
+					}
+				}
+
+				void stbir__calculate_coefficients_downsample(stbir__info* stbir_info, stbir_filter filter, float scale_ratio, int out_first_pixel, int out_last_pixel, float out_center_of_in, stbir__contributors* contributor, float* coefficient_group)
+				{
+					int i;
+
+					STBIR__DEBUG_ASSERT(out_last_pixel - out_first_pixel <= (int)ceil(stbir__filter_info_table[filter].support(scale_ratio) * 2)); // Taken directly from stbir__get_coefficient_width() which we can't call because we don't know if we're horizontal or vertical.
+
+					contributor->n0 = out_first_pixel;
+					contributor->n1 = out_last_pixel;
+
+					STBIR__DEBUG_ASSERT(contributor->n1 >= contributor->n0);
+
+					for (i = 0; i <= out_last_pixel - out_first_pixel; i++)
+					{
+						float out_pixel_center = (float)(i + out_first_pixel) + 0.5f;
+						float x = out_pixel_center - out_center_of_in;
+						coefficient_group[i] = stbir__filter_info_table[filter].kernel(x, scale_ratio) * scale_ratio;
+					}
+
+					STBIR__DEBUG_ASSERT(stbir__filter_info_table[filter].kernel((float)(out_last_pixel + 1) + 0.5f - out_center_of_in, scale_ratio) == 0);
+
+					for (i = out_last_pixel - out_first_pixel; i >= 0; i--)
+					{
+						if (coefficient_group[i])
+							break;
+
+						// This line has no weight. We can skip it.
+						contributor->n1 = contributor->n0 + i - 1;
+					}
+				}
+
+				void stbir__normalize_downsample_coefficients(stbir__info* stbir_info, stbir__contributors* contributors, float* coefficients, stbir_filter filter, float scale_ratio, float shift, int input_size, int output_size)
+				{
+					int num_contributors = stbir__get_contributors(scale_ratio, filter, input_size, output_size);
+					int num_coefficients = stbir__get_coefficient_width(filter, scale_ratio);
+					int i, j;
+					int skip;
+
+					for (i = 0; i < output_size; i++)
+					{
+						float scale;
+						float total = 0;
+
+						for (j = 0; j < num_contributors; j++)
+						{
+							if (i >= contributors[j].n0 && i <= contributors[j].n1)
+							{
+								float coefficient = *stbir__get_coefficient(coefficients, filter, scale_ratio, j, i - contributors[j].n0);
+								total += coefficient;
+							}
+							else if (i < contributors[j].n0)
+								break;
+						}
+
+						STBIR__DEBUG_ASSERT(total > 0.9f);
+						STBIR__DEBUG_ASSERT(total < 1.1f);
+
+						scale = 1 / total;
+
+						for (j = 0; j < num_contributors; j++)
+						{
+							if (i >= contributors[j].n0 && i <= contributors[j].n1)
+								*stbir__get_coefficient(coefficients, filter, scale_ratio, j, i - contributors[j].n0) *= scale;
+							else if (i < contributors[j].n0)
+								break;
+						}
+					}
+
+					// Optimize: Skip zero coefficients and contributions outside of image bounds.
+					// Do this after normalizing because normalization depends on the n0/n1 values.
+					for (j = 0; j < num_contributors; j++)
+					{
+						int range, max, width;
+
+						skip = 0;
+						while (*stbir__get_coefficient(coefficients, filter, scale_ratio, j, skip) == 0)
+							skip++;
+
+						contributors[j].n0 += skip;
+
+						while (contributors[j].n0 < 0)
+						{
+							contributors[j].n0++;
+							skip++;
+						}
+
+						range = contributors[j].n1 - contributors[j].n0 + 1;
+						max = stbir__min(num_coefficients, range);
+
+						width = stbir__get_coefficient_width(filter, scale_ratio);
+						for (i = 0; i < max; i++)
+						{
+							if (i + skip >= width)
+								break;
+
+							*stbir__get_coefficient(coefficients, filter, scale_ratio, j, i) = *stbir__get_coefficient(coefficients, filter, scale_ratio, j, i + skip);
+						}
+
+						continue;
+					}
+
+					// Using min to avoid writing into invalid pixels.
+					for (i = 0; i < num_contributors; i++)
+						contributors[i].n1 = stbir__min(contributors[i].n1, output_size - 1);
+				}
+
+				// Each scan line uses the same kernel values so we should calculate the kernel
+				// values once and then we can use them for every scan line.
+				void stbir__calculate_filters(stbir__info* stbir_info, stbir__contributors* contributors, float* coefficients, stbir_filter filter, float scale_ratio, float shift, int input_size, int output_size)
+				{
+					int n;
+					int total_contributors = stbir__get_contributors(scale_ratio, filter, input_size, output_size);
+
+					if (stbir__use_upsampling(scale_ratio))
+					{
+						float out_pixels_radius = stbir__filter_info_table[filter].support(1 / scale_ratio) * scale_ratio;
+
+						// Looping through out pixels
+						for (n = 0; n < total_contributors; n++)
+						{
+							float in_center_of_out; // Center of the current out pixel in the in pixel space
+							int in_first_pixel, in_last_pixel;
+
+							stbir__calculate_sample_range_upsample(n, out_pixels_radius, scale_ratio, shift, &in_first_pixel, &in_last_pixel, &in_center_of_out);
+
+							stbir__calculate_coefficients_upsample(stbir_info, filter, scale_ratio, in_first_pixel, in_last_pixel, in_center_of_out, stbir__get_contributor(contributors, n), stbir__get_coefficient(coefficients, filter, scale_ratio, n, 0));
+						}
+					}
+					else
+					{
+						float in_pixels_radius = stbir__filter_info_table[filter].support(scale_ratio) / scale_ratio;
+
+						// Looping through in pixels
+						for (n = 0; n < total_contributors; n++)
+						{
+							float out_center_of_in; // Center of the current out pixel in the in pixel space
+							int out_first_pixel, out_last_pixel;
+							int n_adjusted = n - stbir__get_filter_pixel_margin(filter, scale_ratio);
+
+							stbir__calculate_sample_range_downsample(n_adjusted, in_pixels_radius, scale_ratio, shift, &out_first_pixel, &out_last_pixel, &out_center_of_in);
+
+							stbir__calculate_coefficients_downsample(stbir_info, filter, scale_ratio, out_first_pixel, out_last_pixel, out_center_of_in, stbir__get_contributor(contributors, n), stbir__get_coefficient(coefficients, filter, scale_ratio, n, 0));
+						}
+
+						stbir__normalize_downsample_coefficients(stbir_info, contributors, coefficients, filter, scale_ratio, shift, input_size, output_size);
+					}
+				}
+
+				float* stbir__get_decode_buffer(stbir__info* stbir_info)
+				{
+					// The 0 index of the decode buffer starts after the margin. This makes
+					// it okay to use negative indexes on the decode buffer.
+					return &stbir_info->decode_buffer[stbir_info->horizontal_filter_pixel_margin * stbir_info->channels];
+				}
+
+#define STBIR__DECODE(type, colorspace) ((type) * (STBIR_MAX_COLORSPACES) + (colorspace))
+
+				void stbir__decode_scanline(stbir__info* stbir_info, int n)
+				{
+					int c;
+					int channels = stbir_info->channels;
+					int alpha_channel = stbir_info->alpha_channel;
+					int type = stbir_info->type;
+					int colorspace = stbir_info->colorspace;
+					int input_w = stbir_info->input_w;
+					int input_stride_bytes = stbir_info->input_stride_bytes;
+					float* decode_buffer = stbir__get_decode_buffer(stbir_info);
+					stbir_edge edge_horizontal = stbir_info->edge_horizontal;
+					stbir_edge edge_vertical = stbir_info->edge_vertical;
+					int in_buffer_row_offset = stbir__edge_wrap(edge_vertical, n, stbir_info->input_h) * input_stride_bytes;
+					const void* input_data = (char *)stbir_info->input_data + in_buffer_row_offset;
+					int max_x = input_w + stbir_info->horizontal_filter_pixel_margin;
+					int decode = STBIR__DECODE(type, colorspace);
+
+					int x = -stbir_info->horizontal_filter_pixel_margin;
+
+					// special handling for STBIR_EDGE_ZERO because it needs to return an item that doesn't appear in the input,
+					// and we want to avoid paying overhead on every pixel if not STBIR_EDGE_ZERO
+					if (edge_vertical == STBIR_EDGE_ZERO && (n < 0 || n >= stbir_info->input_h))
+					{
+						for (; x < max_x; x++)
+						for (c = 0; c < channels; c++)
+							decode_buffer[x*channels + c] = 0;
+						return;
+					}
+
+					switch (decode)
+					{
+					case STBIR__DECODE(STBIR_TYPE_UINT8, STBIR_COLORSPACE_LINEAR):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = ((float)((const unsigned char*)input_data)[input_pixel_index + c]) / 255;
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT8, STBIR_COLORSPACE_SRGB):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = stbir__srgb_uchar_to_linear_float[((const unsigned char*)input_data)[input_pixel_index + c]];
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								decode_buffer[decode_pixel_index + alpha_channel] = ((float)((const unsigned char*)input_data)[input_pixel_index + alpha_channel]) / 255;
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT16, STBIR_COLORSPACE_LINEAR):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = ((float)((const unsigned short*)input_data)[input_pixel_index + c]) / 65535;
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT16, STBIR_COLORSPACE_SRGB):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = stbir__srgb_to_linear(((float)((const unsigned short*)input_data)[input_pixel_index + c]) / 65535);
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								decode_buffer[decode_pixel_index + alpha_channel] = ((float)((const unsigned short*)input_data)[input_pixel_index + alpha_channel]) / 65535;
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT32, STBIR_COLORSPACE_LINEAR):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = (float)(((double)((const unsigned int*)input_data)[input_pixel_index + c]) / 4294967295);
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT32, STBIR_COLORSPACE_SRGB):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = stbir__srgb_to_linear((float)(((double)((const unsigned int*)input_data)[input_pixel_index + c]) / 4294967295));
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								decode_buffer[decode_pixel_index + alpha_channel] = (float)(((double)((const unsigned int*)input_data)[input_pixel_index + alpha_channel]) / 4294967295);
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_FLOAT, STBIR_COLORSPACE_LINEAR):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = ((const float*)input_data)[input_pixel_index + c];
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_FLOAT, STBIR_COLORSPACE_SRGB):
+						for (; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+							int input_pixel_index = stbir__edge_wrap(edge_horizontal, x, input_w) * channels;
+							for (c = 0; c < channels; c++)
+								decode_buffer[decode_pixel_index + c] = stbir__srgb_to_linear(((const float*)input_data)[input_pixel_index + c]);
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								decode_buffer[decode_pixel_index + alpha_channel] = ((const float*)input_data)[input_pixel_index + alpha_channel];
+						}
+
+						break;
+
+					default:
+						STBIR__UNIMPLEMENTED("Unknown type/colorspace/channels combination.");
+						break;
+					}
+
+					if (!(stbir_info->flags & STBIR_FLAG_ALPHA_PREMULTIPLIED))
+					{
+						for (x = -stbir_info->horizontal_filter_pixel_margin; x < max_x; x++)
+						{
+							int decode_pixel_index = x * channels;
+
+							// If the alpha value is 0 it will clobber the color values. Make sure it's not.
+							float alpha = decode_buffer[decode_pixel_index + alpha_channel];
+#ifndef STBIR_NO_ALPHA_EPSILON
+							if (stbir_info->type != STBIR_TYPE_FLOAT) {
+								alpha += STBIR_ALPHA_EPSILON;
+								decode_buffer[decode_pixel_index + alpha_channel] = alpha;
+							}
+#endif
+							for (c = 0; c < channels; c++)
+							{
+								if (c == alpha_channel)
+									continue;
+
+								decode_buffer[decode_pixel_index + c] *= alpha;
+							}
+						}
+					}
+
+					if (edge_horizontal == STBIR_EDGE_ZERO)
+					{
+						for (x = -stbir_info->horizontal_filter_pixel_margin; x < 0; x++)
+						{
+							for (c = 0; c < channels; c++)
+								decode_buffer[x*channels + c] = 0;
+						}
+						for (x = input_w; x < max_x; x++)
+						{
+							for (c = 0; c < channels; c++)
+								decode_buffer[x*channels + c] = 0;
+						}
+					}
+				}
+
+				float* stbir__get_ring_buffer_entry(float* ring_buffer, int index, int ring_buffer_length)
+				{
+					return &ring_buffer[index * ring_buffer_length];
+				}
+
+				float* stbir__add_empty_ring_buffer_entry(stbir__info* stbir_info, int n)
+				{
+					int ring_buffer_index;
+					float* ring_buffer;
+
+					if (stbir_info->ring_buffer_begin_index < 0)
+					{
+						ring_buffer_index = stbir_info->ring_buffer_begin_index = 0;
+						stbir_info->ring_buffer_first_scanline = n;
+					}
+					else
+					{
+						ring_buffer_index = (stbir_info->ring_buffer_begin_index + (stbir_info->ring_buffer_last_scanline - stbir_info->ring_buffer_first_scanline) + 1) % stbir_info->vertical_filter_pixel_width;
+						STBIR__DEBUG_ASSERT(ring_buffer_index != stbir_info->ring_buffer_begin_index);
+					}
+
+					ring_buffer = stbir__get_ring_buffer_entry(stbir_info->ring_buffer, ring_buffer_index, stbir_info->ring_buffer_length_bytes / sizeof(float));
+					memset(ring_buffer, 0, stbir_info->ring_buffer_length_bytes);
+
+					stbir_info->ring_buffer_last_scanline = n;
+
+					return ring_buffer;
+				}
+
+
+				void stbir__resample_horizontal_upsample(stbir__info* stbir_info, int n, float* output_buffer)
+				{
+					int x, k;
+					int output_w = stbir_info->output_w;
+					int kernel_pixel_width = stbir_info->horizontal_filter_pixel_width;
+					int channels = stbir_info->channels;
+					float* decode_buffer = stbir__get_decode_buffer(stbir_info);
+					stbir__contributors* horizontal_contributors = stbir_info->horizontal_contributors;
+					float* horizontal_coefficients = stbir_info->horizontal_coefficients;
+					int coefficient_width = stbir_info->horizontal_coefficient_width;
+
+					for (x = 0; x < output_w; x++)
+					{
+						int n0 = horizontal_contributors[x].n0;
+						int n1 = horizontal_contributors[x].n1;
+
+						int out_pixel_index = x * channels;
+						int coefficient_group = coefficient_width * x;
+						int coefficient_counter = 0;
+
+						STBIR__DEBUG_ASSERT(n1 >= n0);
+						STBIR__DEBUG_ASSERT(n0 >= -stbir_info->horizontal_filter_pixel_margin);
+						STBIR__DEBUG_ASSERT(n1 >= -stbir_info->horizontal_filter_pixel_margin);
+						STBIR__DEBUG_ASSERT(n0 < stbir_info->input_w + stbir_info->horizontal_filter_pixel_margin);
+						STBIR__DEBUG_ASSERT(n1 < stbir_info->input_w + stbir_info->horizontal_filter_pixel_margin);
+
+						switch (channels) {
+						case 1:
+							for (k = n0; k <= n1; k++)
+							{
+								int in_pixel_index = k * 1;
+								float coefficient = horizontal_coefficients[coefficient_group + coefficient_counter++];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+							}
+							break;
+						case 2:
+							for (k = n0; k <= n1; k++)
+							{
+								int in_pixel_index = k * 2;
+								float coefficient = horizontal_coefficients[coefficient_group + coefficient_counter++];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+							}
+							break;
+						case 3:
+							for (k = n0; k <= n1; k++)
+							{
+								int in_pixel_index = k * 3;
+								float coefficient = horizontal_coefficients[coefficient_group + coefficient_counter++];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+								output_buffer[out_pixel_index + 2] += decode_buffer[in_pixel_index + 2] * coefficient;
+							}
+							break;
+						case 4:
+							for (k = n0; k <= n1; k++)
+							{
+								int in_pixel_index = k * 4;
+								float coefficient = horizontal_coefficients[coefficient_group + coefficient_counter++];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+								output_buffer[out_pixel_index + 2] += decode_buffer[in_pixel_index + 2] * coefficient;
+								output_buffer[out_pixel_index + 3] += decode_buffer[in_pixel_index + 3] * coefficient;
+							}
+							break;
+						default:
+							for (k = n0; k <= n1; k++)
+							{
+								int in_pixel_index = k * channels;
+								float coefficient = horizontal_coefficients[coefficient_group + coefficient_counter++];
+								int c;
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								for (c = 0; c < channels; c++)
+									output_buffer[out_pixel_index + c] += decode_buffer[in_pixel_index + c] * coefficient;
+							}
+							break;
+						}
+					}
+				}
+
+				void stbir__resample_horizontal_downsample(stbir__info* stbir_info, int n, float* output_buffer)
+				{
+					int x, k;
+					int input_w = stbir_info->input_w;
+					int output_w = stbir_info->output_w;
+					int kernel_pixel_width = stbir_info->horizontal_filter_pixel_width;
+					int channels = stbir_info->channels;
+					float* decode_buffer = stbir__get_decode_buffer(stbir_info);
+					stbir__contributors* horizontal_contributors = stbir_info->horizontal_contributors;
+					float* horizontal_coefficients = stbir_info->horizontal_coefficients;
+					int coefficient_width = stbir_info->horizontal_coefficient_width;
+					int filter_pixel_margin = stbir_info->horizontal_filter_pixel_margin;
+					int max_x = input_w + filter_pixel_margin * 2;
+
+					STBIR__DEBUG_ASSERT(!stbir__use_width_upsampling(stbir_info));
+
+					switch (channels) {
+					case 1:
+						for (x = 0; x < max_x; x++)
+						{
+							int n0 = horizontal_contributors[x].n0;
+							int n1 = horizontal_contributors[x].n1;
+
+							int in_x = x - filter_pixel_margin;
+							int in_pixel_index = in_x * 1;
+							int max_n = n1;
+							int coefficient_group = coefficient_width * x;
+
+							for (k = n0; k <= max_n; k++)
+							{
+								int out_pixel_index = k * 1;
+								float coefficient = horizontal_coefficients[coefficient_group + k - n0];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+							}
+						}
+						break;
+
+					case 2:
+						for (x = 0; x < max_x; x++)
+						{
+							int n0 = horizontal_contributors[x].n0;
+							int n1 = horizontal_contributors[x].n1;
+
+							int in_x = x - filter_pixel_margin;
+							int in_pixel_index = in_x * 2;
+							int max_n = n1;
+							int coefficient_group = coefficient_width * x;
+
+							for (k = n0; k <= max_n; k++)
+							{
+								int out_pixel_index = k * 2;
+								float coefficient = horizontal_coefficients[coefficient_group + k - n0];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+							}
+						}
+						break;
+
+					case 3:
+						for (x = 0; x < max_x; x++)
+						{
+							int n0 = horizontal_contributors[x].n0;
+							int n1 = horizontal_contributors[x].n1;
+
+							int in_x = x - filter_pixel_margin;
+							int in_pixel_index = in_x * 3;
+							int max_n = n1;
+							int coefficient_group = coefficient_width * x;
+
+							for (k = n0; k <= max_n; k++)
+							{
+								int out_pixel_index = k * 3;
+								float coefficient = horizontal_coefficients[coefficient_group + k - n0];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+								output_buffer[out_pixel_index + 2] += decode_buffer[in_pixel_index + 2] * coefficient;
+							}
+						}
+						break;
+
+					case 4:
+						for (x = 0; x < max_x; x++)
+						{
+							int n0 = horizontal_contributors[x].n0;
+							int n1 = horizontal_contributors[x].n1;
+
+							int in_x = x - filter_pixel_margin;
+							int in_pixel_index = in_x * 4;
+							int max_n = n1;
+							int coefficient_group = coefficient_width * x;
+
+							for (k = n0; k <= max_n; k++)
+							{
+								int out_pixel_index = k * 4;
+								float coefficient = horizontal_coefficients[coefficient_group + k - n0];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								output_buffer[out_pixel_index + 0] += decode_buffer[in_pixel_index + 0] * coefficient;
+								output_buffer[out_pixel_index + 1] += decode_buffer[in_pixel_index + 1] * coefficient;
+								output_buffer[out_pixel_index + 2] += decode_buffer[in_pixel_index + 2] * coefficient;
+								output_buffer[out_pixel_index + 3] += decode_buffer[in_pixel_index + 3] * coefficient;
+							}
+						}
+						break;
+
+					default:
+						for (x = 0; x < max_x; x++)
+						{
+							int n0 = horizontal_contributors[x].n0;
+							int n1 = horizontal_contributors[x].n1;
+
+							int in_x = x - filter_pixel_margin;
+							int in_pixel_index = in_x * channels;
+							int max_n = n1;
+							int coefficient_group = coefficient_width * x;
+
+							for (k = n0; k <= max_n; k++)
+							{
+								int c;
+								int out_pixel_index = k * channels;
+								float coefficient = horizontal_coefficients[coefficient_group + k - n0];
+								STBIR__DEBUG_ASSERT(coefficient != 0);
+								for (c = 0; c < channels; c++)
+									output_buffer[out_pixel_index + c] += decode_buffer[in_pixel_index + c] * coefficient;
+							}
+						}
+						break;
+					}
+				}
+
+				void stbir__decode_and_resample_upsample(stbir__info* stbir_info, int n)
+				{
+					// Decode the nth scanline from the source image into the decode buffer.
+					stbir__decode_scanline(stbir_info, n);
+
+					// Now resample it into the ring buffer.
+					if (stbir__use_width_upsampling(stbir_info))
+						stbir__resample_horizontal_upsample(stbir_info, n, stbir__add_empty_ring_buffer_entry(stbir_info, n));
+					else
+						stbir__resample_horizontal_downsample(stbir_info, n, stbir__add_empty_ring_buffer_entry(stbir_info, n));
+
+					// Now it's sitting in the ring buffer ready to be used as source for the vertical sampling.
+				}
+
+				void stbir__decode_and_resample_downsample(stbir__info* stbir_info, int n)
+				{
+					// Decode the nth scanline from the source image into the decode buffer.
+					stbir__decode_scanline(stbir_info, n);
+
+					memset(stbir_info->horizontal_buffer, 0, stbir_info->output_w * stbir_info->channels * sizeof(float));
+
+					// Now resample it into the horizontal buffer.
+					if (stbir__use_width_upsampling(stbir_info))
+						stbir__resample_horizontal_upsample(stbir_info, n, stbir_info->horizontal_buffer);
+					else
+						stbir__resample_horizontal_downsample(stbir_info, n, stbir_info->horizontal_buffer);
+
+					// Now it's sitting in the horizontal buffer ready to be distributed into the ring buffers.
+				}
+
+				// Get the specified scan line from the ring buffer.
+				float* stbir__get_ring_buffer_scanline(int get_scanline, float* ring_buffer, int begin_index, int first_scanline, int ring_buffer_size, int ring_buffer_length)
+				{
+					int ring_buffer_index = (begin_index + (get_scanline - first_scanline)) % ring_buffer_size;
+					return stbir__get_ring_buffer_entry(ring_buffer, ring_buffer_index, ring_buffer_length);
+				}
+
+
+				void stbir__encode_scanline(stbir__info* stbir_info, int num_pixels, void *output_buffer, float *encode_buffer, int channels, int alpha_channel, int decode)
+				{
+					int x;
+					int n;
+					int num_nonalpha;
+					stbir_uint16 nonalpha[STBIR_MAX_CHANNELS];
+
+					if (!(stbir_info->flags&STBIR_FLAG_ALPHA_PREMULTIPLIED))
+					{
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							float alpha = encode_buffer[pixel_index + alpha_channel];
+							float reciprocal_alpha = alpha ? 1.0f / alpha : 0;
+
+							// unrolling this produced a 1% slowdown upscaling a large RGBA linear-space image on my machine - stb
+							for (n = 0; n < channels; n++)
+							if (n != alpha_channel)
+								encode_buffer[pixel_index + n] *= reciprocal_alpha;
+
+							// We added in a small epsilon to prevent the color channel from being deleted with zero alpha.
+							// Because we only add it for integer types, it will automatically be discarded on integer
+							// conversion, so we don't need to subtract it back out (which would be problematic for
+							// numeric precision reasons).
+						}
+					}
+
+					// build a table of all channels that need colorspace correction, so
+					// we don't perform colorspace correction on channels that don't need it.
+					for (x = 0, num_nonalpha = 0; x < channels; ++x)
+					if (x != alpha_channel || (stbir_info->flags & STBIR_FLAG_ALPHA_USES_COLORSPACE))
+						nonalpha[num_nonalpha++] = x;
+
+#define STBIR__ROUND_INT(f)    ((int)          ((f)+0.5))
+#define STBIR__ROUND_UINT(f)   ((stbir_uint32) ((f)+0.5))
+
+#ifdef STBIR__SATURATE_INT
+#define STBIR__ENCODE_LINEAR8(f)   stbir__saturate8 (STBIR__ROUND_INT((f) * 255  ))
+#define STBIR__ENCODE_LINEAR16(f)  stbir__saturate16(STBIR__ROUND_INT((f) * 65535))
+#else
+#define STBIR__ENCODE_LINEAR8(f)   (unsigned char ) STBIR__ROUND_INT(stbir__saturate(f) * 255  )
+#define STBIR__ENCODE_LINEAR16(f)  (unsigned short) STBIR__ROUND_INT(stbir__saturate(f) * 65535)
+#endif
+
+					switch (decode)
+					{
+					case STBIR__DECODE(STBIR_TYPE_UINT8, STBIR_COLORSPACE_LINEAR):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < channels; n++)
+							{
+								int index = pixel_index + n;
+								((unsigned char*)output_buffer)[index] = STBIR__ENCODE_LINEAR8(encode_buffer[index]);
+							}
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT8, STBIR_COLORSPACE_SRGB):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < num_nonalpha; n++)
+							{
+								int index = pixel_index + nonalpha[n];
+								((unsigned char*)output_buffer)[index] = stbir__linear_to_srgb_uchar(encode_buffer[index]);
+							}
+
+							if (!(stbir_info->flags & STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								((unsigned char *)output_buffer)[pixel_index + alpha_channel] = STBIR__ENCODE_LINEAR8(encode_buffer[pixel_index + alpha_channel]);
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT16, STBIR_COLORSPACE_LINEAR):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < channels; n++)
+							{
+								int index = pixel_index + n;
+								((unsigned short*)output_buffer)[index] = STBIR__ENCODE_LINEAR16(encode_buffer[index]);
+							}
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT16, STBIR_COLORSPACE_SRGB):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < num_nonalpha; n++)
+							{
+								int index = pixel_index + nonalpha[n];
+								((unsigned short*)output_buffer)[index] = (unsigned short)STBIR__ROUND_INT(stbir__linear_to_srgb(stbir__saturate(encode_buffer[index])) * 65535);
+							}
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								((unsigned short*)output_buffer)[pixel_index + alpha_channel] = STBIR__ENCODE_LINEAR16(encode_buffer[pixel_index + alpha_channel]);
+						}
+
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT32, STBIR_COLORSPACE_LINEAR):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < channels; n++)
+							{
+								int index = pixel_index + n;
+								((unsigned int*)output_buffer)[index] = (unsigned int)STBIR__ROUND_UINT(((double)stbir__saturate(encode_buffer[index])) * 4294967295);
+							}
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_UINT32, STBIR_COLORSPACE_SRGB):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < num_nonalpha; n++)
+							{
+								int index = pixel_index + nonalpha[n];
+								((unsigned int*)output_buffer)[index] = (unsigned int)STBIR__ROUND_UINT(((double)stbir__linear_to_srgb(stbir__saturate(encode_buffer[index]))) * 4294967295);
+							}
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								((unsigned int*)output_buffer)[pixel_index + alpha_channel] = (unsigned int)STBIR__ROUND_INT(((double)stbir__saturate(encode_buffer[pixel_index + alpha_channel])) * 4294967295);
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_FLOAT, STBIR_COLORSPACE_LINEAR):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < channels; n++)
+							{
+								int index = pixel_index + n;
+								((float*)output_buffer)[index] = encode_buffer[index];
+							}
+						}
+						break;
+
+					case STBIR__DECODE(STBIR_TYPE_FLOAT, STBIR_COLORSPACE_SRGB):
+						for (x = 0; x < num_pixels; ++x)
+						{
+							int pixel_index = x*channels;
+
+							for (n = 0; n < num_nonalpha; n++)
+							{
+								int index = pixel_index + nonalpha[n];
+								((float*)output_buffer)[index] = stbir__linear_to_srgb(encode_buffer[index]);
+							}
+
+							if (!(stbir_info->flags&STBIR_FLAG_ALPHA_USES_COLORSPACE))
+								((float*)output_buffer)[pixel_index + alpha_channel] = encode_buffer[pixel_index + alpha_channel];
+						}
+						break;
+
+					default:
+						STBIR__UNIMPLEMENTED("Unknown type/colorspace/channels combination.");
+						break;
+					}
+				}
+
+				void stbir__resample_vertical_upsample(stbir__info* stbir_info, int n, int in_first_scanline, int in_last_scanline, float in_center_of_out)
+				{
+					int x, k;
+					int output_w = stbir_info->output_w;
+					stbir__contributors* vertical_contributors = stbir_info->vertical_contributors;
+					float* vertical_coefficients = stbir_info->vertical_coefficients;
+					int channels = stbir_info->channels;
+					int alpha_channel = stbir_info->alpha_channel;
+					int type = stbir_info->type;
+					int colorspace = stbir_info->colorspace;
+					int kernel_pixel_width = stbir_info->vertical_filter_pixel_width;
+					void* output_data = stbir_info->output_data;
+					float* encode_buffer = stbir_info->encode_buffer;
+					int decode = STBIR__DECODE(type, colorspace);
+					int coefficient_width = stbir_info->vertical_coefficient_width;
+					int coefficient_counter;
+					int contributor = n;
+
+					float* ring_buffer = stbir_info->ring_buffer;
+					int ring_buffer_begin_index = stbir_info->ring_buffer_begin_index;
+					int ring_buffer_first_scanline = stbir_info->ring_buffer_first_scanline;
+					int ring_buffer_last_scanline = stbir_info->ring_buffer_last_scanline;
+					int ring_buffer_length = stbir_info->ring_buffer_length_bytes / sizeof(float);
+
+					int n0, n1, output_row_start;
+					int coefficient_group = coefficient_width * contributor;
+
+					n0 = vertical_contributors[contributor].n0;
+					n1 = vertical_contributors[contributor].n1;
+
+					output_row_start = n * stbir_info->output_stride_bytes;
+
+					STBIR__DEBUG_ASSERT(stbir__use_height_upsampling(stbir_info));
+
+					memset(encode_buffer, 0, output_w * sizeof(float)* channels);
+
+					// I tried reblocking this for better cache usage of encode_buffer
+					// (using x_outer, k, x_inner), but it lost speed. -- stb
+
+					coefficient_counter = 0;
+					switch (channels) {
+					case 1:
+						for (k = n0; k <= n1; k++)
+						{
+							int coefficient_index = coefficient_counter++;
+							float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+							float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+							for (x = 0; x < output_w; ++x)
+							{
+								int in_pixel_index = x * 1;
+								encode_buffer[in_pixel_index + 0] += ring_buffer_entry[in_pixel_index + 0] * coefficient;
+							}
+						}
+						break;
+					case 2:
+						for (k = n0; k <= n1; k++)
+						{
+							int coefficient_index = coefficient_counter++;
+							float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+							float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+							for (x = 0; x < output_w; ++x)
+							{
+								int in_pixel_index = x * 2;
+								encode_buffer[in_pixel_index + 0] += ring_buffer_entry[in_pixel_index + 0] * coefficient;
+								encode_buffer[in_pixel_index + 1] += ring_buffer_entry[in_pixel_index + 1] * coefficient;
+							}
+						}
+						break;
+					case 3:
+						for (k = n0; k <= n1; k++)
+						{
+							int coefficient_index = coefficient_counter++;
+							float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+							float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+							for (x = 0; x < output_w; ++x)
+							{
+								int in_pixel_index = x * 3;
+								encode_buffer[in_pixel_index + 0] += ring_buffer_entry[in_pixel_index + 0] * coefficient;
+								encode_buffer[in_pixel_index + 1] += ring_buffer_entry[in_pixel_index + 1] * coefficient;
+								encode_buffer[in_pixel_index + 2] += ring_buffer_entry[in_pixel_index + 2] * coefficient;
+							}
+						}
+						break;
+					case 4:
+						for (k = n0; k <= n1; k++)
+						{
+							int coefficient_index = coefficient_counter++;
+							float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+							float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+							for (x = 0; x < output_w; ++x)
+							{
+								int in_pixel_index = x * 4;
+								encode_buffer[in_pixel_index + 0] += ring_buffer_entry[in_pixel_index + 0] * coefficient;
+								encode_buffer[in_pixel_index + 1] += ring_buffer_entry[in_pixel_index + 1] * coefficient;
+								encode_buffer[in_pixel_index + 2] += ring_buffer_entry[in_pixel_index + 2] * coefficient;
+								encode_buffer[in_pixel_index + 3] += ring_buffer_entry[in_pixel_index + 3] * coefficient;
+							}
+						}
+						break;
+					default:
+						for (k = n0; k <= n1; k++)
+						{
+							int coefficient_index = coefficient_counter++;
+							float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+							float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+							for (x = 0; x < output_w; ++x)
+							{
+								int in_pixel_index = x * channels;
+								int c;
+								for (c = 0; c < channels; c++)
+									encode_buffer[in_pixel_index + c] += ring_buffer_entry[in_pixel_index + c] * coefficient;
+							}
+						}
+						break;
+					}
+					stbir__encode_scanline(stbir_info, output_w, (char *)output_data + output_row_start, encode_buffer, channels, alpha_channel, decode);
+				}
+
+				void stbir__resample_vertical_downsample(stbir__info* stbir_info, int n, int in_first_scanline, int in_last_scanline, float in_center_of_out)
+				{
+					int x, k;
+					int output_w = stbir_info->output_w;
+					int output_h = stbir_info->output_h;
+					stbir__contributors* vertical_contributors = stbir_info->vertical_contributors;
+					float* vertical_coefficients = stbir_info->vertical_coefficients;
+					int channels = stbir_info->channels;
+					int kernel_pixel_width = stbir_info->vertical_filter_pixel_width;
+					void* output_data = stbir_info->output_data;
+					float* horizontal_buffer = stbir_info->horizontal_buffer;
+					int coefficient_width = stbir_info->vertical_coefficient_width;
+					int contributor = n + stbir_info->vertical_filter_pixel_margin;
+
+					float* ring_buffer = stbir_info->ring_buffer;
+					int ring_buffer_begin_index = stbir_info->ring_buffer_begin_index;
+					int ring_buffer_first_scanline = stbir_info->ring_buffer_first_scanline;
+					int ring_buffer_last_scanline = stbir_info->ring_buffer_last_scanline;
+					int ring_buffer_length = stbir_info->ring_buffer_length_bytes / sizeof(float);
+					int n0, n1;
+
+					n0 = vertical_contributors[contributor].n0;
+					n1 = vertical_contributors[contributor].n1;
+
+					STBIR__DEBUG_ASSERT(!stbir__use_height_upsampling(stbir_info));
+
+					for (k = n0; k <= n1; k++)
+					{
+						int coefficient_index = k - n0;
+						int coefficient_group = coefficient_width * contributor;
+						float coefficient = vertical_coefficients[coefficient_group + coefficient_index];
+
+						float* ring_buffer_entry = stbir__get_ring_buffer_scanline(k, ring_buffer, ring_buffer_begin_index, ring_buffer_first_scanline, kernel_pixel_width, ring_buffer_length);
+
+						switch (channels) {
+						case 1:
+							for (x = 0; x < output_w; x++)
+							{
+								int in_pixel_index = x * 1;
+								ring_buffer_entry[in_pixel_index + 0] += horizontal_buffer[in_pixel_index + 0] * coefficient;
+							}
+							break;
+						case 2:
+							for (x = 0; x < output_w; x++)
+							{
+								int in_pixel_index = x * 2;
+								ring_buffer_entry[in_pixel_index + 0] += horizontal_buffer[in_pixel_index + 0] * coefficient;
+								ring_buffer_entry[in_pixel_index + 1] += horizontal_buffer[in_pixel_index + 1] * coefficient;
+							}
+							break;
+						case 3:
+							for (x = 0; x < output_w; x++)
+							{
+								int in_pixel_index = x * 3;
+								ring_buffer_entry[in_pixel_index + 0] += horizontal_buffer[in_pixel_index + 0] * coefficient;
+								ring_buffer_entry[in_pixel_index + 1] += horizontal_buffer[in_pixel_index + 1] * coefficient;
+								ring_buffer_entry[in_pixel_index + 2] += horizontal_buffer[in_pixel_index + 2] * coefficient;
+							}
+							break;
+						case 4:
+							for (x = 0; x < output_w; x++)
+							{
+								int in_pixel_index = x * 4;
+								ring_buffer_entry[in_pixel_index + 0] += horizontal_buffer[in_pixel_index + 0] * coefficient;
+								ring_buffer_entry[in_pixel_index + 1] += horizontal_buffer[in_pixel_index + 1] * coefficient;
+								ring_buffer_entry[in_pixel_index + 2] += horizontal_buffer[in_pixel_index + 2] * coefficient;
+								ring_buffer_entry[in_pixel_index + 3] += horizontal_buffer[in_pixel_index + 3] * coefficient;
+							}
+							break;
+						default:
+							for (x = 0; x < output_w; x++)
+							{
+								int in_pixel_index = x * channels;
+
+								int c;
+								for (c = 0; c < channels; c++)
+									ring_buffer_entry[in_pixel_index + c] += horizontal_buffer[in_pixel_index + c] * coefficient;
+							}
+							break;
+						}
+					}
+				}
+
+				void stbir__buffer_loop_upsample(stbir__info* stbir_info)
+				{
+					int y;
+					float scale_ratio = stbir_info->vertical_scale;
+					float out_scanlines_radius = stbir__filter_info_table[stbir_info->vertical_filter].support(1 / scale_ratio) * scale_ratio;
+
+					STBIR__DEBUG_ASSERT(stbir__use_height_upsampling(stbir_info));
+
+					for (y = 0; y < stbir_info->output_h; y++)
+					{
+						float in_center_of_out = 0; // Center of the current out scanline in the in scanline space
+						int in_first_scanline = 0, in_last_scanline = 0;
+
+						stbir__calculate_sample_range_upsample(y, out_scanlines_radius, scale_ratio, stbir_info->vertical_shift, &in_first_scanline, &in_last_scanline, &in_center_of_out);
+
+						STBIR__DEBUG_ASSERT(in_last_scanline - in_first_scanline <= stbir_info->vertical_filter_pixel_width);
+
+						if (stbir_info->ring_buffer_begin_index >= 0)
+						{
+							// Get rid of whatever we don't need anymore.
+							while (in_first_scanline > stbir_info->ring_buffer_first_scanline)
+							{
+								if (stbir_info->ring_buffer_first_scanline == stbir_info->ring_buffer_last_scanline)
+								{
+									// We just popped the last scanline off the ring buffer.
+									// Reset it to the empty state.
+									stbir_info->ring_buffer_begin_index = -1;
+									stbir_info->ring_buffer_first_scanline = 0;
+									stbir_info->ring_buffer_last_scanline = 0;
+									break;
+								}
+								else
+								{
+									stbir_info->ring_buffer_first_scanline++;
+									stbir_info->ring_buffer_begin_index = (stbir_info->ring_buffer_begin_index + 1) % stbir_info->vertical_filter_pixel_width;
+								}
+							}
+						}
+
+						// Load in new ones.
+						if (stbir_info->ring_buffer_begin_index < 0)
+							stbir__decode_and_resample_upsample(stbir_info, in_first_scanline);
+
+						while (in_last_scanline > stbir_info->ring_buffer_last_scanline)
+							stbir__decode_and_resample_upsample(stbir_info, stbir_info->ring_buffer_last_scanline + 1);
+
+						// Now all buffers should be ready to write a row of vertical sampling.
+						stbir__resample_vertical_upsample(stbir_info, y, in_first_scanline, in_last_scanline, in_center_of_out);
+
+						STBIR_PROGRESS_REPORT((float)y / stbir_info->output_h);
+					}
+				}
+
+				void stbir__empty_ring_buffer(stbir__info* stbir_info, int first_necessary_scanline)
+				{
+					int output_stride_bytes = stbir_info->output_stride_bytes;
+					int channels = stbir_info->channels;
+					int alpha_channel = stbir_info->alpha_channel;
+					int type = stbir_info->type;
+					int colorspace = stbir_info->colorspace;
+					int output_w = stbir_info->output_w;
+					void* output_data = stbir_info->output_data;
+					int decode = STBIR__DECODE(type, colorspace);
+
+					float* ring_buffer = stbir_info->ring_buffer;
+					int ring_buffer_length = stbir_info->ring_buffer_length_bytes / sizeof(float);
+
+					if (stbir_info->ring_buffer_begin_index >= 0)
+					{
+						// Get rid of whatever we don't need anymore.
+						while (first_necessary_scanline > stbir_info->ring_buffer_first_scanline)
+						{
+							if (stbir_info->ring_buffer_first_scanline >= 0 && stbir_info->ring_buffer_first_scanline < stbir_info->output_h)
+							{
+								int output_row_start = stbir_info->ring_buffer_first_scanline * output_stride_bytes;
+								float* ring_buffer_entry = stbir__get_ring_buffer_entry(ring_buffer, stbir_info->ring_buffer_begin_index, ring_buffer_length);
+								stbir__encode_scanline(stbir_info, output_w, (char *)output_data + output_row_start, ring_buffer_entry, channels, alpha_channel, decode);
+								STBIR_PROGRESS_REPORT((float)stbir_info->ring_buffer_first_scanline / stbir_info->output_h);
+							}
+
+							if (stbir_info->ring_buffer_first_scanline == stbir_info->ring_buffer_last_scanline)
+							{
+								// We just popped the last scanline off the ring buffer.
+								// Reset it to the empty state.
+								stbir_info->ring_buffer_begin_index = -1;
+								stbir_info->ring_buffer_first_scanline = 0;
+								stbir_info->ring_buffer_last_scanline = 0;
+								break;
+							}
+							else
+							{
+								stbir_info->ring_buffer_first_scanline++;
+								stbir_info->ring_buffer_begin_index = (stbir_info->ring_buffer_begin_index + 1) % stbir_info->vertical_filter_pixel_width;
+							}
+						}
+					}
+				}
+
+				void stbir__buffer_loop_downsample(stbir__info* stbir_info)
+				{
+					int y;
+					float scale_ratio = stbir_info->vertical_scale;
+					int output_h = stbir_info->output_h;
+					float in_pixels_radius = stbir__filter_info_table[stbir_info->vertical_filter].support(scale_ratio) / scale_ratio;
+					int pixel_margin = stbir_info->vertical_filter_pixel_margin;
+					int max_y = stbir_info->input_h + pixel_margin;
+
+					STBIR__DEBUG_ASSERT(!stbir__use_height_upsampling(stbir_info));
+
+					for (y = -pixel_margin; y < max_y; y++)
+					{
+						float out_center_of_in; // Center of the current out scanline in the in scanline space
+						int out_first_scanline, out_last_scanline;
+
+						stbir__calculate_sample_range_downsample(y, in_pixels_radius, scale_ratio, stbir_info->vertical_shift, &out_first_scanline, &out_last_scanline, &out_center_of_in);
+
+						STBIR__DEBUG_ASSERT(out_last_scanline - out_first_scanline <= stbir_info->vertical_filter_pixel_width);
+
+						if (out_last_scanline < 0 || out_first_scanline >= output_h)
+							continue;
+
+						stbir__empty_ring_buffer(stbir_info, out_first_scanline);
+
+						stbir__decode_and_resample_downsample(stbir_info, y);
+
+						// Load in new ones.
+						if (stbir_info->ring_buffer_begin_index < 0)
+							stbir__add_empty_ring_buffer_entry(stbir_info, out_first_scanline);
+
+						while (out_last_scanline > stbir_info->ring_buffer_last_scanline)
+							stbir__add_empty_ring_buffer_entry(stbir_info, stbir_info->ring_buffer_last_scanline + 1);
+
+						// Now the horizontal buffer is ready to write to all ring buffer rows.
+						stbir__resample_vertical_downsample(stbir_info, y, out_first_scanline, out_last_scanline, out_center_of_in);
+					}
+
+					stbir__empty_ring_buffer(stbir_info, stbir_info->output_h);
+				}
+
+				void stbir__setup(stbir__info *info, int input_w, int input_h, int output_w, int output_h, int channels)
+				{
+					info->input_w = input_w;
+					info->input_h = input_h;
+					info->output_w = output_w;
+					info->output_h = output_h;
+					info->channels = channels;
+				}
+
+				void stbir__calculate_transform(stbir__info *info, float s0, float t0, float s1, float t1, float *transform)
+				{
+					info->s0 = s0;
+					info->t0 = t0;
+					info->s1 = s1;
+					info->t1 = t1;
+
+					if (transform)
+					{
+						info->horizontal_scale = transform[0];
+						info->vertical_scale = transform[1];
+						info->horizontal_shift = transform[2];
+						info->vertical_shift = transform[3];
+					}
+					else
+					{
+						info->horizontal_scale = ((float)info->output_w / info->input_w) / (s1 - s0);
+						info->vertical_scale = ((float)info->output_h / info->input_h) / (t1 - t0);
+
+						info->horizontal_shift = s0 * info->input_w / (s1 - s0);
+						info->vertical_shift = t0 * info->input_h / (t1 - t0);
+					}
+				}
+
+				void stbir__choose_filter(stbir__info *info, stbir_filter h_filter, stbir_filter v_filter)
+				{
+					if (h_filter == 0)
+						h_filter = stbir__use_upsampling(info->horizontal_scale) ? STBIR_DEFAULT_FILTER_UPSAMPLE : STBIR_DEFAULT_FILTER_DOWNSAMPLE;
+					if (v_filter == 0)
+						v_filter = stbir__use_upsampling(info->vertical_scale) ? STBIR_DEFAULT_FILTER_UPSAMPLE : STBIR_DEFAULT_FILTER_DOWNSAMPLE;
+					info->horizontal_filter = h_filter;
+					info->vertical_filter = v_filter;
+				}
+
+				stbir_uint32 stbir__calculate_memory(stbir__info *info)
+				{
+					int pixel_margin = stbir__get_filter_pixel_margin(info->horizontal_filter, info->horizontal_scale);
+					int filter_height = stbir__get_filter_pixel_width(info->vertical_filter, info->vertical_scale);
+
+					info->horizontal_num_contributors = stbir__get_contributors(info->horizontal_scale, info->horizontal_filter, info->input_w, info->output_w);
+					info->vertical_num_contributors = stbir__get_contributors(info->vertical_scale, info->vertical_filter, info->input_h, info->output_h);
+
+					info->horizontal_contributors_size = info->horizontal_num_contributors * sizeof(stbir__contributors);
+					info->horizontal_coefficients_size = stbir__get_total_horizontal_coefficients(info) * sizeof(float);
+					info->vertical_contributors_size = info->vertical_num_contributors * sizeof(stbir__contributors);
+					info->vertical_coefficients_size = stbir__get_total_vertical_coefficients(info) * sizeof(float);
+					info->decode_buffer_size = (info->input_w + pixel_margin * 2) * info->channels * sizeof(float);
+					info->horizontal_buffer_size = info->output_w * info->channels * sizeof(float);
+					info->ring_buffer_size = info->output_w * info->channels * filter_height * sizeof(float);
+					info->encode_buffer_size = info->output_w * info->channels * sizeof(float);
+
+					STBIR_ASSERT(info->horizontal_filter != 0);
+					STBIR_ASSERT(info->horizontal_filter < STBIR__ARRAY_SIZE(stbir__filter_info_table)); // this now happens too late
+					STBIR_ASSERT(info->vertical_filter != 0);
+					STBIR_ASSERT(info->vertical_filter < STBIR__ARRAY_SIZE(stbir__filter_info_table)); // this now happens too late
+
+					if (stbir__use_height_upsampling(info))
+						// The horizontal buffer is for when we're downsampling the height and we
+						// can't output the result of sampling the decode buffer directly into the
+						// ring buffers.
+						info->horizontal_buffer_size = 0;
+					else
+						// The encode buffer is to retain precision in the height upsampling method
+						// and isn't used when height downsampling.
+						info->encode_buffer_size = 0;
+
+					return info->horizontal_contributors_size + info->horizontal_coefficients_size
+						+ info->vertical_contributors_size + info->vertical_coefficients_size
+						+ info->decode_buffer_size + info->horizontal_buffer_size
+						+ info->ring_buffer_size + info->encode_buffer_size;
+				}
+
+				int stbir__resize_allocated(stbir__info *info,
+					const void* input_data, int input_stride_in_bytes,
+					void* output_data, int output_stride_in_bytes,
+					int alpha_channel, stbir_uint32 flags, stbir_datatype type,
+					stbir_edge edge_horizontal, stbir_edge edge_vertical, stbir_colorspace colorspace,
+					void* tempmem, size_t tempmem_size_in_bytes)
+				{
+					size_t memory_required = stbir__calculate_memory(info);
+
+					int width_stride_input = input_stride_in_bytes ? input_stride_in_bytes : info->channels * info->input_w * stbir__type_size[type];
+					int width_stride_output = output_stride_in_bytes ? output_stride_in_bytes : info->channels * info->output_w * stbir__type_size[type];
+
+#ifdef STBIR_DEBUG_OVERWRITE_TEST
+#define OVERWRITE_ARRAY_SIZE 8
+					unsigned char overwrite_output_before_pre[OVERWRITE_ARRAY_SIZE];
+					unsigned char overwrite_tempmem_before_pre[OVERWRITE_ARRAY_SIZE];
+					unsigned char overwrite_output_after_pre[OVERWRITE_ARRAY_SIZE];
+					unsigned char overwrite_tempmem_after_pre[OVERWRITE_ARRAY_SIZE];
+
+					size_t begin_forbidden = width_stride_output * (info->output_h - 1) + info->output_w * info->channels * stbir__type_size[type];
+					memcpy(overwrite_output_before_pre, &((unsigned char*)output_data)[-OVERWRITE_ARRAY_SIZE], OVERWRITE_ARRAY_SIZE);
+					memcpy(overwrite_output_after_pre, &((unsigned char*)output_data)[begin_forbidden], OVERWRITE_ARRAY_SIZE);
+					memcpy(overwrite_tempmem_before_pre, &((unsigned char*)tempmem)[-OVERWRITE_ARRAY_SIZE], OVERWRITE_ARRAY_SIZE);
+					memcpy(overwrite_tempmem_after_pre, &((unsigned char*)tempmem)[tempmem_size_in_bytes], OVERWRITE_ARRAY_SIZE);
+#endif
+
+					STBIR_ASSERT(info->channels >= 0);
+					STBIR_ASSERT(info->channels <= STBIR_MAX_CHANNELS);
+
+					if (info->channels < 0 || info->channels > STBIR_MAX_CHANNELS)
+						return 0;
+
+					STBIR_ASSERT(info->horizontal_filter < STBIR__ARRAY_SIZE(stbir__filter_info_table));
+					STBIR_ASSERT(info->vertical_filter < STBIR__ARRAY_SIZE(stbir__filter_info_table));
+
+					if (info->horizontal_filter >= STBIR__ARRAY_SIZE(stbir__filter_info_table))
+						return 0;
+					if (info->vertical_filter >= STBIR__ARRAY_SIZE(stbir__filter_info_table))
+						return 0;
+
+					if (alpha_channel < 0)
+						flags |= STBIR_FLAG_ALPHA_USES_COLORSPACE | STBIR_FLAG_ALPHA_PREMULTIPLIED;
+
+					if (!(flags&STBIR_FLAG_ALPHA_USES_COLORSPACE) || !(flags&STBIR_FLAG_ALPHA_PREMULTIPLIED))
+						STBIR_ASSERT(alpha_channel >= 0 && alpha_channel < info->channels);
+
+					if (alpha_channel >= info->channels)
+						return 0;
+
+					STBIR_ASSERT(tempmem);
+
+					if (!tempmem)
+						return 0;
+
+					STBIR_ASSERT(tempmem_size_in_bytes >= memory_required);
+
+					if (tempmem_size_in_bytes < memory_required)
+						return 0;
+
+					memset(tempmem, 0, tempmem_size_in_bytes);
+
+					info->input_data = input_data;
+					info->input_stride_bytes = width_stride_input;
+
+					info->output_data = output_data;
+					info->output_stride_bytes = width_stride_output;
+
+					info->alpha_channel = alpha_channel;
+					info->flags = flags;
+					info->type = type;
+					info->edge_horizontal = edge_horizontal;
+					info->edge_vertical = edge_vertical;
+					info->colorspace = colorspace;
+
+					info->horizontal_coefficient_width = stbir__get_coefficient_width(info->horizontal_filter, info->horizontal_scale);
+					info->vertical_coefficient_width = stbir__get_coefficient_width(info->vertical_filter, info->vertical_scale);
+					info->horizontal_filter_pixel_width = stbir__get_filter_pixel_width(info->horizontal_filter, info->horizontal_scale);
+					info->vertical_filter_pixel_width = stbir__get_filter_pixel_width(info->vertical_filter, info->vertical_scale);
+					info->horizontal_filter_pixel_margin = stbir__get_filter_pixel_margin(info->horizontal_filter, info->horizontal_scale);
+					info->vertical_filter_pixel_margin = stbir__get_filter_pixel_margin(info->vertical_filter, info->vertical_scale);
+
+					info->ring_buffer_length_bytes = info->output_w * info->channels * sizeof(float);
+					info->decode_buffer_pixels = info->input_w + info->horizontal_filter_pixel_margin * 2;
+
+#define STBIR__NEXT_MEMPTR(current, newtype) (newtype*)(((unsigned char*)current) + current##_size)
+
+					info->horizontal_contributors = (stbir__contributors *)tempmem;
+					info->horizontal_coefficients = STBIR__NEXT_MEMPTR(info->horizontal_contributors, float);
+					info->vertical_contributors = STBIR__NEXT_MEMPTR(info->horizontal_coefficients, stbir__contributors);
+					info->vertical_coefficients = STBIR__NEXT_MEMPTR(info->vertical_contributors, float);
+					info->decode_buffer = STBIR__NEXT_MEMPTR(info->vertical_coefficients, float);
+
+					if (stbir__use_height_upsampling(info))
+					{
+						info->horizontal_buffer = NULL;
+						info->ring_buffer = STBIR__NEXT_MEMPTR(info->decode_buffer, float);
+						info->encode_buffer = STBIR__NEXT_MEMPTR(info->ring_buffer, float);
+
+						STBIR__DEBUG_ASSERT((size_t)STBIR__NEXT_MEMPTR(info->encode_buffer, unsigned char) == (size_t)tempmem + tempmem_size_in_bytes);
+					}
+					else
+					{
+						info->horizontal_buffer = STBIR__NEXT_MEMPTR(info->decode_buffer, float);
+						info->ring_buffer = STBIR__NEXT_MEMPTR(info->horizontal_buffer, float);
+						info->encode_buffer = NULL;
+
+						STBIR__DEBUG_ASSERT((size_t)STBIR__NEXT_MEMPTR(info->ring_buffer, unsigned char) == (size_t)tempmem + tempmem_size_in_bytes);
+					}
+
+#undef STBIR__NEXT_MEMPTR
+
+					// This signals that the ring buffer is empty
+					info->ring_buffer_begin_index = -1;
+
+					stbir__calculate_filters(info, info->horizontal_contributors, info->horizontal_coefficients, info->horizontal_filter, info->horizontal_scale, info->horizontal_shift, info->input_w, info->output_w);
+					stbir__calculate_filters(info, info->vertical_contributors, info->vertical_coefficients, info->vertical_filter, info->vertical_scale, info->vertical_shift, info->input_h, info->output_h);
+
+					STBIR_PROGRESS_REPORT(0);
+
+					if (stbir__use_height_upsampling(info))
+						stbir__buffer_loop_upsample(info);
+					else
+						stbir__buffer_loop_downsample(info);
+
+					STBIR_PROGRESS_REPORT(1);
+
+#ifdef STBIR_DEBUG_OVERWRITE_TEST
+					STBIR__DEBUG_ASSERT(memcmp(overwrite_output_before_pre, &((unsigned char*)output_data)[-OVERWRITE_ARRAY_SIZE], OVERWRITE_ARRAY_SIZE) == 0);
+					STBIR__DEBUG_ASSERT(memcmp(overwrite_output_after_pre, &((unsigned char*)output_data)[begin_forbidden], OVERWRITE_ARRAY_SIZE) == 0);
+					STBIR__DEBUG_ASSERT(memcmp(overwrite_tempmem_before_pre, &((unsigned char*)tempmem)[-OVERWRITE_ARRAY_SIZE], OVERWRITE_ARRAY_SIZE) == 0);
+					STBIR__DEBUG_ASSERT(memcmp(overwrite_tempmem_after_pre, &((unsigned char*)tempmem)[tempmem_size_in_bytes], OVERWRITE_ARRAY_SIZE) == 0);
+#endif
+
+					return 1;
+				}
+
+
+				int stbir__resize_arbitrary(
+					void *alloc_context,
+					const void* input_data, int input_w, int input_h, int input_stride_in_bytes,
+					void* output_data, int output_w, int output_h, int output_stride_in_bytes,
+					float s0, float t0, float s1, float t1, float *transform,
+					int channels, int alpha_channel, stbir_uint32 flags, stbir_datatype type,
+					stbir_filter h_filter, stbir_filter v_filter,
+					stbir_edge edge_horizontal, stbir_edge edge_vertical, stbir_colorspace colorspace)
+				{
+					stbir__info info;
+					int result;
+					size_t memory_required;
+					void* extra_memory;
+
+					stbir__setup(&info, input_w, input_h, output_w, output_h, channels);
+					stbir__calculate_transform(&info, s0, t0, s1, t1, transform);
+					stbir__choose_filter(&info, h_filter, v_filter);
+					memory_required = stbir__calculate_memory(&info);
+					extra_memory = STBIR_MALLOC(memory_required, alloc_context);
+
+					if (!extra_memory)
+						return 0;
+
+					result = stbir__resize_allocated(&info, input_data, input_stride_in_bytes,
+						output_data, output_stride_in_bytes,
+						alpha_channel, flags, type,
+						edge_horizontal, edge_vertical,
+						colorspace, extra_memory, memory_required);
+
+					STBIR_FREE(extra_memory, alloc_context);
+
+					return result;
+				}
+
+				int stbir_resize_uint8(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels)
+				{
+					return stbir__resize_arbitrary(NULL, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, -1, 0, STBIR_TYPE_UINT8, STBIR_FILTER_DEFAULT, STBIR_FILTER_DEFAULT,
+						STBIR_EDGE_CLAMP, STBIR_EDGE_CLAMP, STBIR_COLORSPACE_LINEAR);
+				}
+
+				int stbir_resize_float(const float *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					float *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels)
+				{
+					return stbir__resize_arbitrary(NULL, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, -1, 0, STBIR_TYPE_FLOAT, STBIR_FILTER_DEFAULT, STBIR_FILTER_DEFAULT,
+						STBIR_EDGE_CLAMP, STBIR_EDGE_CLAMP, STBIR_COLORSPACE_LINEAR);
+				}
+
+				int stbir_resize_uint8_srgb(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags)
+				{
+					return stbir__resize_arbitrary(NULL, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, STBIR_TYPE_UINT8, STBIR_FILTER_DEFAULT, STBIR_FILTER_DEFAULT,
+						STBIR_EDGE_CLAMP, STBIR_EDGE_CLAMP, STBIR_COLORSPACE_SRGB);
+				}
+
+				int stbir_resize_uint8_srgb_edgemode(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode)
+				{
+					return stbir__resize_arbitrary(NULL, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, STBIR_TYPE_UINT8, STBIR_FILTER_DEFAULT, STBIR_FILTER_DEFAULT,
+						edge_wrap_mode, edge_wrap_mode, STBIR_COLORSPACE_SRGB);
+				}
+
+				int stbir_resize_uint8_generic(const unsigned char *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					unsigned char *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context)
+				{
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, STBIR_TYPE_UINT8, filter, filter,
+						edge_wrap_mode, edge_wrap_mode, space);
+				}
+
+				int stbir_resize_uint16_generic(const stbir_uint16 *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					stbir_uint16 *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context)
+				{
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, STBIR_TYPE_UINT16, filter, filter,
+						edge_wrap_mode, edge_wrap_mode, space);
+				}
+
+
+				int stbir_resize_float_generic(const float *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					float *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_wrap_mode, stbir_filter filter, stbir_colorspace space,
+					void *alloc_context)
+				{
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, STBIR_TYPE_FLOAT, filter, filter,
+						edge_wrap_mode, edge_wrap_mode, space);
+				}
+
+
+				int stbir_resize(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context)
+				{
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, NULL, num_channels, alpha_channel, flags, datatype, filter_horizontal, filter_vertical,
+						edge_mode_horizontal, edge_mode_vertical, space);
+				}
+
+
+				int stbir_resize_subpixel(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context,
+					float x_scale, float y_scale,
+					float x_offset, float y_offset)
+				{
+					float transform[4];
+					transform[0] = x_scale;
+					transform[1] = y_scale;
+					transform[2] = x_offset;
+					transform[3] = y_offset;
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						0, 0, 1, 1, transform, num_channels, alpha_channel, flags, datatype, filter_horizontal, filter_vertical,
+						edge_mode_horizontal, edge_mode_vertical, space);
+				}
+
+				int stbir_resize_region(const void *input_pixels, int input_w, int input_h, int input_stride_in_bytes,
+					void *output_pixels, int output_w, int output_h, int output_stride_in_bytes,
+					stbir_datatype datatype,
+					int num_channels, int alpha_channel, int flags,
+					stbir_edge edge_mode_horizontal, stbir_edge edge_mode_vertical,
+					stbir_filter filter_horizontal, stbir_filter filter_vertical,
+					stbir_colorspace space, void *alloc_context,
+					float s0, float t0, float s1, float t1)
+				{
+					return stbir__resize_arbitrary(alloc_context, input_pixels, input_w, input_h, input_stride_in_bytes,
+						output_pixels, output_w, output_h, output_stride_in_bytes,
+						s0, t0, s1, t1, NULL, num_channels, alpha_channel, flags, datatype, filter_horizontal, filter_vertical,
+						edge_mode_horizontal, edge_mode_vertical, space);
+				}
+			} // namespace stbi::resize
+
 		} // namespace stbi
+
+		namespace jo
+		{
+			const unsigned char s_jo_ZigZag[] = { 0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63 };
+
+			void jo_writeBits(FILE *fp, int &bitBuf, int &bitCnt, const unsigned short *bs) {
+				bitCnt += bs[1];
+				bitBuf |= bs[0] << (24 - bitCnt);
+				while (bitCnt >= 8) {
+					unsigned char c = (bitBuf >> 16) & 255;
+					putc(c, fp);
+					if (c == 255) {
+						putc(0, fp);
+					}
+					bitBuf <<= 8;
+					bitCnt -= 8;
+				}
+			}
+
+			void jo_DCT(float &d0, float &d1, float &d2, float &d3, float &d4, float &d5, float &d6, float &d7) {
+				float tmp0 = d0 + d7;
+				float tmp7 = d0 - d7;
+				float tmp1 = d1 + d6;
+				float tmp6 = d1 - d6;
+				float tmp2 = d2 + d5;
+				float tmp5 = d2 - d5;
+				float tmp3 = d3 + d4;
+				float tmp4 = d3 - d4;
+
+				// Even part
+				float tmp10 = tmp0 + tmp3;	// phase 2
+				float tmp13 = tmp0 - tmp3;
+				float tmp11 = tmp1 + tmp2;
+				float tmp12 = tmp1 - tmp2;
+
+				d0 = tmp10 + tmp11; 		// phase 3
+				d4 = tmp10 - tmp11;
+
+				float z1 = (tmp12 + tmp13) * 0.707106781f; // c4
+				d2 = tmp13 + z1; 		// phase 5
+				d6 = tmp13 - z1;
+
+				// Odd part
+				tmp10 = tmp4 + tmp5; 		// phase 2
+				tmp11 = tmp5 + tmp6;
+				tmp12 = tmp6 + tmp7;
+
+				// The rotator is modified from fig 4-8 to avoid extra negations.
+				float z5 = (tmp10 - tmp12) * 0.382683433f; // c6
+				float z2 = tmp10 * 0.541196100f + z5; // c2-c6
+				float z4 = tmp12 * 1.306562965f + z5; // c2+c6
+				float z3 = tmp11 * 0.707106781f; // c4
+
+				float z11 = tmp7 + z3;		// phase 5
+				float z13 = tmp7 - z3;
+
+				d5 = z13 + z2;			// phase 6
+				d3 = z13 - z2;
+				d1 = z11 + z4;
+				d7 = z11 - z4;
+			}
+
+			void jo_calcBits(int val, unsigned short bits[2]) {
+				int tmp1 = val < 0 ? -val : val;
+				val = val < 0 ? val - 1 : val;
+				bits[1] = 1;
+				while (tmp1 >>= 1) {
+					++bits[1];
+				}
+				bits[0] = val & ((1 << bits[1]) - 1);
+			}
+
+			int jo_processDU(FILE *fp, int &bitBuf, int &bitCnt, float *CDU, float *fdtbl, int DC, const unsigned short HTDC[256][2], const unsigned short HTAC[256][2]) {
+				const unsigned short EOB[2] = { HTAC[0x00][0], HTAC[0x00][1] };
+				const unsigned short M16zeroes[2] = { HTAC[0xF0][0], HTAC[0xF0][1] };
+
+				// DCT rows
+				for (int dataOff = 0; dataOff<64; dataOff += 8) {
+					jo_DCT(CDU[dataOff], CDU[dataOff + 1], CDU[dataOff + 2], CDU[dataOff + 3], CDU[dataOff + 4], CDU[dataOff + 5], CDU[dataOff + 6], CDU[dataOff + 7]);
+				}
+				// DCT columns
+				for (int dataOff = 0; dataOff<8; ++dataOff) {
+					jo_DCT(CDU[dataOff], CDU[dataOff + 8], CDU[dataOff + 16], CDU[dataOff + 24], CDU[dataOff + 32], CDU[dataOff + 40], CDU[dataOff + 48], CDU[dataOff + 56]);
+				}
+				// Quantize/descale/zigzag the coefficients
+				int DU[64];
+				for (int i = 0; i<64; ++i) {
+					float v = CDU[i] * fdtbl[i];
+					DU[s_jo_ZigZag[i]] = (int)(v < 0 ? ceilf(v - 0.5f) : floorf(v + 0.5f));
+				}
+
+				// Encode DC
+				int diff = DU[0] - DC;
+				if (diff == 0) {
+					jo_writeBits(fp, bitBuf, bitCnt, HTDC[0]);
+				}
+				else {
+					unsigned short bits[2];
+					jo_calcBits(diff, bits);
+					jo_writeBits(fp, bitBuf, bitCnt, HTDC[bits[1]]);
+					jo_writeBits(fp, bitBuf, bitCnt, bits);
+				}
+				// Encode ACs
+				int end0pos = 63;
+				for (; (end0pos>0) && (DU[end0pos] == 0); --end0pos) {
+				}
+				// end0pos = first element in reverse order !=0
+				if (end0pos == 0) {
+					jo_writeBits(fp, bitBuf, bitCnt, EOB);
+					return DU[0];
+				}
+				for (int i = 1; i <= end0pos; ++i) {
+					int startpos = i;
+					for (; DU[i] == 0 && i <= end0pos; ++i) {
+					}
+					int nrzeroes = i - startpos;
+					if (nrzeroes >= 16) {
+						int lng = nrzeroes >> 4;
+						for (int nrmarker = 1; nrmarker <= lng; ++nrmarker)
+							jo_writeBits(fp, bitBuf, bitCnt, M16zeroes);
+						nrzeroes &= 15;
+					}
+					unsigned short bits[2];
+					jo_calcBits(DU[i], bits);
+					jo_writeBits(fp, bitBuf, bitCnt, HTAC[(nrzeroes << 4) + bits[1]]);
+					jo_writeBits(fp, bitBuf, bitCnt, bits);
+				}
+				if (end0pos != 63) {
+					jo_writeBits(fp, bitBuf, bitCnt, EOB);
+				}
+				return DU[0];
+			}
+
+			bool jo_write_jpg(const char *filename, const void *data, int width, int height, int comp, int quality) {
+				// Constants that don't pollute global namespace
+				const unsigned char std_dc_luminance_nrcodes[] = { 0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+				const unsigned char std_dc_luminance_values[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+				const unsigned char std_ac_luminance_nrcodes[] = { 0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d };
+				const unsigned char std_ac_luminance_values[] = {
+					0x01, 0x02, 0x03, 0x00, 0x04, 0x11, 0x05, 0x12, 0x21, 0x31, 0x41, 0x06, 0x13, 0x51, 0x61, 0x07, 0x22, 0x71, 0x14, 0x32, 0x81, 0x91, 0xa1, 0x08,
+					0x23, 0x42, 0xb1, 0xc1, 0x15, 0x52, 0xd1, 0xf0, 0x24, 0x33, 0x62, 0x72, 0x82, 0x09, 0x0a, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x25, 0x26, 0x27, 0x28,
+					0x29, 0x2a, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59,
+					0x5a, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89,
+					0x8a, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6,
+					0xb7, 0xb8, 0xb9, 0xba, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xe1, 0xe2,
+					0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa
+				};
+				const unsigned char std_dc_chrominance_nrcodes[] = { 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+				const unsigned char std_dc_chrominance_values[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+				const unsigned char std_ac_chrominance_nrcodes[] = { 0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77 };
+				const unsigned char std_ac_chrominance_values[] = {
+					0x00, 0x01, 0x02, 0x03, 0x11, 0x04, 0x05, 0x21, 0x31, 0x06, 0x12, 0x41, 0x51, 0x07, 0x61, 0x71, 0x13, 0x22, 0x32, 0x81, 0x08, 0x14, 0x42, 0x91,
+					0xa1, 0xb1, 0xc1, 0x09, 0x23, 0x33, 0x52, 0xf0, 0x15, 0x62, 0x72, 0xd1, 0x0a, 0x16, 0x24, 0x34, 0xe1, 0x25, 0xf1, 0x17, 0x18, 0x19, 0x1a, 0x26,
+					0x27, 0x28, 0x29, 0x2a, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
+					0x59, 0x5a, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+					0x88, 0x89, 0x8a, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3, 0xb4,
+					0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda,
+					0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa
+				};
+				// Huffman tables
+				const unsigned short YDC_HT[256][2] = { { 0, 2 }, { 2, 3 }, { 3, 3 }, { 4, 3 }, { 5, 3 }, { 6, 3 }, { 14, 4 }, { 30, 5 }, { 62, 6 }, { 126, 7 }, { 254, 8 }, { 510, 9 } };
+				const unsigned short UVDC_HT[256][2] = { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 6, 3 }, { 14, 4 }, { 30, 5 }, { 62, 6 }, { 126, 7 }, { 254, 8 }, { 510, 9 }, { 1022, 10 }, { 2046, 11 } };
+				const unsigned short YAC_HT[256][2] = {
+					{ 10, 4 }, { 0, 2 }, { 1, 2 }, { 4, 3 }, { 11, 4 }, { 26, 5 }, { 120, 7 }, { 248, 8 }, { 1014, 10 }, { 65410, 16 }, { 65411, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 12, 4 }, { 27, 5 }, { 121, 7 }, { 502, 9 }, { 2038, 11 }, { 65412, 16 }, { 65413, 16 }, { 65414, 16 }, { 65415, 16 }, { 65416, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 28, 5 }, { 249, 8 }, { 1015, 10 }, { 4084, 12 }, { 65417, 16 }, { 65418, 16 }, { 65419, 16 }, { 65420, 16 }, { 65421, 16 }, { 65422, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 58, 6 }, { 503, 9 }, { 4085, 12 }, { 65423, 16 }, { 65424, 16 }, { 65425, 16 }, { 65426, 16 }, { 65427, 16 }, { 65428, 16 }, { 65429, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 59, 6 }, { 1016, 10 }, { 65430, 16 }, { 65431, 16 }, { 65432, 16 }, { 65433, 16 }, { 65434, 16 }, { 65435, 16 }, { 65436, 16 }, { 65437, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 122, 7 }, { 2039, 11 }, { 65438, 16 }, { 65439, 16 }, { 65440, 16 }, { 65441, 16 }, { 65442, 16 }, { 65443, 16 }, { 65444, 16 }, { 65445, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 123, 7 }, { 4086, 12 }, { 65446, 16 }, { 65447, 16 }, { 65448, 16 }, { 65449, 16 }, { 65450, 16 }, { 65451, 16 }, { 65452, 16 }, { 65453, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 250, 8 }, { 4087, 12 }, { 65454, 16 }, { 65455, 16 }, { 65456, 16 }, { 65457, 16 }, { 65458, 16 }, { 65459, 16 }, { 65460, 16 }, { 65461, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 504, 9 }, { 32704, 15 }, { 65462, 16 }, { 65463, 16 }, { 65464, 16 }, { 65465, 16 }, { 65466, 16 }, { 65467, 16 }, { 65468, 16 }, { 65469, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 505, 9 }, { 65470, 16 }, { 65471, 16 }, { 65472, 16 }, { 65473, 16 }, { 65474, 16 }, { 65475, 16 }, { 65476, 16 }, { 65477, 16 }, { 65478, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 506, 9 }, { 65479, 16 }, { 65480, 16 }, { 65481, 16 }, { 65482, 16 }, { 65483, 16 }, { 65484, 16 }, { 65485, 16 }, { 65486, 16 }, { 65487, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 1017, 10 }, { 65488, 16 }, { 65489, 16 }, { 65490, 16 }, { 65491, 16 }, { 65492, 16 }, { 65493, 16 }, { 65494, 16 }, { 65495, 16 }, { 65496, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 1018, 10 }, { 65497, 16 }, { 65498, 16 }, { 65499, 16 }, { 65500, 16 }, { 65501, 16 }, { 65502, 16 }, { 65503, 16 }, { 65504, 16 }, { 65505, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 2040, 11 }, { 65506, 16 }, { 65507, 16 }, { 65508, 16 }, { 65509, 16 }, { 65510, 16 }, { 65511, 16 }, { 65512, 16 }, { 65513, 16 }, { 65514, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 65515, 16 }, { 65516, 16 }, { 65517, 16 }, { 65518, 16 }, { 65519, 16 }, { 65520, 16 }, { 65521, 16 }, { 65522, 16 }, { 65523, 16 }, { 65524, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 2041, 11 }, { 65525, 16 }, { 65526, 16 }, { 65527, 16 }, { 65528, 16 }, { 65529, 16 }, { 65530, 16 }, { 65531, 16 }, { 65532, 16 }, { 65533, 16 }, { 65534, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
+				};
+				const unsigned short UVAC_HT[256][2] = {
+					{ 0, 2 }, { 1, 2 }, { 4, 3 }, { 10, 4 }, { 24, 5 }, { 25, 5 }, { 56, 6 }, { 120, 7 }, { 500, 9 }, { 1014, 10 }, { 4084, 12 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 11, 4 }, { 57, 6 }, { 246, 8 }, { 501, 9 }, { 2038, 11 }, { 4085, 12 }, { 65416, 16 }, { 65417, 16 }, { 65418, 16 }, { 65419, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 26, 5 }, { 247, 8 }, { 1015, 10 }, { 4086, 12 }, { 32706, 15 }, { 65420, 16 }, { 65421, 16 }, { 65422, 16 }, { 65423, 16 }, { 65424, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 27, 5 }, { 248, 8 }, { 1016, 10 }, { 4087, 12 }, { 65425, 16 }, { 65426, 16 }, { 65427, 16 }, { 65428, 16 }, { 65429, 16 }, { 65430, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 58, 6 }, { 502, 9 }, { 65431, 16 }, { 65432, 16 }, { 65433, 16 }, { 65434, 16 }, { 65435, 16 }, { 65436, 16 }, { 65437, 16 }, { 65438, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 59, 6 }, { 1017, 10 }, { 65439, 16 }, { 65440, 16 }, { 65441, 16 }, { 65442, 16 }, { 65443, 16 }, { 65444, 16 }, { 65445, 16 }, { 65446, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 121, 7 }, { 2039, 11 }, { 65447, 16 }, { 65448, 16 }, { 65449, 16 }, { 65450, 16 }, { 65451, 16 }, { 65452, 16 }, { 65453, 16 }, { 65454, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 122, 7 }, { 2040, 11 }, { 65455, 16 }, { 65456, 16 }, { 65457, 16 }, { 65458, 16 }, { 65459, 16 }, { 65460, 16 }, { 65461, 16 }, { 65462, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 249, 8 }, { 65463, 16 }, { 65464, 16 }, { 65465, 16 }, { 65466, 16 }, { 65467, 16 }, { 65468, 16 }, { 65469, 16 }, { 65470, 16 }, { 65471, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 503, 9 }, { 65472, 16 }, { 65473, 16 }, { 65474, 16 }, { 65475, 16 }, { 65476, 16 }, { 65477, 16 }, { 65478, 16 }, { 65479, 16 }, { 65480, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 504, 9 }, { 65481, 16 }, { 65482, 16 }, { 65483, 16 }, { 65484, 16 }, { 65485, 16 }, { 65486, 16 }, { 65487, 16 }, { 65488, 16 }, { 65489, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 505, 9 }, { 65490, 16 }, { 65491, 16 }, { 65492, 16 }, { 65493, 16 }, { 65494, 16 }, { 65495, 16 }, { 65496, 16 }, { 65497, 16 }, { 65498, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 506, 9 }, { 65499, 16 }, { 65500, 16 }, { 65501, 16 }, { 65502, 16 }, { 65503, 16 }, { 65504, 16 }, { 65505, 16 }, { 65506, 16 }, { 65507, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 2041, 11 }, { 65508, 16 }, { 65509, 16 }, { 65510, 16 }, { 65511, 16 }, { 65512, 16 }, { 65513, 16 }, { 65514, 16 }, { 65515, 16 }, { 65516, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 16352, 14 }, { 65517, 16 }, { 65518, 16 }, { 65519, 16 }, { 65520, 16 }, { 65521, 16 }, { 65522, 16 }, { 65523, 16 }, { 65524, 16 }, { 65525, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+					{ 1018, 10 }, { 32707, 15 }, { 65526, 16 }, { 65527, 16 }, { 65528, 16 }, { 65529, 16 }, { 65530, 16 }, { 65531, 16 }, { 65532, 16 }, { 65533, 16 }, { 65534, 16 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
+				};
+				const int YQT[] = { 16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13, 16, 24, 40, 57, 69, 56, 14, 17, 22, 29, 51, 87, 80, 62, 18, 22, 37, 56, 68, 109, 103, 77, 24, 35, 55, 64, 81, 104, 113, 92, 49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99 };
+				const int UVQT[] = { 17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99, 99, 99, 99, 24, 26, 56, 99, 99, 99, 99, 99, 47, 66, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99 };
+				const float aasf[] = { 1.0f * 2.828427125f, 1.387039845f * 2.828427125f, 1.306562965f * 2.828427125f, 1.175875602f * 2.828427125f, 1.0f * 2.828427125f, 0.785694958f * 2.828427125f, 0.541196100f * 2.828427125f, 0.275899379f * 2.828427125f };
+
+				if (!data || !filename || !width || !height || comp > 4 || comp < 1 || comp == 2) {
+					return false;
+				}
+
+				FILE *fp = fopen(filename, "wb");
+				if (!fp) {
+					return false;
+				}
+
+				quality = quality ? quality : 90;
+				quality = quality < 1 ? 1 : quality > 100 ? 100 : quality;
+				quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
+
+				unsigned char YTable[64], UVTable[64];
+				for (int i = 0; i < 64; ++i) {
+					int yti = (YQT[i] * quality + 50) / 100;
+					YTable[s_jo_ZigZag[i]] = yti < 1 ? 1 : yti > 255 ? 255 : yti;
+					int uvti = (UVQT[i] * quality + 50) / 100;
+					UVTable[s_jo_ZigZag[i]] = uvti < 1 ? 1 : uvti > 255 ? 255 : uvti;
+				}
+
+				float fdtbl_Y[64], fdtbl_UV[64];
+				for (int row = 0, k = 0; row < 8; ++row) {
+					for (int col = 0; col < 8; ++col, ++k) {
+						fdtbl_Y[k] = 1 / (YTable[s_jo_ZigZag[k]] * aasf[row] * aasf[col]);
+						fdtbl_UV[k] = 1 / (UVTable[s_jo_ZigZag[k]] * aasf[row] * aasf[col]);
+					}
+				}
+
+				// Write Headers
+				const unsigned char head0[] = { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 'J', 'F', 'I', 'F', 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0xFF, 0xDB, 0, 0x84, 0 };
+				fwrite(head0, sizeof(head0), 1, fp);
+				fwrite(YTable, sizeof(YTable), 1, fp);
+				putc(1, fp);
+				fwrite(UVTable, sizeof(UVTable), 1, fp);
+				const unsigned char head1[] = { 0xFF, 0xC0, 0, 0x11, 8, (unsigned char)(height >> 8), (unsigned char)(height & 0xFF), (unsigned char)(width >> 8), (unsigned char)(width & 0xFF), 3, 1, 0x11, 0, 2, 0x11, 1, 3, 0x11, 1, 0xFF, 0xC4, 0x01, 0xA2, 0 };
+				fwrite(head1, sizeof(head1), 1, fp);
+				fwrite(std_dc_luminance_nrcodes + 1, sizeof(std_dc_luminance_nrcodes)-1, 1, fp);
+				fwrite(std_dc_luminance_values, sizeof(std_dc_luminance_values), 1, fp);
+				putc(0x10, fp); // HTYACinfo
+				fwrite(std_ac_luminance_nrcodes + 1, sizeof(std_ac_luminance_nrcodes)-1, 1, fp);
+				fwrite(std_ac_luminance_values, sizeof(std_ac_luminance_values), 1, fp);
+				putc(1, fp); // HTUDCinfo
+				fwrite(std_dc_chrominance_nrcodes + 1, sizeof(std_dc_chrominance_nrcodes)-1, 1, fp);
+				fwrite(std_dc_chrominance_values, sizeof(std_dc_chrominance_values), 1, fp);
+				putc(0x11, fp); // HTUACinfo
+				fwrite(std_ac_chrominance_nrcodes + 1, sizeof(std_ac_chrominance_nrcodes)-1, 1, fp);
+				fwrite(std_ac_chrominance_values, sizeof(std_ac_chrominance_values), 1, fp);
+				const unsigned char head2[] = { 0xFF, 0xDA, 0, 0xC, 3, 1, 0, 2, 0x11, 3, 0x11, 0, 0x3F, 0 };
+				fwrite(head2, sizeof(head2), 1, fp);
+
+				// Encode 8x8 macroblocks
+				const unsigned char *imageData = (const unsigned char *)data;
+				int DCY = 0, DCU = 0, DCV = 0;
+				int bitBuf = 0, bitCnt = 0;
+				int ofsG = comp > 1 ? 1 : 0, ofsB = comp > 1 ? 2 : 0;
+				for (int y = 0; y < height; y += 8) {
+					for (int x = 0; x < width; x += 8) {
+						float YDU[64], UDU[64], VDU[64];
+						for (int row = y, pos = 0; row < y + 8; ++row) {
+							for (int col = x; col < x + 8; ++col, ++pos) {
+								int p = row*width*comp + col*comp;
+								if (row >= height) {
+									p -= width*comp*(row + 1 - height);
+								}
+								if (col >= width) {
+									p -= comp*(col + 1 - width);
+								}
+
+								float r = imageData[p + 0], g = imageData[p + ofsG], b = imageData[p + ofsB];
+								YDU[pos] = +0.29900f*r + 0.58700f*g + 0.11400f*b - 128;
+								UDU[pos] = -0.16874f*r - 0.33126f*g + 0.50000f*b;
+								VDU[pos] = +0.50000f*r - 0.41869f*g - 0.08131f*b;
+							}
+						}
+
+						DCY = jo_processDU(fp, bitBuf, bitCnt, YDU, fdtbl_Y, DCY, YDC_HT, YAC_HT);
+						DCU = jo_processDU(fp, bitBuf, bitCnt, UDU, fdtbl_UV, DCU, UVDC_HT, UVAC_HT);
+						DCV = jo_processDU(fp, bitBuf, bitCnt, VDU, fdtbl_UV, DCV, UVDC_HT, UVAC_HT);
+					}
+				}
+
+				// Do the bit alignment of the EOI marker
+				const unsigned short fillBits[] = { 0x7F, 7 };
+				jo_writeBits(fp, bitBuf, bitCnt, fillBits);
+
+				// EOI
+				putc(0xFF, fp);
+				putc(0xD9, fp);
+
+				fclose(fp);
+				return true;
+			}
+		} // namespace jo
 	}
 	// \endcond 
 
@@ -7295,12 +10824,26 @@ namespace zz
 			resolve();
 		}
 
-		Directory::Directory(std::string root, std::string pattern, bool recursive)
+                Directory::Directory(std::string root, const std::string pattern, bool recursive)
 			: root_(root), recursive_(recursive)
 		{
 			resolve();
 			filter(pattern);
 		}
+
+                Directory::Directory(std::string root, const std::vector<std::string> patterns, bool recursive)
+                        : root_(root), recursive_(recursive)
+                {
+                        resolve();
+                        filter(patterns);
+                }
+
+                Directory::Directory(std::string root, const std::vector<const char*> patterns, bool recursive)
+                        : root_(root), recursive_(recursive)
+                {
+                        resolve();
+                        filter(patterns);
+                }
 
 		bool Directory::is_recursive() const
 		{
@@ -7349,7 +10892,7 @@ namespace zz
 			}
 		}
 
-		void Directory::filter(std::string pattern)
+                void Directory::filter(const std::string pattern)
 		{
 			std::vector<Path> filtered;
 			for (auto entry : paths_)
@@ -7365,6 +10908,46 @@ namespace zz
 			}
 			paths_ = filtered;	// replace all
 		}
+
+                void Directory::filter(const std::vector<std::string> patterns)
+                {
+                    std::vector<Path> filtered;
+                    for (auto entry : paths_)
+                    {
+                            if (entry.is_file())
+                            {
+                                    std::string filename = os::path_split_filename(entry.abs_path());
+                                    for (auto pattern : patterns)
+                                    {
+                                        if (fmt::wild_card_match(filename.c_str(), pattern.c_str()))
+                                        {
+                                                filtered.push_back(entry);
+                                        }
+                                    }
+                            }
+                    }
+                    paths_ = filtered;	// replace all
+                }
+
+                void Directory::filter(const std::vector<const char*> patterns)
+                {
+                    std::vector<Path> filtered;
+                    for (auto entry : paths_)
+                    {
+                            if (entry.is_file())
+                            {
+                                    std::string filename = os::path_split_filename(entry.abs_path());
+                                    for (auto pattern : patterns)
+                                    {
+                                        if (fmt::wild_card_match(filename.c_str(), pattern))
+                                        {
+                                                filtered.push_back(entry);
+                                        }
+                                    }
+                            }
+                    }
+                    paths_ = filtered;	// replace all
+                }
 
 		void Directory::reset()
 		{
@@ -10178,5 +13761,159 @@ namespace zz
 		}
 
 	} // namespace log
+
+	Image::Image(const char* filename)
+	{
+		load(filename);
+	}
+
+	void Image::load(const char* filename)
+	{
+		int x;
+		int y;
+		int comp;
+		Image::value_type *buffer = nullptr;
+		buffer = thirdparty::stbi::decode::stbi_load(filename, &x, &y, &comp, 0);
+		if (!buffer)
+		{
+			std::string msg = "Failed to load from " + std::string(filename) + ": ";
+			msg += thirdparty::stbi::decode::stbi_failure_reason();
+			throw RuntimeException(msg);
+		};
+		import(buffer, y, x, comp);
+		thirdparty::stbi::decode::stbi_image_free(buffer);
+	}
+
+	void Image::save(const char* filename, int quality) const
+	{
+		std::string ext = fmt::to_lower_ascii(os::path_split_extension(filename));
+		if (ext == "jpg" || ext == "jpeg")
+		{
+			thirdparty::jo::jo_write_jpg(filename, (*data_).data(), cols_, rows_, channels_, quality);
+		}
+		else if (ext == "png")
+		{
+			thirdparty::stbi::encode::stbi_write_png(filename, cols_, rows_, channels_, (*data_).data(), cols_ * channels_);
+		}
+		else if (ext == "bmp")
+		{
+			thirdparty::stbi::encode::stbi_write_bmp(filename, cols_, rows_, channels_, (*data_).data());
+		}
+		else if (ext == "tga")
+		{
+			thirdparty::stbi::encode::stbi_write_tga(filename, cols_, rows_, channels_, (*data_).data());
+		}
+		else
+		{
+			throw ArgException("Not supported format: " + ext);
+		}
+	}
+
+	void Image::resize(int height, int width)
+	{
+		assert(height > 0 && "height must > 0!");
+		assert(width > 0 && "width must > 0!");
+		range_check(0);
+		detach();
+		std::shared_ptr<std::vector<Image::value_type>> buf = std::make_shared<std::vector<Image::value_type>> (height * width * channels_);
+		thirdparty::stbi::resize::stbir_resize_uint8(&(*data_).front(), cols_, rows_, 0, &(*buf).front(), width, height, 0, channels_);
+		data_ = buf;
+		rows_ = height;
+		cols_ = width;
+	}
+
+	void Image::resize(double ratio)
+	{
+		assert(ratio > 0 && "resize ratio must > 0!");
+		int width = static_cast<int>(cols_ * ratio);
+		int height = static_cast<int>(rows_ * ratio);
+		resize(height, width);
+	}
+
+	void Image::resize(Size sz)
+	{
+		resize(sz.height, sz.width);
+	}
+
+	ImageHdr::ImageHdr(const char* filename)
+	{
+		load(filename);
+	}
+
+	ImageHdr::ImageHdr(const Image& from, float range)
+	{
+		from_normal(from, range);
+	}
+
+	void ImageHdr::load(const char* filename)
+	{
+		int x;
+		int y;
+		int comp;
+		ImageHdr::value_type *buffer = nullptr;
+		buffer = thirdparty::stbi::decode::stbi_loadf(filename, &x, &y, &comp, 0);
+		if (!buffer)
+		{
+			std::string msg = "Failed to load from " + std::string(filename) + ": ";
+			msg += thirdparty::stbi::decode::stbi_failure_reason();
+			throw RuntimeException(msg);
+		};
+		import(buffer, y, x, comp);
+		thirdparty::stbi::decode::stbi_image_free(buffer);
+	}
+
+	void ImageHdr::save_hdr(const char* filename) const
+	{
+		thirdparty::stbi::encode::stbi_write_hdr(filename, cols_, rows_, channels_, (*data_).data());
+	}
+
+	Image ImageHdr::to_normal(float range) const
+	{
+		Image tmp(rows_, cols_, channels_);
+		auto p = tmp.ptr();
+		for (auto iter = (*data_).cbegin(); iter != (*data_).cend(); ++iter)
+		{
+			*p = saturate_cast<Image::value_type>(*iter / range * 255);
+			++p;
+		}
+		return tmp;
+	}
+
+	void ImageHdr::from_normal(const Image& from, float range)
+	{
+		create(from.rows(), from.cols(), from.channels());
+		auto p = from.ptr();
+		for (auto iter = (*data_).begin(); iter != (*data_).end(); ++iter)
+		{
+			*iter = saturate_cast<value_type>(*p / 255.0f * range);
+			++p;
+		}
+	}
+
+	void ImageHdr::resize(int height, int width)
+	{
+		assert(height > 0 && "height must > 0!");
+		assert(width > 0 && "width must > 0!");
+		range_check(0);
+		detach();
+		std::shared_ptr<std::vector<ImageHdr::value_type>> buf = std::make_shared<std::vector<ImageHdr::value_type>>(height * width * channels_);
+		thirdparty::stbi::resize::stbir_resize_float(&(*data_).front(), cols_, rows_, 0, &(*buf).front(), width, height, 0, channels_);
+		data_ = buf;
+		rows_ = height;
+		cols_ = width;
+	}
+
+	void ImageHdr::resize(double ratio)
+	{
+		assert(ratio > 0 && "resize ratio must > 0!");
+		int width = static_cast<int>(cols_ * ratio);
+		int height = static_cast<int>(rows_ * ratio);
+		resize(height, width);
+	}
+
+	void ImageHdr::resize(Size sz)
+	{
+		resize(sz.height, sz.width);
+	}
 
 } // end namesapce zz

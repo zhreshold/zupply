@@ -1,4 +1,4 @@
-#include "../src/zupply.hpp"
+#include "zupply.hpp"
 using namespace zz;
 
 int main()

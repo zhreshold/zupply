@@ -92,6 +92,8 @@
 #include <algorithm>
 #include <functional>
 #include <climits>
+#include <cassert>
+#include <cstring>
 
 
 /*!
@@ -268,148 +270,484 @@ namespace zz
 	public:
 		typedef _Tp value_type;
 
-		//! various constructors
+		/*!
+		 * \brief Default ctor
+		 */
 		Size_();
-		Size_(_Tp _width, _Tp _height);
+
+		/*!
+		 * \brief Ctor with width and height
+		 * \param width
+		 * \param height
+		 */
+		Size_(_Tp width, _Tp height);
+
+		/*!
+		 * \brief Copy ctor
+		 * \param sz
+		 */
 		Size_(const Size_& sz);
 
+		/*!
+		 * \brief Copy operator
+		 * \param sz
+		 */
 		Size_& operator = (const Size_& sz);
+
+		/*!
+		 * \brief Compare operator
+		 * \param other
+		 * \return True if size identical
+		 */
 		bool operator==(const Size_& other);
+
+		/*!
+		 * \brief Compare operator
+		 * \param other
+		 * \return True if size NOT identical
+		 */
 		bool operator!=(const Size_& other);
-		//! the area (width*height)
+
+		/*!
+		 * \brief area Calculate area
+		 * \return Area
+		 */
 		_Tp area() const;
 
-		//! conversion of another data type.
+		/*!
+		 * \brief Covnert to another type
+		 */
 		template<typename _Tp2> operator Size_<_Tp2>() const;
 
 		_Tp width, height; // the width and the height
 	};
+	/*!
+	 * \brief Size2i Int version
+	 */
 	using Size2i = Size_<int>;
+
+	/*!
+	 * \brief Size2f Float version
+	 */
 	using Size2f = Size_<float>;
+
+	/*!
+	 * \brief Size2d Float version
+	 */
 	using Size2d = Size_<double>;
+
+	/*!
+	 * \brief Size By default using Size2i, int version
+	 */
 	using Size = Size_<int>;
 
 	template<typename _Tp> class Rect_;
-	/*! \brief template 2D point class.
-	The class defines a point in 2D space. Data type of the point coordinates is specified
-	as a template parameter. There are a few shorter aliases available for user convenience.
-	See zl::Point, zl::Point2i, zl::Point2f and zl::Point2d.
+	/*! 
+	 * \brief template 2D point class.
+	 * The class defines a point in 2D space. Data type of the point coordinates is specified
+	 * as a template parameter. There are a few shorter aliases available for user convenience.
+	 * See zz::Point, zz::Point2i, zz::Point2f and zz::Point2d.
 	*/
 	template<typename _Tp> class Point_
 	{
 	public:
 		typedef _Tp value_type;
 
-		// various constructors
+		/*!
+		 * \brief Default constructor
+		 */
 		Point_();
+
+		/*!
+		 * \brief Constructor with x and y coordinate
+		 * \param _x
+		 * \param _y
+		 */
 		Point_(_Tp _x, _Tp _y);
+
+		/*!
+		 * \brief Copy constructor
+		 * \param pt
+		 */
 		Point_(const Point_& pt);
 
+		/*!
+		 * \brief Copy operator
+		 * \param pt
+		 * \return
+		 */
 		Point_& operator = (const Point_& pt);
 
-		//! conversion to another data type
+		/*!
+		 * \brief conversion to another data type
+		 */
 		template<typename _Tp2> operator Point_<_Tp2>() const;
 
-		//! dot product
+		/*!
+		 * \brief dot product
+		 * \param pt
+		 * \return
+		 */
 		_Tp dot(const Point_& pt) const;
-		//! dot product computed in double-precision arithmetics
+
+		/*!
+		 * \brief dot product computed in double-precision arithmetics
+		 * \param pt
+		 * \return
+		 */
 		double ddot(const Point_& pt) const;
-		//! cross-product
+		/*!
+		 * \brief cross-product
+		 * \param pt
+		 * \return
+		 */
 		double cross(const Point_& pt) const;
-		////! checks whether the point is inside the specified rectangle
+		/*!
+		 * \brief checks whether the point is inside the specified rectangle
+		 * \param r
+		 * \return
+		 */
 		bool inside(const Rect_<_Tp>& r) const;
 
-		_Tp x, y; //< the point coordinates
+		_Tp x, y; //!< the point coordinates
 	};
-	typedef Point_<int> Point2i;
-	typedef Point_<float> Point2f;
-	typedef Point_<double> Point2d;
-	typedef Point2i Point;
-	typedef std::vector<Point> Vecpts;	//!< 1-D vector of Points
 
-	/*! \brief The 2D up-right rectangle class
-	The class represents a 2D rectangle with coordinates of the specified data type.
-	Normally, zl::Rect ~ zl::Rect_<int> is used.
+	/*!
+	 * \brief Point2i Int version
+	 */
+	typedef Point_<int> Point2i;
+
+	/*!
+	 * \brief Point2f Float version
+	 */
+	typedef Point_<float> Point2f;
+
+	/*!
+	 * \brief Point2d Double version
+	 */
+	typedef Point_<double> Point2d;
+
+	/*!
+	 * \brief Point By default using Point2i
+	 */
+	typedef Point2i Point;
+
+	/*!
+	 * \brief Vecpts 1-D vector of points
+	 */
+	typedef std::vector<Point> Vecpts;
+
+	/*! 
+	 * \brief The 2D up-right rectangle class
+	 * The class represents a 2D rectangle with coordinates of the specified data type.
+	 * Normally, zz::Rect ~ zz::Rect_<int> is used.
 	*/
 	template<typename _Tp> class Rect_
 	{
 	public:
 		typedef _Tp value_type;
 
-		//! various constructors
+		/*!
+		 * \brief Default constructor
+		 */
 		Rect_();
+
+		/*!
+		 * \brief Constructor with x, y, width and height
+		 * \param _x
+		 * \param _y
+		 * \param _width
+		 * \param _height
+		 */
 		Rect_(_Tp _x, _Tp _y, _Tp _width, _Tp _height);
+
+		/*!
+		 * \brief Copy constructor
+		 * \param r
+		 */
 		Rect_(const Rect_& r);
+
+		/*!
+		 * \brief Constructor with top-left point and its size(width, height)
+		 * \param org
+		 * \param sz
+		 */
 		Rect_(const Point_<_Tp>& org, const Size_<_Tp>& sz);
+
+		/*!
+		 * \brief Constructor with top-left point and right-bottom point
+		 * \param pt1
+		 * \param pt2
+		 */
 		Rect_(const Point_<_Tp>& pt1, const Point_<_Tp>& pt2);
 
+		/*!
+		 * \brief Copy operator
+		 * \param r
+		 * \return
+		 */
 		Rect_& operator = (const Rect_& r);
-		//! the top-left corner
+
+		/*!
+		 * \brief Get top left corner point
+		 * \return Top-left corner
+		 */
 		Point_<_Tp> tl() const;
-		//! the bottom-right corner
+
+		/*!
+		 * \brief Get bottom right corner point
+		 * \return Bottom-right corner
+		 */
 		Point_<_Tp> br() const;
 
-		//! size (width, height) of the rectangle
+		/*!
+		 * \brief Get size of rectangle
+		 * \return Size(width, height) of the rectangle
+		 */
 		Size_<_Tp> size() const;
-		//! area (width*height) of the rectangle
+
+		/*!
+		 * \brief Get area of rectagle
+		 * \return Area
+		 */
 		_Tp area() const;
 
-		//! conversion to another data type
+		/*!
+		 * \brief Convert to another type
+		 */
 		template<typename _Tp2> operator Rect_<_Tp2>() const;
 
-		//! checks whether the rectangle contains the point
+		/*!
+		 * \brief Checks whether the rectangle contains the point
+		 * \param pt
+		 * \return True if contains, false otherwise
+		 */
 		bool contains(const Point_<_Tp>& pt) const;
 
-		_Tp x, y, width, height; //< the top-left corner, as well as width and height of the rectangle
+		_Tp x, y, width, height; //!< the top-left corner, as well as width and height of the rectangle
 	};
 
+	/*!
+	 * \brief Rect2i Int version
+	 */
 	typedef Rect_<int> Rect2i;
+
+	/*!
+	 * \brief Rect2f Float version
+	 */
 	typedef Rect_<float> Rect2f;
+
+	/*!
+	 * \brief Rect2d Double version
+	 */
 	typedef Rect_<double> Rect2d;
+
+	/*!
+	 * \brief Rect By default use Rect2i, int version
+	 */
 	typedef Rect2i Rect;
 
 	namespace detail
 	{
+		/*!
+		 * \brief Base image storage class
+		 * This defines the storage and pixel-wise access to a image like 3-D matrix
+		 */
 		template<typename _Tp> class ImageBase
 		{
 		public:
 			typedef _Tp value_type;
 
+			/*!
+			 * \brief ImageBase Default(empty) constructor
+			 */
 			ImageBase();
+
+			/*!
+			 * \brief ImageBase Constructor with size info
+			 * \param rows
+			 * \param cols
+			 * \param channels
+			 */
+			ImageBase(int rows, int cols, int channels);
+
+			/*!
+			 * \brief ImageBase Copy constructor(shallow copy)
+			 * \note ImageBase use Copy-on-write technique, so you don't need to worry about the deep/shallow copy issue.
+			 * \param other
+			 */
 			ImageBase(const ImageBase& other);
+
+			/*!
+			 * \brief ImageBase Move constructor
+			 * \param other
+			 */
 			ImageBase(ImageBase&& other);
+
 
 			virtual ~ImageBase();
 
+			/*!
+			 * \brief create Create storage with specified size
+			 * \param rows
+			 * \param cols
+			 * \param channels
+			 */
+			void create(int rows, int cols, int channels);
+
+			/*!
+			 * \brief release Destroy memory storage
+			 */
+			void release();
+
+			/*!
+			 * \brief operator = Copy operator, again, shallow copy
+			 * \param other
+			 * \return
+			 */
 			ImageBase& operator= (const ImageBase& other);
+
+			/*!
+			 * \brief operator = Move operator
+			 * \param other
+			 * \return
+			 */
 			ImageBase& operator= (ImageBase&& other);
+
+			/*!
+			 * \brief operator () Access pixel element
+			 * \param row
+			 * \param col
+			 * \param channel
+			 * \return
+			 */
 			_Tp& operator() (int row, int col, int channel = 0);
+
+			/*!
+			 * \brief operator () Access pixel element, immutable version
+			 * \param row
+			 * \param col
+			 * \param channel
+			 * \return
+			 */
 			const _Tp& operator() (int row, int col, int channel = 0) const;
 
+			/*!
+			 * Conver to another data type, using saturate_cast<>
+			 */
+			template <typename _Tp2> operator ImageBase<_Tp2>() const;
+
+			/*!
+			 * \brief empty Check empty or not
+			 * \return True if empty
+			 */
 			bool empty() const;
+
+			/*!
+			 * \brief rows Get number of rows(height, y...)
+			 * \return Number of rows(height, y...)
+			 */
 			int rows() const;
+
+			/*!
+			 * \brief cols Get number of columns(width, x...)
+			 * \return Number of columns(width, x...)
+			 */
 			int cols() const;
+
+			/*!
+			 * \brief channels Get number of channels
+			 * \return Number of channels
+			 */
 			int channels() const;
 
+			/*!
+			 * \brief at Access pixel, immutable version.
+			 * This is guanranteed to be faster than () operator if you don't need to modify data.
+			 * \param row
+			 * \param col
+			 * \param channel
+			 * \return Pixel value
+			 */
 			_Tp at(int row, int col, int channel = 0) const;
+
+			/*!
+			 * \brief ptr Data pointer given specifed position.
+			 * Use with cautious. This is provided for performance consideration.
+			 * Will not trigger copy-on-write method, so if you change the data, the previous copied images will be affected.
+			 * \param offset
+			 * \return Raw pointer to specific data point
+			 */
 			_Tp* ptr(int offset = 0) const;
+
+			/*!
+			 * \brief ptr Data pointer given specifed position.
+			 * Use with cautious. This is provided for performance consideration.
+			 * Will not trigger copy-on-write method, so if you change the data, the previous copied images will be affected.
+			 * \param row
+			 * \param col
+			 * \param channel
+			 * \return
+			 */
 			_Tp* ptr(int row, int col, int channel = 0) const;
 
+			/*!
+			 * \brief import Import data from raw pointer array.
+			 * Please make sure the length of array satisfies the size provided.
+			 * \param data
+			 * \param rows
+			 * \param cols
+			 * \param channels
+			 */
 			void import(_Tp* data, int rows, int cols, int channels);
-			void import(std::vector<_Tp> data, int rows, int cols, int channels);
-			std::vector<_Tp> export_raw() const;
-			std::vector<_Tp> export_deinterleave() const;
 
+			/*!
+			 * \brief import Import data from vector.
+			 * Please make sure the length of vector satisfies the size provided.
+			 * \param data
+			 * \param rows
+			 * \param cols
+			 * \param channels
+			 */
+			void import(std::vector<_Tp> data, int rows, int cols, int channels);
+
+			/*!
+			 * \brief export_raw Export data to vector in original order(interleaved, rgb order).
+			 * \example Data output will be r1g1b1r2g2b2r3g3b3...
+			 * \return Vector of data
+			 */
+			std::vector<_Tp> export_raw() const;
+
+			/*!
+			 * \brief export data to provided vector container.
+			 */
+			template <typename _Tp2> std::vector<_Tp2>& export_raw(std::vector<_Tp2>& out) const;
+
+			/*!
+			 * \brief crop Crop image given coordinates.
+			 * \param r0
+			 * \param c0
+			 * \param r1
+			 * \param c1
+			 */
 			void crop(int r0, int c0, int r1, int c1);
+
+			/*!
+			 * \brief crop Crop image given two points
+			 * \param p0
+			 * \param p1
+			 */
 			void crop(Point p0, Point p1);
+
+			/*!
+			 * \brief crop Crop image given a rectangle area.
+			 * \param rect
+			 */
 			void crop(Rect rect);
 
-			void resize(int height, int width);
-			void resize(double ratio);
-			void resize(Size sz);
-
-		private:
-			void range_check(long pos);
+		protected:
+			void range_check(long long pos) const;
+			void range_check(int row, int col, int channel) const;
 			void detach();
 
 			int rows_;
@@ -420,16 +758,145 @@ namespace zz
 		};
 	} // namespace zz::detail
 
+	/*!
+	 * \brief The Image class.
+	 * Image container for 8-bit image manipulation including read/write.
+	 * Image is based on detail::ImageBase.
+	 */
 	class Image : public detail::ImageBase<unsigned char>
 	{
+	public:
+		/*!
+		 * \brief Image Default(empty) constructor
+		 */
+		Image() : ImageBase() {};
 
+		/*!
+		 * \brief Image Constructor with specified size
+		 * \param rows
+		 * \param cols
+		 * \param channels
+		 */
+		Image(int rows, int cols, int channels) : ImageBase(rows, cols, channels) {};
+
+		/*!
+		 * \brief Image Constructor from disk image file.
+		 * \param filename
+		 */
+		Image(const char* filename);
+
+		/*!
+		 * \brief load Load image from file.
+		 * \param filename
+		 */
+		void load(const char* filename);
+
+		/*!
+		 * \brief save Save image to file.
+		 * \param filename
+		 * \param quality Save quality(0-100), only applied to JPEG image format.
+		 */
+		void save(const char* filename, int quality = 80) const;
+
+		/*!
+		* \brief resize Resize image given new size
+		* \param sz
+		*/
+		void resize(Size sz);
+
+		/*!
+		* \brief resize Resize image given new height and width
+		* \param height
+		* \param width
+		*/
+		void resize(int height, int width);
+
+		/*!
+		* \brief resize Resize image given ratio to the old size
+		* \param ratio
+		*/
+		void resize(double ratio);
 	};
 
+	/*!
+	 * \brief The ImageHdr class.
+	 * Image container specifically good for HDR images which uses 32bit float precison.
+	 */
 	class ImageHdr : public detail::ImageBase<float>
 	{
+	public:
+		/*!
+		 * \brief ImageHdr Default(empty) constructor
+		 */
+		ImageHdr() : ImageBase() {};
 
+		/*!
+		 * \brief ImageHdr Constructor given specific size
+		 * \param rows
+		 * \param cols
+		 * \param channels
+		 */
+		ImageHdr(int rows, int cols, int channels) : ImageBase(rows, cols, channels) {};
+
+		/*!
+		 * \brief ImageHdr Constructor from disk image file
+		 * \param filename
+		 */
+		ImageHdr(const char* filename);
+
+		/*!
+		 * \brief ImageHdr Constructor from 8-bit image
+		 * \param from 8-bit image
+		 * \param range The range of data stored, normally 1.0 is used. In this case, [0-255] data will be normalized to [0.0-1.0]
+		 */
+		ImageHdr(const Image& from, float range = 1.0f);
+
+		/*!
+		 * \brief load Load image from disk file, HDR image(*.hdr) supported.
+		 * \param filename
+		 */
+		void load(const char* filename);
+
+		/*!
+		 * \brief save_hdr Save to HDR image
+		 * \param filename
+		 */
+		void save_hdr(const char* filename) const;
+
+		/*!
+		 * \brief to_normal Convert to 8-bit image(lose precision)
+		 * \param range The range of stored data, normally 1.0 is used.
+		 * \return An 8-bit image
+		 */
+		Image to_normal(float range = 1.0f) const;
+
+		/*!
+		 * \brief from_normal Convert from an 8-bit image.
+		 * \param from
+		 * \param range The range of new stored data, normally 1.0 is used.
+		 */
+		void from_normal(const Image& from, float range = 1.0f);
+
+		/*!
+		* \brief resize Resize image given new height and width
+		* \param height
+		* \param width
+		*/
+		void resize(int height, int width);
+
+		/*!
+		* \brief resize Resize image given ratio to the old size
+		* \param ratio
+		*/
+		void resize(double ratio);
+
+		/*!
+		* \brief resize Resize image given new size
+		* \param sz
+		*/
+		void resize(Size sz);
 	};
-	
+
 
 	/*!
 	 * \namespace  zz::math
@@ -1689,7 +2156,23 @@ namespace zz
 			 * \param pattern Filter pattern
 			 * \param recursive Recursive search or not
 			 */
-			Directory(std::string root, std::string pattern, bool recursive = false);
+			Directory(std::string root, const std::string pattern, bool recursive = false);
+
+			/*!
+			 * \brief Directory constructor with filter pattern
+			 * \param root Root of directory
+			 * \param patternList Vector of filter patterns
+			 * \param recursive Recursive search or not
+			 */
+			Directory(std::string root, const std::vector<std::string> patternList, bool recursive);
+
+			/*!
+			 * \brief Directory constructor with filter pattern
+			 * \param root Root of directory
+			 * \param patternList Vector of filter patterns
+			 * \param recursive Recursive search or not
+			 */
+			Directory(std::string root, const std::vector<const char*> patternList, bool recursive);
 
 			/*!
 			 * \brief Return begin iterator
@@ -1719,7 +2202,7 @@ namespace zz
 			 * \brief Return number of contained directories or files
 			 * \return Size
 			 */
-			std::size_t size() const { return paths_.size(); };
+			std::size_t size() const { return paths_.size(); }
 
 			/*!
 			* \brief Check if directory is resursively searched
@@ -1737,7 +2220,19 @@ namespace zz
 			 * \brief Filter directory with specified pattern
 			 * \param Wild card matching pattern
 			 */
-			void filter(std::string pattern);
+			void filter(const std::string pattern);
+
+			/*!
+			 * \brief Filter directory with multiple patterns
+			 * \param patternList Vector of wild card matching patterns
+			 */
+			void filter(const std::vector<const char*> patternList);
+
+			/*!
+			 * \brief Filter directory with multiple patterns
+			 * \param patternList Vector of wild card matching patterns
+			 */
+			void filter(const std::vector<std::string> patternList);
 
 			/*!
 			 * \brief Clear filter pattern, redo search in directory
@@ -4022,6 +4517,7 @@ namespace zz
 		void config_from_stringstream(std::stringstream& ss);
 	} // namespace log
 
+	// \cond
 	/////////////// implementations ////////////////
 	/////////////// saturate_cast (used in image & signal processing) ///////////////////
 
@@ -4577,172 +5073,266 @@ namespace zz
 		////////////////////////////////// ImageBase /////////////////////////////////
 		template<typename _Tp> inline
 			ImageBase<_Tp>::ImageBase()
+			:rows_(0), cols_(0), channels_(0), data_(nullptr)
 		{
+			}
 
+		template<typename _Tp> inline
+			ImageBase<_Tp>::ImageBase(int rows, int cols, int channels)
+		{
+				create(rows, cols, channels);
 			}
 
 		template<typename _Tp> inline
 			ImageBase<_Tp>::ImageBase(const ImageBase& other)
 		{
+				rows_ = other.rows_;
+				cols_ = other.cols_;
+				channels_ = other.channels_;
+				data_ = other.data_;	// shallow copy
+			}
 
+		template<typename _Tp> template<typename _Tp2> inline
+			ImageBase<_Tp>::operator ImageBase<_Tp2>() const
+		{
+				ImageBase<_Tp2> tmp(rows_, cols_, channels_);
+				_Tp2* p = tmp.ptr(0);
+				_Tp* p_ = ptr(0);
+				for (long i = 0; i < rows_ * cols_ * channels_; ++i)
+				{
+					*p = saturate_cast<_Tp>(*p_);
+					++p;
+					++p_;
+				}
+				return tmp;
 			}
 
 		template<typename _Tp> inline
 			ImageBase<_Tp>::ImageBase(ImageBase&& other)
 		{
-
-			}
-
-		template<typename _Tp> inline
-			ImageBase<_Tp>::ImageBase(const char* filename, bool grayscale = false)
-		{
-
+				rows_ = other.rows_;
+				cols_ = other.cols_;
+				channels_ = other.channels_;
+				data_ = other.data_;	// shallow copy
+				other.release();
 			}
 
 		template<typename _Tp> inline
 			ImageBase<_Tp>::~ImageBase()
 		{
-
+				release();
 			}
 
 		template<typename _Tp> inline
-			ImageBase<_Tp>::ImageBase& operator= (const ImageBase& other)
+			void ImageBase<_Tp>::create(int rows, int cols, int channels)
 		{
-
+				assert(rows > 0 && cols > 0 && channels > 0);
+				rows_ = rows;
+				cols_ = cols;
+				channels_ = channels;
+				data_ = std::make_shared<std::vector<_Tp>>(rows * cols * channels);
 			}
 
 		template<typename _Tp> inline
-			ImageBase<_Tp>::ImageBase& operator= (ImageBase&& other)
+			void ImageBase<_Tp>::release()
 		{
+				rows_ = 0;
+				cols_ = 0;
+				channels_ = 0;
+				data_ = nullptr;
+			}
 
+		template<typename _Tp> inline typename
+			ImageBase<_Tp>& ImageBase<_Tp>::operator= (const ImageBase<_Tp>& other)
+		{
+				rows_ = other.rows_;
+				cols_ = other.cols_;
+				channels_ = other.channels_;
+				data_ = other.data_;	// shallow copy
+				return *this;
+			}
+
+		template<typename _Tp> inline typename
+			ImageBase<_Tp>& ImageBase<_Tp>::operator= (ImageBase<_Tp>&& other)
+		{
+				rows_ = other.rows_;
+				cols_ = other.cols_;
+				channels_ = other.channels_;
+				data_ = other.data_;	// shallow copy
+				other.release();
+				return *this;
 			}
 
 		template<typename _Tp> inline
-			ImageBase<_Tp>::_Tp& operator() (int row, int col, int channel = 0)
+			_Tp& ImageBase<_Tp>::operator() (int row, int col, int channel = 0)
 		{
-
+				detach();
+				long pos = row * cols_ * channels_ + col * channels_ + channel;
+				range_check(row, col, channel);
+				return (*data_)[pos];
 			}
 
 		template<typename _Tp> inline
-			const ImageBase<_Tp>::_Tp& operator() (int row, int col, int channel = 0) const
+			const _Tp& ImageBase<_Tp>::operator() (int row, int col, int channel = 0) const
 		{
-
+				detach();
+				long pos = row * cols_ * channels_ + col * channels_ + channel;
+				range_check(row, col, channel);
+				return (*data_)[pos];
 			}
 
-		template<typename _Tp> static inline
+		template<typename _Tp> inline
 			bool ImageBase<_Tp>::empty() const
 		{
 				return (rows_ < 1 || cols_ < 1 || channels_ < 1 || (!data_));
 			}
 
-		template<typename _Tp> static inline
+		template<typename _Tp> inline
 			int ImageBase<_Tp>::rows() const
 		{
 				return rows_;
 			}
 
-		template<typename _Tp> static inline
+		template<typename _Tp> inline
 			int ImageBase<_Tp>::cols() const
 		{
 				return cols_;
 			}
 
-		template<typename _Tp> static inline
+		template<typename _Tp> inline
 			int ImageBase<_Tp>::channels() const
 		{
 				return channels_;
 			}
 
-		template<typename _Tp> static inline
-			void ImageBase<_Tp>::range_check(long pos)
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::range_check(long long pos) const
 		{
-				
+				assert(pos >= 0);
+				if (empty()) throw RuntimeException("Accessing emtpy image!");
+				if (pos >= rows_ * cols_ * channels_) throw RuntimeException("Access out of range!");
 			}
 
-		template<typename _Tp> static inline
-			ImageBase<_Tp>::_Tp at(int row, int col, int channel = 0) const
+		template<typename _Tp> inline
+			void ImageBase<_Tp>::range_check(int row, int col, int channel) const
 		{
-				
+				assert(row >= 0 && col >= 0 && channel >= 0);
+				if (empty()) throw RuntimeException("Accessing emtpy image!");
+				if (row >= rows_ || col >= cols_ || channel >= channels_) throw RuntimeException("Access out of range!");
 			}
 
-		template<typename _Tp> static inline
-			ImageBase<_Tp>::_Tp* ptr(int offset = 0) const
+		template<typename _Tp> inline
+			_Tp ImageBase<_Tp>::at(int row, int col, int channel = 0) const
 		{
-
+				range_check(row, col, channel);
+				long pos = row * cols_ * channels_ + col * channels_ + channel;
+				return (*data_)[pos];
 			}
 
-		template<typename _Tp> static inline
-			ImageBase<_Tp>::_Tp* ptr(int row, int col, int channel = 0) const
+		template<typename _Tp> inline
+			_Tp* ImageBase<_Tp>::ptr(int offset = 0) const
 		{
+				range_check(offset);
+				return (*data_).data() + offset;
+			}
 
+		template<typename _Tp> inline
+			_Tp* ImageBase<_Tp>::ptr(int row, int col, int channel = 0) const
+		{
+				range_check(row, col, channel);
+				long pos = row * cols_ * channels_ + col * channels_ + channel;
+				return (*data_).data() + pos;
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::import(_Tp* data, int rows, int cols, int channels)
 		{
-
+				assert(rows > 0 && cols > 0 && channels > 0 && "import size should be positive");
+				create(rows, cols, channels);
+				std::memcpy((*data_).data(), data, sizeof(_Tp)* rows * cols * channels);
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::import(std::vector<_Tp> data, int rows, int cols, int channels)
 		{
-
+				assert(rows > 0 && cols > 0 && channels > 0 && data.size() >= rows * cols * channels);
+				create(rows, cols, channels);
+				std::memcpy((*data_).data(), data.data(), sizeof(_Tp)* rows * cols * channels);
 			}
 
 		template<typename _Tp> inline
 			std::vector<_Tp> ImageBase<_Tp>::export_raw() const
 		{
-
+				return (*data_);
 			}
 
-		template<typename _Tp> inline
-			std::vector<_Tp> ImageBase<_Tp>::export_deinterleave() const
+		template<typename _Tp> template<typename _Tp2> inline
+			std::vector<_Tp2>& ImageBase<_Tp>::export_raw(std::vector<_Tp2>& out) const
 		{
-
+				out.resize(rows_ * cols_ * channels_);
+				auto p = out.begin();
+				for (auto i = (*data_).begin(); i != (*data_).end(); ++i, ++p)
+				{
+					*p = saturate_cast<_Tp2>(*i);
+				}
+				return out;
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::crop(int r0, int c0, int r1, int c1)
 		{
+				assert(r0 >= 0 && c0 >= 0 && r1 >= 0 && c1 >= 0 && "crop region should be positive!");
+				assert(r0 < rows_ && r1 < rows_ && c0 < cols_ && c1 < cols_ && "crop point should in image!");
+				assert(r0 != r1 && (c0 != c1) && "need a rectangle region!");
 
+				int width = std::abs(c0 - c1);
+				int height = std::abs(r0 - r1);
+				int i0 = (std::min)(r0, r1);
+				int i1 = (std::max)(r0, r1);
+				int j0 = (std::min)(c0, c1);
+				int j1 = (std::max)(c0, c1);
+				detach();
+				ImageBase<_Tp> tmp(height, width, channels_);
+				
+				// temporary solution, not optimized
+				_Tp* pOld = ptr(i0, j0, 0);
+				_Tp* pNew = tmp.ptr(0);
+				int step = cols_ * channels_;
+				int bulkSize = width * channels_;
+				for (auto r = 0; r < height; ++r)
+				{
+					// copy entire row
+					std::memcpy(pNew, pOld, sizeof(_Tp)* bulkSize);
+					pOld += step;
+					pNew += bulkSize;
+				}
+				std::swap(*this, tmp);
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::crop(Point p0, Point p1)
 		{
-
+				crop(p0.y, p0.x, p1.y, p1.x);
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::crop(Rect rect)
 		{
-
-			}
-
-		template<typename _Tp> inline
-			void ImageBase<_Tp>::resize(int height, int width)
-		{
-
-			}
-
-		template<typename _Tp> inline
-			void ImageBase<_Tp>::resize(double ratio)
-		{
-
-			}
-
-		template<typename _Tp> inline
-			void ImageBase<_Tp>::resize(Size sz)
-		{
-
+				crop(rect.y, rect.x, rect.y + rect.height, rect.y + rect.width);
 			}
 
 		template<typename _Tp> inline
 			void ImageBase<_Tp>::detach()
 		{
-
+				if (data_.use_count() < 2) return;
+				// detach the current resource from shared
+				std::shared_ptr<std::vector<_Tp>> tmp = std::make_shared<std::vector<_Tp>>();
+				*tmp = *data_; // deep copy
+				data_ = tmp;
 			}
 	} // namespace zz::detail
+
+	// \endcond
 
 } // namespace zz
 

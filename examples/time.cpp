@@ -1,5 +1,5 @@
 /* Zupply example: date and timer */
-#include "../src/zupply.hpp"
+#include "zupply.hpp"
 using namespace zz;
 
 void datetime_examples()

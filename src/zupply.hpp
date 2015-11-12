@@ -5142,7 +5142,7 @@ namespace zz
 				data_ = nullptr;
 			}
 
-		template<typename _Tp> inline typename
+		template<typename _Tp> inline
 			ImageBase<_Tp>& ImageBase<_Tp>::operator= (const ImageBase<_Tp>& other)
 		{
 				rows_ = other.rows_;
@@ -5152,7 +5152,7 @@ namespace zz
 				return *this;
 			}
 
-		template<typename _Tp> inline typename
+		template<typename _Tp> inline
 			ImageBase<_Tp>& ImageBase<_Tp>::operator= (ImageBase<_Tp>&& other)
 		{
 				rows_ = other.rows_;
@@ -5164,7 +5164,7 @@ namespace zz
 			}
 
 		template<typename _Tp> inline
-			_Tp& ImageBase<_Tp>::operator() (int row, int col, int channel = 0)
+			_Tp& ImageBase<_Tp>::operator() (int row, int col, int channel)
 		{
 				detach();
 				long pos = row * cols_ * channels_ + col * channels_ + channel;
@@ -5173,7 +5173,7 @@ namespace zz
 			}
 
 		template<typename _Tp> inline
-			const _Tp& ImageBase<_Tp>::operator() (int row, int col, int channel = 0) const
+			const _Tp& ImageBase<_Tp>::operator() (int row, int col, int channel) const
 		{
 				detach();
 				long pos = row * cols_ * channels_ + col * channels_ + channel;
@@ -5222,7 +5222,7 @@ namespace zz
 			}
 
 		template<typename _Tp> inline
-			_Tp ImageBase<_Tp>::at(int row, int col, int channel = 0) const
+			_Tp ImageBase<_Tp>::at(int row, int col, int channel) const
 		{
 				range_check(row, col, channel);
 				long pos = row * cols_ * channels_ + col * channels_ + channel;
@@ -5230,14 +5230,14 @@ namespace zz
 			}
 
 		template<typename _Tp> inline
-			_Tp* ImageBase<_Tp>::ptr(int offset = 0) const
+			_Tp* ImageBase<_Tp>::ptr(int offset) const
 		{
 				range_check(offset);
 				return (*data_).data() + offset;
 			}
 
 		template<typename _Tp> inline
-			_Tp* ImageBase<_Tp>::ptr(int row, int col, int channel = 0) const
+			_Tp* ImageBase<_Tp>::ptr(int row, int col, int channel) const
 		{
 				range_check(row, col, channel);
 				long pos = row * cols_ * channels_ + col * channels_ + channel;

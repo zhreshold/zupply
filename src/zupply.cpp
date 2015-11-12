@@ -7852,7 +7852,7 @@ namespace zz
 #ifdef STBIR_DEBUG
 #define STBIR__DEBUG_ASSERT STBIR_ASSERT
 #else
-#define STBIR__DEBUG_ASSERT
+#define STBIR__DEBUG_ASSERT(x) misc::unused(x)	// fix for clang warning
 #endif
 
 				// If you hit this it means I haven't done it yet.

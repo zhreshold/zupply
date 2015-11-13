@@ -60,6 +60,7 @@
       <li class="current"><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="examples.html"><span>Examples</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -92,8 +93,11 @@ Functions</h2></td></tr>
 <tr class="memitem:a876cd3528991d4cad2a34890ccad7a8c"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#a876cd3528991d4cad2a34890ccad7a8c">thread_id</a> ()</td></tr>
 <tr class="memdesc:a876cd3528991d4cad2a34890ccad7a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get thread id.  <a href="#a876cd3528991d4cad2a34890ccad7a8c">More...</a><br /></td></tr>
 <tr class="separator:a876cd3528991d4cad2a34890ccad7a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab134a2f056f33ea14cfb669baaf58685"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structzz_1_1_size.html">Size</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab134a2f056f33ea14cfb669baaf58685">console_size</a> ()</td></tr>
-<tr class="memdesc:ab134a2f056f33ea14cfb669baaf58685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the <a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a> of console window.  <a href="#ab134a2f056f33ea14cfb669baaf58685">More...</a><br /></td></tr>
+<tr class="memitem:afdfa0a7bb11f65b0a44e00467fec8807"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#afdfa0a7bb11f65b0a44e00467fec8807">is_atty</a> ()</td></tr>
+<tr class="memdesc:afdfa0a7bb11f65b0a44e00467fec8807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if stdout is associated with console.  <a href="#afdfa0a7bb11f65b0a44e00467fec8807">More...</a><br /></td></tr>
+<tr class="separator:afdfa0a7bb11f65b0a44e00467fec8807"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab134a2f056f33ea14cfb669baaf58685"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacezz.html#ada932293cfcf90eee66407ef35311e39">Size</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ab134a2f056f33ea14cfb669baaf58685">console_size</a> ()</td></tr>
+<tr class="memdesc:ab134a2f056f33ea14cfb669baaf58685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the Size of console window.  <a href="#ab134a2f056f33ea14cfb669baaf58685">More...</a><br /></td></tr>
 <tr class="separator:ab134a2f056f33ea14cfb669baaf58685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="memItemLeft" align="right" valign="top">std::tm&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacezz_1_1os.html#ac2f17e7f3d17d9695f0fc349b3f24513">localtime</a> (std::time_t t)</td></tr>
 <tr class="memdesc:ac2f17e7f3d17d9695f0fc349b3f24513"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread-safe version of localtime.  <a href="#ac2f17e7f3d17d9695f0fc349b3f24513">More...</a><br /></td></tr>
@@ -222,7 +226,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structzz_1_1_size.html">Size</a> zz::os::console_size </td>
+          <td class="memname"><a class="el" href="namespacezz.html#ada932293cfcf90eee66407ef35311e39">Size</a> zz::os::console_size </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -230,8 +234,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the <a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a> of console window. </p>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structzz_1_1_size.html" title="The Size struct storing width and height. ">Size</a>, which contains width and height </dd></dl>
+<p>Return the Size of console window. </p>
+<dl class="section return"><dt>Returns</dt><dd>Size, which contains width and height </dd></dl>
 
 </div>
 </div>
@@ -471,6 +475,24 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="afdfa0a7bb11f65b0a44e00467fec8807"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int zz::os::is_atty </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if stdout is associated with console. </p>
+<dl class="section return"><dt>Returns</dt><dd>None zero value if stdout is not redirected to file </dd></dl>
 
 </div>
 </div>

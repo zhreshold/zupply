@@ -60,6 +60,7 @@
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="examples.html"><span>Examples</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -125,6 +126,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9ea20d4e64c27fc62defdccd58e63c48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1cfg_1_1_arg_option.html">ArgOption</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_option.html#a9ea20d4e64c27fc62defdccd58e63c48">set_max</a> (int maxCount)</td></tr>
 <tr class="memdesc:a9ea20d4e64c27fc62defdccd58e63c48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set maximum number of argument this option take. If maximum number not satisfied, <a class="el" href="classzz_1_1cfg_1_1_arg_parser.html" title="The ArgParser class. For parsing command line arguments. ">ArgParser</a> will generate an error.  <a href="#a9ea20d4e64c27fc62defdccd58e63c48">More...</a><br /></td></tr>
 <tr class="separator:a9ea20d4e64c27fc62defdccd58e63c48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada38cffb26f42e1975c97d0cdd43a8d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzz_1_1cfg_1_1_value.html">Value</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_option.html#ada38cffb26f42e1975c97d0cdd43a8d7">get_value</a> ()</td></tr>
+<tr class="memdesc:ada38cffb26f42e1975c97d0cdd43a8d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the stored value.  <a href="#ada38cffb26f42e1975c97d0cdd43a8d7">More...</a><br /></td></tr>
+<tr class="separator:ada38cffb26f42e1975c97d0cdd43a8d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e243addb61a5953f5b4e4fdbc0fe1bd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzz_1_1cfg_1_1_arg_option.html#a2e243addb61a5953f5b4e4fdbc0fe1bd">get_count</a> ()</td></tr>
+<tr class="memdesc:a2e243addb61a5953f5b4e4fdbc0fe1bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the count.  <a href="#a2e243addb61a5953f5b4e4fdbc0fe1bd">More...</a><br /></td></tr>
+<tr class="separator:a2e243addb61a5953f5b4e4fdbc0fe1bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -280,6 +287,42 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ArgParser</b></td></
 
 </div>
 </div>
+<a class="anchor" id="a2e243addb61a5953f5b4e4fdbc0fe1bd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int zz::cfg::ArgOption::get_count </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the count. </p>
+<dl class="section return"><dt>Returns</dt><dd>Reference count </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ada38cffb26f42e1975c97d0cdd43a8d7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzz_1_1cfg_1_1_value.html">Value</a> zz::cfg::ArgOption::get_value </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Return the stored value. </p>
+<dl class="section return"><dt>Returns</dt><dd>Stored value </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a885245b8e0f36624ffceaaa7526d43a6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -431,8 +474,8 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ArgParser</b></td></
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>D:/Dev/vs_projects/zupply/src/<a class="el" href="zupply_8hpp_source.html">zupply.hpp</a></li>
-<li>D:/Dev/vs_projects/zupply/src/zupply.cpp</li>
+<li><a class="el" href="zupply_8hpp_source.html">zupply.hpp</a></li>
+<li>zupply.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

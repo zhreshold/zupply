@@ -12579,7 +12579,7 @@ namespace zz
 			opt.shortKey_ = shortKey;
 			opt.longKey_ = longKey;
 			opt.set_help(help)
-				.call([this]{std::cout << this->get_help() << std::endl; std::exit(0); })
+				.call([this]{std::cout << "\n" << this->get_help() << std::endl; std::exit(0); })
 				.set_min(0).set_max(0);
 		}
 
@@ -13809,7 +13809,7 @@ namespace zz
 		}
 	}
 
-	void Image::resize(int height, int width)
+	void Image::resize(int width, int height)
 	{
 		assert(height > 0 && "height must > 0!");
 		assert(width > 0 && "width must > 0!");
@@ -13890,7 +13890,7 @@ namespace zz
 		}
 	}
 
-	void ImageHdr::resize(int height, int width)
+	void ImageHdr::resize(int width, int height)
 	{
 		assert(height > 0 && "height must > 0!");
 		assert(width > 0 && "width must > 0!");

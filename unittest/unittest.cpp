@@ -681,6 +681,11 @@ TEST_CASE("Image", "Image")
 	Image image3("save_test.bmp");
 	CHECK(image3.at(0, 0, 0) == 255);
 
+	Image img4 = image;
+	img4.resize(640, 480);
+	CHECK(img4.rows() == 480);
+	CHECK(img4.cols() == 640);
+
 	ImageHdr imghdr("save_test.bmp");
 	CHECK(imghdr.at(0, 0, 0) == Approx(1.0));
 	ImageHdr imghdr2(image, 255.f);

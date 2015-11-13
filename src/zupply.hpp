@@ -809,7 +809,7 @@ namespace zz
 		* \param height
 		* \param width
 		*/
-		void resize(int height, int width);
+		void resize(int width, int height);
 
 		/*!
 		* \brief resize Resize image given ratio to the old size
@@ -876,25 +876,25 @@ namespace zz
 		 * \param range The range of new stored data, normally 1.0 is used.
 		 */
 		void from_normal(const Image& from, float range = 1.0f);
+		
+		/*!
+		* \brief resize Resize image given new size
+		* \param sz
+		*/
+		void resize(Size sz);
 
 		/*!
 		* \brief resize Resize image given new height and width
 		* \param height
 		* \param width
 		*/
-		void resize(int height, int width);
+		void resize(int width, int height);
 
 		/*!
 		* \brief resize Resize image given ratio to the old size
 		* \param ratio
 		*/
 		void resize(double ratio);
-
-		/*!
-		* \brief resize Resize image given new size
-		* \param sz
-		*/
-		void resize(Size sz);
 	};
 
 
@@ -3389,6 +3389,8 @@ namespace zz
 				std::ostringstream buffer_;
 			};
 		}
+		
+		// \endcond
 
 		/*!
 		 * \brief The Progress bar class.
@@ -3441,6 +3443,7 @@ namespace zz
 			time::Timer				timer_;
 		};
 
+		// \cond
 		typedef enum LogLevelEnum
 		{
 			trace = 0,

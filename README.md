@@ -29,12 +29,13 @@ for reaserches/small projects/demos.
 - Cross-platform functions to handle [filesystems](https://github.com/ZhreShold/zupply/wiki/Filesystem). (create directory, check file existence, iterate through folder etc...)
 - Various [formatting](https://github.com/ZhreShold/zupply/wiki/Format) functions to (trim/split/replace/...) strings
 - Thread safe data structures for specific purposes
+- [ProgBar](https://github.com/ZhreShold/zupply/wiki/Progress-Bar) class that is designed for displaying progress bar inside consoles
+- [Image and ImageHdr](https://github.com/ZhreShold/zupply/wiki/Handle-image) class to do basic operations with image, for example, read(JPG, PNG, BMP, TGA, PSD, GIF, HDR, PIC)/write(JPG, PNG, TGA, BMP), crop, resize, pixel-wise access.
 - A lot more
 
 #### What's under construction
-- Image IO functions: to read/write JPEG/PNG/BMP/TGA and GIF probably
 - Serializer/Deserializer: for dump/read objects to/from string directly, binary should also be supported
-- Progress bar class that is easy to use
+
 
 ## Usage
 ##### zupply is designed to be as easy to integrate as possible, thus you can:
@@ -56,7 +57,7 @@ int main(int argc, char** argv)
 
 ##### Note: you will need a compiler which support C++11 features, the following compilers/libraries are tested
 
-##### Or you can start from scratch with quickstart.cpp in src folder
+#### You can start from scratch with quickstart.cpp in src folder
 - vc++12(Visual Studio 2013) or newer
 ```
 # create visual studio project require cmake
@@ -91,3 +92,4 @@ Zupply uses very permissive [MIT](https://opensource.org/licenses/MIT) license.
 
 ## Credits
 - [UTF8-CPP](http://utfcpp.sourceforge.net/)
+- [STB-Image](https://github.com/nothings/stb)

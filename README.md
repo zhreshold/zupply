@@ -23,7 +23,7 @@ for reaserches/small projects/demos.
 - Targeting Linux/Windows/Mac OS X/Partial Unix based OSes, meanwhile providing unified experience coding on each platform
 
 #### What's included
-- Command-line [Argument-parser](https://github.com/ZhreShold/zupply/wiki/Argument-Parser)
+- CLI [Argument-parser](https://github.com/ZhreShold/zupply/wiki/Argument-Parser)
 - INI/CFG [Configuration-file-parser](https://github.com/ZhreShold/zupply/wiki/Configuration-file-parser)
 - Easy to use [Timer and DateTime](https://github.com/ZhreShold/zupply/wiki/Date-and-Timer) classes to measure time and datetime
 - Fast sync/async [Logger](https://github.com/ZhreShold/zupply/wiki/Logger) with rich information and highly configurable

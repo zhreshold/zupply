@@ -39,7 +39,7 @@ for reaserches/small projects/demos.
 
 
 ## Usage
-##### zupply is designed to be as easy to integrate as possible, thus you can:
+#### zupply is designed to be as easy to integrate as possible, thus you can:
 - Copy **zupply.hpp** and **zupply.cpp** into your project
 - Start writing code
 ```c++

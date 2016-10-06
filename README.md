@@ -1,6 +1,6 @@
 # Zupply - A light-weight portable C++ 11 library for Researches and Demos
 
-[![Build Status](https://travis-ci.org/zhreshold/zupply.svg?branch=master)
+![Build Status](https://travis-ci.org/zhreshold/zupply.svg?branch=master)
 [![License](https://img.shields.io/:license-MIT-blue.svg)](./LICENSE)
 
 ## Introduction
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 # create visual studio project require cmake
 cd build & create_visual_studio_2013_project.bat
 ```
-- g++ 4.8.1 or newer(link pthread because gcc require it!!)
+- g++ 4.8.1 or newer(link pthread because gcc requires it!!)
 ```
 # with cmake
 cd build

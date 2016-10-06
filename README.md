@@ -1,6 +1,6 @@
 # Zupply - A light-weight portable C++ 11 library for Researches and Demos
 
-[![Build Status](https://travis-ci.org/ZhreShold/zupply.svg?branch=master)](https://travis-ci.org/ZhreShold/zupply)
+[![Build Status](https://travis-ci.org/zhreshold/zupply.svg?branch=master)
 [![License](https://img.shields.io/:license-MIT-blue.svg)](./LICENSE)
 
 ## Introduction

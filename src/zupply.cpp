@@ -39,7 +39,7 @@
 	|| defined(__FreeBSD__) || defined (__DragonFly__) \
 	|| defined(sgi) || defined(__sgi) \
 	|| (defined(__MACOSX__) || defined(__APPLE__)) \
-	|| defined(__CYGWIN__) || defined(__MINGW32__)
+	|| defined(__CYGWIN__)
 #define ZUPPLY_OS_UNIX	1	//!< Unix like OS(POSIX compliant)
 #undef ZUPPLY_OS_WINDOWS
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
@@ -11572,7 +11572,9 @@ namespace zz
 			// make sure directory exists for the target file
 			create_directory_recursive(path_split_directory(filename));
 #if ZUPPLY_OS_WINDOWS
-			stream.open(utf8_to_wstring(filename), openmode);
+            char* buffer = new char[filename.size()];
+            wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+			stream.open(buffer, openmode);
 #else
 			stream.open(filename, openmode);
 #endif
@@ -11581,7 +11583,9 @@ namespace zz
 		void ifstream_open(std::ifstream &stream, std::string filename, std::ios::openmode openmode)
 		{
 #if ZUPPLY_OS_WINDOWS
-			stream.open(utf8_to_wstring(filename), openmode);
+            char* buffer = new char[filename.size()];
+            wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+			stream.open(buffer, openmode);
 #else
 			stream.open(filename, openmode);
 #endif

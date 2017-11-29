@@ -11606,7 +11606,7 @@ namespace zz
 			std::ifstream  srcf;
 			std::fstream  dstf;
 			ifstream_open(srcf, src, std::ios::binary);
-			fstream_open(dstf, dst, std::ios::binary | std::ios::trunc);
+			fstream_open(dstf, dst, std::ios::binary | std::ios::trunc | std::ios::out);
 			dstf << srcf.rdbuf();
 			return true;
 		}
@@ -13809,7 +13809,7 @@ namespace zz
 		}
 	}
 
-	void Image::resize(int height, int width)
+	void Image::resize(int width, int height)
 	{
 		assert(height > 0 && "height must > 0!");
 		assert(width > 0 && "width must > 0!");

@@ -11256,7 +11256,7 @@ namespace zz
 		void Timer::pause()
 		{
 			if (paused_) return;
-			elapsed_ += elapsed_ns();
+			elapsed_ = elapsed_ns();
 
 			paused_ = true;
 		}

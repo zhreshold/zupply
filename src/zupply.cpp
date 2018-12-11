@@ -12412,10 +12412,23 @@ namespace zz
 			const std::size_t alignment = 26;
 			std::string ret;
 
+			std::string type;
+			for(char c: type_)
+			{
+				if(c == '\n')
+				{
+					type += ' ';
+				}
+				else
+				{
+					type += c;
+				}
+			}
+
 			// place holders
 			if (shortKey_ == -1 && longKey_.empty() && min_ > 0)
 			{
-				ret = "<" + type_ + ">";
+				ret = "<" + type + ">";
 			}
 			else
 			{
@@ -12430,10 +12443,10 @@ namespace zz
 					ret += "--";
 					ret += longKey_;
 				}
-				if (!type_.empty())
+				if (!type.empty())
 				{
 					ret.push_back('=');
-					ret += type_;
+					ret += type;
 				}
 			}
 
@@ -12480,19 +12493,72 @@ namespace zz
 
 			// type info
 			std::string st = "<" + type_ + ">";
+			std::vector<std::string> stvec;
+			if(type_.find('\n') != std::string::npos)
+			{
+				st = "";
+				for(char c: type_)
+				{
+					if(c == '\n') {
+						stvec.emplace_back("<" + st + ">");
+						st = "";
+					}
+					else
+					{
+						st += c;
+					}
+				}
+				if(!st.empty())
+				{
+					stvec.emplace_back("<" + st + ">");
+				}
+				while(stvec.size() <= min_)
+				{
+					stvec.emplace_back("<>");
+				}
+				st = "<" + type_ + ">";
+			}
 			if (min_ > 0)
 			{
 				if (required_) ret.push_back('=');
 				else ret.push_back(' ');
-				ret += st;
-				for (int i = 2; i < min_; ++i)
+				if(stvec.empty())
+				{
+					ret += st;
+				}
+				else
+				{
+					ret += stvec.at(0);
+				}
+				for (int i = 2; i < min_ + 1; ++i)
 				{
 					ret.push_back(' ');
-					ret += st;
+					if(stvec.empty())
+					{
+						ret += st;
+					}
+					else
+					{
+						ret += stvec.at(i - 1);
+					}
 				}
 				if (max_ == -1 || max_ > min_)
 				{
-					ret += " {" + st + "}...";
+					if(stvec.empty())
+					{
+						ret += " {" + st + "}...";
+					}
+					else
+					{
+						for(int i = min_ + 1; i < stvec.size(); ++i)
+						{
+							ret += stvec.at(i - 1);
+						}
+						if(stvec.size() < max_ + 1)
+						{
+							ret += " {" + stvec.back() + "}...";
+						}
+					}
 				}
 			}
 
@@ -12806,9 +12872,9 @@ namespace zz
 				{
 					errors_.push_back("[ArgParser Error]: Required option not found: " + o.get_short_help());
 				}
-				if (o.count_ > 1 && o.min_ > o.size_)
+				if (o.count_ >= 1 && o.min_ > o.size_)
 				{
-					errors_.push_back("[ArgParser Error]:" + o.get_short_help() + " need at least " + std::to_string(o.min_) + " arguments.");
+					errors_.push_back("[ArgParser Error]:" + o.get_short_help() + " needs at least " + std::to_string(o.min_) + " arguments.");
 				}
 				if (o.count_ > 1 && o.once_)
 				{

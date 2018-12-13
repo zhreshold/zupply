@@ -627,6 +627,67 @@ TEST_CASE("arg-argParser", "arg-parser")
 	CHECK(d == Approx(-0.5));
 }
 
+TEST_CASE("multi-arg-argParser", "multi-arg-parser")
+{
+	cfg::ArgParser p;
+	p.add_opt_help('h', "help");
+	std::vector<int> v = { 1, 2, 3, 4 };
+	p.add_opt_value('v', "values", v, v, "vector of int to do", "INT\nINT\nINT\nINT").require().set_min(4).set_max(4);
+	std::vector<double> g = {0.0, 0.0};
+	p.add_opt_value('f', "float", g, g, "vector of double values", "DOUBLE").set_max(2);
+
+	// write a test case for argc and argv
+	int argc = 2;
+	char* argv[] = { (char*)"unittest", (char*)"-h" };
+
+	// p.parse(argc, argv, false);
+
+	std::string help = p.get_help();
+	auto help_lines = zz::fmt::split(help, '\n');
+	std::vector<std::string> actual_options;
+	std::string usage_line;
+	for(const auto& line: help_lines)
+	{
+		std::string trimmed = zz::fmt::ltrim(line);
+		if(trimmed.length() > 0 && trimmed[0] == '-')
+		{
+			actual_options.emplace_back(trimmed);
+		} else if(trimmed.length() > 0 && trimmed[0] == 'U')
+		{
+			usage_line = trimmed;
+		}
+	}
+
+	SECTION("help usage")
+	{
+		CHECK(usage_line == "Usage: program  [-h] -v=<INT> <INT> <INT> <INT> [-f <DOUBLE> {<DOUBLE>}...]");
+	}
+
+	SECTION("help integer vector")
+	{
+		for(const auto& opt: actual_options)
+		{
+			if(opt.length() > 1 && opt[1] == 'v')
+			{
+				CHECK(opt.substr(0, 28) == "-v, --values=INT INT INT INT");
+				break;
+			}
+		}
+	}
+
+	SECTION("help double vector")
+	{
+		for(const auto& opt: actual_options)
+		{
+			if(opt.length() > 1 && opt[1] == 'f')
+			{
+				CHECK(opt.substr(0, 18) == "-f, --float=DOUBLE");
+				break;
+			}
+		}
+	}
+}
+
 TEST_CASE("logger", "logger")
 {
 	const char* fn1 = "test1.log";

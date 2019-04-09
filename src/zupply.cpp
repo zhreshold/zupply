@@ -11572,9 +11572,11 @@ namespace zz
 			// make sure directory exists for the target file
 			create_directory_recursive(path_split_directory(filename));
 #if ZUPPLY_OS_WINDOWS
-            char* buffer = new char[filename.size()];
-            wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+      char* buffer = new char[filename.size() + 1];
+      wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+			buffer[filename.size()] = '\0';
 			stream.open(buffer, openmode);
+			delete [] buffer;
 #else
 			stream.open(filename, openmode);
 #endif
@@ -11583,9 +11585,11 @@ namespace zz
 		void ifstream_open(std::ifstream &stream, std::string filename, std::ios::openmode openmode)
 		{
 #if ZUPPLY_OS_WINDOWS
-            char* buffer = new char[filename.size()];
-            wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+      char* buffer = new char[filename.size() + 1];
+      wcstombs(buffer,utf8_to_wstring(filename).c_str(),filename.size());
+			buffer[filename.size()] = '\0';
 			stream.open(buffer, openmode);
+			delete [] buffer;
 #else
 			stream.open(filename, openmode);
 #endif

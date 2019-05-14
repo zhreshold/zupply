@@ -4146,6 +4146,8 @@ namespace zz
 				{
 				}
 
+				~SimpleFileSink() { flush(); }
+
 				void flush() override
 				{
 					fileEditor_.flush();
@@ -4174,6 +4176,8 @@ namespace zz
 			{
 			public:
 				RotateFileSink(const std::string filename, std::size_t maxSizeInByte, bool backup);
+
+				~RotateFileSink() { flush(); }
 
 				void flush() override
 				{
@@ -4218,6 +4222,8 @@ namespace zz
 					:ostream_(os), name_(name), forceFlush_(forceFlush)
 				{
 				}
+
+				~OStreamSink() { flush(); }
 
 				std::string name() const override
 				{

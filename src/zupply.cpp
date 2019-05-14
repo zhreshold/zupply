@@ -13161,7 +13161,9 @@ namespace zz
 
 		namespace detail
 		{
-			static void signal_terminate(int) {
+			static bool signal_handler_set = false;
+
+			static void terminate_signal_handler(int) {
 				auto loggers = LoggerRegistry::instance().get_all();
 				for (auto logger : loggers) {
 					logger->detach_all_sinks();
@@ -13172,7 +13174,10 @@ namespace zz
 			LoggerRegistry& LoggerRegistry::instance()
 			{
 				static LoggerRegistry sInstance;
-				signal(SIGINT, signal_terminate);
+				if (!signal_handler_set) {
+					signal(SIGINT, terminate_signal_handler);
+					signal_handler_set = true;
+				}
 				return sInstance;
 			}
 

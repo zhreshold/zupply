@@ -95,6 +95,7 @@
 #include <cstring>
 #include <deque>
 #include <cstdarg>
+#include <csignal>
 
 // UTF8CPP
 #include <stdexcept>
@@ -13160,9 +13161,18 @@ namespace zz
 
 		namespace detail
 		{
+			static void signal_terminate(int) {
+				auto loggers = LoggerRegistry::instance().get_all();
+				for (auto logger : loggers) {
+					logger->detach_all_sinks();
+				}
+				exit(0);
+			}
+
 			LoggerRegistry& LoggerRegistry::instance()
 			{
 				static LoggerRegistry sInstance;
+				signal(SIGINT, signal_terminate);
 				return sInstance;
 			}
 

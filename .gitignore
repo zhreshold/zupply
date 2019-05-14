@@ -3,6 +3,7 @@
 
 # Custom
 cache/
+.vscode/*
 
 # User-specific files
 *.suo
